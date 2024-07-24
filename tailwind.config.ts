@@ -1,17 +1,15 @@
-import type { Config as TailwindConfig } from 'tailwindcss';
-
-const tailwindConfig: TailwindConfig = {
-  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
-  darkMode: 'class',
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+ 
+    // Or if using `src` directory:
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
   theme: {
-    extend: {
-      fontFamily: {
-        sans: ['var(--font-inter)'],
-        mono: ['var(--font-jetbrains-mono)'],
-      },
-    },
+    extend: {},
   },
   plugins: [],
-};
-
-export default tailwindConfig;
+}
