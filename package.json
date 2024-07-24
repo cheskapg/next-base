@@ -1,10 +1,7 @@
 {
   "name": "next-base",
   "version": "1.1.0",
-  "description": "A Sensible, Clean NextJS Base",
-  "repository": "github:lpke/next-base",
-  "author": "Luke Perich <luke@lpdev.io> (https://lpdev.io)",
-  "license": "UNLICENSED",
+
   "private": true,
   "packageManager": "pnpm@",
   "scripts": {
