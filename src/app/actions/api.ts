@@ -1,13 +1,13 @@
-"use server";
+/* eslint-disable import/order */
+/* eslint-disable @typescript-eslint/no-throw-literal */
+// "use server";
 
 // import IPatient from "../interface/IPatient";
-// import Patient from "../models/Patient";
-import { mapToUpdatePatientDto, mapToPatient, mapToPcp } from "../utils/mapper";
+import { mapToUpdatePatientDto, mapToPatient, mapToPcp } from "../utils/mapper"
 // import { removeNullAttributes } from "../utils/helper";
-import RegionSpecificDetails from "../interface/RegionSpecificDetails";
-// import ApiResponse from "../interface/ApiResponse";
-import Pcp from "../models/Pcp";
-
+import Patient from "../models/Patient";
+import Pcp from "@/models/Pcp";
+import RegionSpecificDetails from "@/interface/RegionSpecificDetails";// import ApiResponse from "../interface/ApiResponse";
 export const updatePatientDetails = async (patient: any, step: number): Promise<any> => {
   try {
     console.log('Calling Map Patient Details');

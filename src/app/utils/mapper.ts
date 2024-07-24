@@ -4,7 +4,7 @@ import IPatient from "@/interface/IPatient";
 import { UpdatePatientDto } from "../dto/UpdatePatientDto";
 // import Patient from "../models/Patient";
 import ICenter from "../interface/ICenter";
-
+import IPhysician from "../interface/IPcp";
 
 export const mapToPatient = (data: any): IPatient => {
     const patient: any = {} as IPatient;
@@ -42,6 +42,16 @@ export const mapToPatient = (data: any): IPatient => {
     // patient.dob = data.dateOfBirth || null;
     patient.personId = data.personId || 0;
     return patient;
+  };
+  export const mapToPcp = (data: any): IPhysician[] => {
+    const pcp: any = {} as IPhysician[];
+    // Dynamically copy properties from data to patient
+    Object.keys(data).forEach((key) => {
+      pcp[key] = data[key];
+    });
+    // Handle fields that might not be present in the response
+   
+    return pcp;
   };
 
   export const mapToUpdatePatientDto = (data: any) => {

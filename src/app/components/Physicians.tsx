@@ -66,7 +66,7 @@ export default function Physician() {
       <div className="p-4">
         <div className=" mt-4 relative items-center">
           <div className="flex gap-4">
-            <div className="p-0.5 rounded-lg border border-sky-700 justify-center items-center inline-flex">
+            <div className="p-0.5 rounded-lg border border-sky-700 w-6 h-6  justify-center items-center inline-flex">
               <input
                 id="havePhysician"
                 type="checkbox"
@@ -129,7 +129,7 @@ export default function Physician() {
         </div>
         <div className=" mt-4 relative items-center">
           <div className="flex gap-4">
-            <div className="p-0.5 rounded-lg border border-sky-700 justify-center items-center inline-flex">
+            <div className="p-0.5 w-6 h-6  rounded-lg border border-sky-700 justify-center items-center inline-flex">
               <input
                 id="wantPhysician"
                 type="checkbox"
@@ -150,7 +150,7 @@ export default function Physician() {
         </div>
         <div className=" mt-4 relative items-center">
           <div className="flex gap-4">
-            <div className="p-0.5 rounded-lg border border-sky-700 justify-center items-center inline-flex">
+            <div className="p-0.5 w-6 h-6 rounded-lg border border-sky-700 justify-center items-center inline-flex">
               <input
                 id="noPhysician"
                 type="checkbox"
