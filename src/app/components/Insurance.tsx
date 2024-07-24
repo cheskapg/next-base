@@ -21,14 +21,14 @@ export default function Insurance() {
   const { onHandleNext, onHandleBack, setPatientData, patientData } =
     useFormState();
   //   console.log("insurance " + patientData);
- 
+
   const { values, errors, handleSubmit, handleChange, setFieldValue } =
     useFormik({
       initialValues: {
         insuranceCarrier: patientData ? patientData.insuranceCarrier : '',
         subscriberId: patientData ? patientData.subscriberId : '',
         hasInsurance: patientData ? patientData.hasInsurance : '',
-        
+
         insuranceFirstName: patientData ? patientData.insuranceFirstName : '',
         insuranceLastName: patientData ? patientData.insuranceLastName : '',
         insuranceDob: patientData ? patientData.insuranceDob : '',
@@ -39,7 +39,7 @@ export default function Insurance() {
         insuranceCity: patientData ? patientData.insuranceCity : '',
         insuranceState: patientData ? patientData.insuranceState : '',
         insuranceZip: patientData ? patientData.insuranceZip : '',
-        isValidInsurance: patientData ? patientData.isValidInsurance : 'false',
+        isValidInsurance: patientData ? patientData.isValidInsurance : '',
         insuranceSubscriber: patientData ? patientData.insuranceSubscriber : '',
         subscriberDob: patientData ? patientData.subscriberDob : '',
       },
@@ -65,7 +65,6 @@ export default function Insurance() {
     insuranceState: '';
     insuranceZip: '';
     subscriberDob: '';
-  
   };
 
   const [isLoading, setIsLoading] = useState(false);
@@ -80,11 +79,8 @@ export default function Insurance() {
       values.isValidInsurance = 'true';
       console.log(`test${values.isValidInsurance}`);
       console.log(values.isValidInsurance);
-
-
     }, 3000); // 3 seconds delay (adjust as needed)
   };
-
 
   const onHandleFormSubmit = (data: TFormValues) => {
     //setPatientData((prev: any) => ({ ...prev, ...data }));
@@ -106,17 +102,23 @@ export default function Insurance() {
       <div
         className={`flex flex-1 flex-col p-6 ${values.insuranceSubscriber === '1' || values.insuranceSubscriber === undefined ? 'h-screen' : 'h-full'} `}
       >
-     
-        <div className="text-xl ">{values.isValidInsurance === 'true' ? 'Insurance Details' :'Do you have health Insurance?' } </div>
+        <div className="text-xl ">
+          {values.isValidInsurance === 'true'
+            ? 'Insurance Details'
+            : 'Do you have health Insurance?'}{' '}
+        </div>
 
         {/* Do you have insurance */}
-        <div className={`flex flex-col ${values.isValidInsurance !== 'true' ? 'block' : 'hidden'}`}>
+        <div
+          className={`flex flex-col ${values.isValidInsurance !== 'true' ? 'block' : 'hidden'}`}
+        >
           <div className="relative mt-4 items-center">
             <div className="flex gap-4">
               <div className="flex h-6 w-6 justify-center self-center rounded-lg border border-sky-700 p-0.5">
                 <input
                   id="hasInsurance"
                   type="checkbox"
+                  disabled={isLoading}
                   name="hasInsurance"
                   checked={values.hasInsurance === '1'}
                   onChange={() => handleCheckboxChange('1')}
@@ -141,12 +143,11 @@ export default function Insurance() {
             {errors.hasInsurance as string}
           </div>
         </div>
-        
 
         {/* Carrier Section*/}
         <div
           id="carrierSection"
-          className={`flex h-full flex-1 flex-col bg-[#e8f2f5] p-4 ${values.hasInsurance !== '1' && values.isValidInsurance !== true ? 'hidden' : 'block'}  ${isLoading ? "bg-[#e8f2f5]" : ""}`}
+          className={`flex h-full flex-1 flex-col bg-[#e8f2f5] p-4 ${!values.isValidInsurance && values.isValidInsurance !== 'true' && values.hasInsurance ==='1' ? 'block' : 'hidden'}`}
         >
           {/* Who is the insurance carrier */}
           <div className="relative mt-4 items-center">
@@ -157,8 +158,7 @@ export default function Insurance() {
                 value={values.insuranceCarrier}
                 onChange={handleChange}
                 disabled={isLoading}
-
-                className={`w-full  rounded-lg  px-4 py-2 pt-6  border-[#6e787a]  ${isLoading ? "bg-[#e8f2f5]" : "border"}` }
+                className={`w-full  rounded-lg  border-[#6e787a] px-4 py-2  pt-6  ${isLoading ? 'bg-[#e8f2f5]' : 'border'}`}
               >
                 <option value="Cigna HMO/PPO">Cigna HMO/PPO</option>
                 <option value="Kaiser Permanente">Kaiser Permanente</option>
@@ -179,7 +179,7 @@ export default function Insurance() {
             </div>
             <label
               htmlFor="insuranceCarrier"
-              className={`absolute ${isLoading ? "bg-[#e8f2f5]" : ""} left-0 top-0 ml-4 mt-2 text-xs text-black-4 `}
+              className={`absolute ${isLoading ? 'bg-[#e8f2f5]' : ''} text-black-4 left-0 top-0 ml-4 mt-2 text-xs `}
             >
               Who is the insurance carrier?
             </label>
@@ -195,10 +195,10 @@ export default function Insurance() {
                   onChange={handleChange}
                   disabled={isLoading}
                   name="subscriberId"
-                  className={`    ${isLoading ? " bg-[#e8f2f5] text-[#6e787a]" : "border"} border-[#6e787a] w-full rounded-lg px-4 py-2 pt-6`}
+                  className={`    ${isLoading ? ' bg-[#e8f2f5] text-[#6e787a]' : 'border'} w-full rounded-lg border-[#6e787a] px-4 py-2 pt-6`}
                 />
                 <svg
-                  className={` absolute left-[90%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values.isValidInsurance !== 'true' ? 'hidden' : 'block'}  ${isLoading ? "bg-[#e8f2f5]" : ""}`}
+                  className={` absolute left-[90%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values.isValidInsurance !== 'true' ? 'hidden' : 'block'}  ${isLoading ? 'bg-[#e8f2f5]' : ''}`}
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
                   height="16"
@@ -214,7 +214,7 @@ export default function Insurance() {
 
               <label
                 htmlFor="subscriberId"
-                className={`absolute text-black-4 left-0 top-0  ml-4 mt-2 text-xs  ${isLoading ? "bg-[#e8f2f5]" : ""}`}
+                className={`text-black-4 absolute left-0 top-0  ml-4 mt-2 text-xs  ${isLoading ? 'bg-[#e8f2f5]' : ''}`}
               >
                 Subscriber Id
               </label>
@@ -224,9 +224,11 @@ export default function Insurance() {
               and numbers.
             </div>
           </div>
-       
+
           {/* Add Subscriber Date of Birth */}
-          <div className={` ${values.isValidInsurance !== 'true' ? '' : ''}  relative flex w-full`}>
+          <div
+            className={` ${values.isValidInsurance !== 'true' ? '' : ''}  relative flex w-full`}
+          >
             <input
               type="date"
               id="subscriberDob"
@@ -234,15 +236,14 @@ export default function Insurance() {
               value={values.subscriberDob}
               onChange={handleChange}
               disabled={isLoading}
-
-              className={`border ${errors.dateOfBirth ? 'border-zest-6' : ''}  ${values.isValidInsurance !== 'true' ? '' : ''} w-full appearance-none  rounded-lg px-4 py-2 pt-6  ${isLoading ? "bg-[#e8f2f5] ring-0 outline-0 border-0 placeholder:text-black-4" : "border"}`}
+              className={`border ${errors.dateOfBirth ? 'border-zest-6' : ''}  ${values.isValidInsurance !== 'true' ? '' : ''} w-full appearance-none  rounded-lg px-4 py-2 pt-6  ${isLoading ? 'placeholder:text-black-4 border-0 bg-[#e8f2f5] outline-0 ring-0' : 'border'}`}
               placeholder="mm/dd/yyyy"
             ></input>
             <label
               htmlFor="subscriberDobLbl"
               className={`text-black-4 absolute left-0 top-0 ml-4 mt-2 text-xs ${errors.dateOfBirth ? 'text-zest-6' : ''}`}
             >
-              Patient&apos;s Date of Birth{' '}
+              Subscriber Date of Birth
               <span className={`text-zest-6 text-xs font-normal `}>*</span>
             </label>
             <img
@@ -540,10 +541,8 @@ export default function Insurance() {
             </div>
           </div>
         </div>
-        {/* Validation Status */}
-        <div
-          className={`${values.isValidInsurance !== 'true' ? 'hidden' : 'block'}`}
-        >
+        {/* Validation Status  for testing */}
+        <div className={`${isLoading ? 'block' : 'hidden'}`}>
           <div className="mt-4 items-center justify-center gap-10 rounded border border-emerald-50 bg-[#31936e]/25 ">
             <div className=" text-status-green-text py-3 text-center text-sm font-bold">
               Valid Insurance
@@ -551,13 +550,16 @@ export default function Insurance() {
           </div>
         </div>
         {/* No i dont have */}
-        <div className={`flex flex-col ${values.isValidInsurance !== 'true' ? 'block' : 'hidden'}`}>        
-            <div className="relative mt-4 items-center">
+        <div
+          className={`flex flex-col ${values.isValidInsurance !== 'true' ? 'block' : 'hidden'}`}
+        >
+          <div className="relative mt-4 items-center">
             <div className="flex gap-4">
               <div className="flex h-6 w-6 justify-center self-center rounded-lg border border-sky-700 p-0.5">
                 <input
                   id="hasInsurance"
                   type="checkbox"
+                  disabled={isLoading}
                   checked={values.hasInsurance === '0'}
                   onChange={() => handleCheckboxChange('0')}
                   className="peer-not rounded-md border-hidden p-0.5"
@@ -599,44 +601,45 @@ export default function Insurance() {
           </button>
         </div> */}
 
- {/* Validate FOR TESTING */}
- <div className={`py-4 ${values.isValidInsurance !== 'true' ? 'block' : 'hidden'}`}>
-        <button
-          id="validate"
-          type="button"
-          onClick={handleValidation}
-          className={`bg-spruce-4 w-full rounded-3xl py-2 text-center text-white relative`}
+        {/* Validate FOR TESTING */}
+        <div
+          className={`py-4 ${!values.isValidInsurance && values.isValidInsurance !== 'true' && values.hasInsurance ==='1' ? 'block' : 'hidden'} ${isLoading ? 'bg-[#e8f2f5]' : ''}`}
         >
-          {isLoading ? (
-            <span className=" flex items-center   justify-center">
-            <svg
-              className="animate-spin h-5 w-5 mr-3"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Loading...
-          </span>
-          ) : (
-            'Validate Insurance'
-          
-          )}
-        </button>
-      </div>
+          <button
+            id="validate"
+            type="button"
+            onClick={handleValidation}
+            className={`bg-spruce-4 relative w-full rounded-3xl py-2 text-center text-white`}
+          >
+            {isLoading ? (
+              <span className=" flex items-center   justify-center">
+                <svg
+                  className="mr-3 h-5 w-5 animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Loading...
+              </span>
+            ) : (
+              'Validate Insurance'
+            )}
+          </button>
+        </div>
 
         {/* Action */}
         <div
@@ -646,9 +649,16 @@ export default function Insurance() {
             <button
               id="back"
               onClick={(e) => {
-                values.isValidInsurance = 'false';
-                onHandleBack();    
-                       }}
+                handleChange(e);
+              
+                if(values.isValidInsurance=== 'true'){
+                  values.isValidInsurance = 'false';
+                  values.hasInsurance = '1';
+                }
+                else{
+                    onHandleBack();
+                }
+              }}
               className={` w-full rounded-3xl border-2 border-slate-600 py-2 text-center font-semibold text-black `}
             >
               Back
