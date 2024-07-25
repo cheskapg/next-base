@@ -104,7 +104,7 @@ export default function Insurance() {
   };
 
   const [isLoading, setIsLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   const onHandleFormSubmit = (data: TFormValues) => {
     console.log(`test${JSON.stringify(data)}`);
@@ -119,13 +119,33 @@ export default function Insurance() {
   };
 
   const handleNext = () => {
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      onHandleNext(); // Navigate to the next page if there are no more steps
+    switch (currentStep) {
+      case 1:
+        if (values[`hasInsurance`] === '1') {
+          setCurrentStep(currentStep + 1);
+        }
+        else{
+          onHandleNext();
+        }
+        break;
+      case 3:
+        if (values[`hasInsurance2`] === '1') {
+          setCurrentStep(currentStep + 1);
+        }
+        else{
+          onHandleNext();
+        }
+        break;
+      default:
+        if (currentStep < 4) {
+          setCurrentStep(currentStep + 1);
+        } else {
+          onHandleNext(); // Navigate to the next page if there are no more steps
+        }
+        break;
     }
   };
-  
+
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
@@ -133,7 +153,6 @@ export default function Insurance() {
       onHandleBack(); // Navigate to the previous page if at the beginning of the steps
     }
   };
-
 
   const handleValidation = () => {
     // Simulate loading state
@@ -187,7 +206,7 @@ export default function Insurance() {
             handleChange={handleChange}
             setFieldValue={setFieldValue}
             errors={errors}
-            handleCheckboxChange={handleCheckboxChange}
+            // handleCheckboxChange={handleCheckboxChange}
             handleValidation={handleValidation}
             isLoading={isLoading}
             section=""
@@ -206,7 +225,7 @@ export default function Insurance() {
             handleChange={handleChange}
             setFieldValue={setFieldValue}
             errors={errors}
-            handleCheckboxChange={handleCheckboxChange}
+            // handleCheckboxChange={handleCheckboxChange}
             handleValidation={handleValidation}
             isLoading={isLoading}
             section="2"
@@ -243,9 +262,51 @@ export default function Insurance() {
                 e.preventDefault();
                 handleNext();
               }}
-              className={` w-full  rounded-3xl bg-spruce-4 py-2 text-center font-semibold  text-white `}
+              className="w-full rounded-3xl bg-spruce-4 py-2 text-center font-semibold text-white"
             >
-              Validate Insurance
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="mr-3 h-5 w-5 animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Loading...
+                </span>
+              ) : (
+                <>
+                  {currentStep === 1 && values[`hasInsurance`] === '1' ? (
+                    <span>Validate</span>
+                  ) : currentStep === 1 ? (
+                    <span>Next</span>
+                  ) : null}
+
+                  {currentStep === 2 && <span>Next for Step 2</span>}
+
+                  {currentStep === 3 && values[`hasInsurance2`] === '1' ? (
+                    <span>Validate</span>
+                  ) : currentStep === 3 ? (
+                    <span>Next</span>
+                  ) : null}
+
+                  {currentStep === 4 && <span>Submit</span>}
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -568,7 +629,7 @@ const DoYouHaveInsuranceForm = ({
   handleChange,
   setFieldValue,
   errors,
-  handleCheckboxChange,
+  // handleCheckboxChange,
   handleValidation,
   isLoading,
   section,
@@ -577,15 +638,13 @@ const DoYouHaveInsuranceForm = ({
   handleChange: any;
   setFieldValue: any;
   errors: any;
-  handleCheckboxChange: any;
+  // handleCheckboxChange: any;
   handleValidation: any;
   isLoading: any;
   section: any;
 }) => (
   <>
-    <div
-      className={`flex flex-col ${values.isValidInsurance !== 'true' ? 'block' : 'hidden'}`}
-    >
+    <div className={`flex flex-col `}>
       <div className="relative mt-4 items-center">
         <div className="flex gap-4">
           <div className="flex h-6 w-6 justify-center self-center rounded-lg border border-sky-700 p-0.5">
@@ -594,7 +653,8 @@ const DoYouHaveInsuranceForm = ({
               type="checkbox"
               disabled={isLoading}
               name="hasInsurance"
-              checked={values.hasInsurance === '1'}
+              checked={values[`hasInsurance${section}`] === '1'}
+              onChange={() => setFieldValue(`hasInsurance${section}`, '1')}
               // onChange={() => handleCheckboxChange('1')}
               className="peer-not rounded-md border-hidden p-0.5"
             ></input>
@@ -618,7 +678,7 @@ const DoYouHaveInsuranceForm = ({
       </div>
     </div>
     {/* Carrier section */}
-    {values.hasInsurance === '1' && (
+    {values[`hasInsurance${section}`] === '1' && (
       <div
         id="carrierSection"
         className={`flex h-full flex-1 flex-col bg-[#e8f2f5] p-4 `}
@@ -637,7 +697,7 @@ const DoYouHaveInsuranceForm = ({
               <option value="Kaiser Permanente">Kaiser Permanente</option>
             </select>
             <svg
-              className={` absolute left-[85%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values.isValidInsurance !== 'true' ? 'hidden' : 'block'} `}
+              className={` absolute left-[85%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values[`isValidInsuranc${section}`] !== 'true' ? 'hidden' : 'block'} `}
               xmlns="http://www.w3.org/2000/svg"
               width="16"
               height="16"
@@ -700,9 +760,7 @@ const DoYouHaveInsuranceForm = ({
         </div>
 
         {/* Add Subscriber Date of Birth */}
-        <div
-          className={` ${values.isValidInsurance !== 'true' ? '' : ''}  relative flex w-full`}
-        >
+        <div className={`  relative flex w-full`}>
           <input
             type="date"
             id="subscriberDob"
@@ -710,12 +768,12 @@ const DoYouHaveInsuranceForm = ({
             value={values[`subscriberDob${section}`]}
             onChange={handleChange}
             disabled={isLoading}
-            className={`border ${errors.dateOfBirth ? 'border-zest-6' : ''}  ${values.isValidInsurance !== 'true' ? '' : ''} w-full appearance-none  rounded-lg px-4 py-2 pt-6  ${isLoading ? 'border-0 bg-[#e8f2f5] outline-0 ring-0 placeholder:text-black-4' : 'border'}`}
+            className={`border ${errors[`dateOfBirth${section}`] ? 'border-zest-6' : ''}  ${values[`isValidInsurance${section}`] !== 'true' ? '' : ''} w-full appearance-none  rounded-lg px-4 py-2 pt-6  ${isLoading ? 'border-0 bg-[#e8f2f5] outline-0 ring-0 placeholder:text-black-4' : 'border'}`}
             placeholder="mm/dd/yyyy"
           ></input>
           <label
             htmlFor="subscriberDobLbl"
-            className={`absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4 ${errors.dateOfBirth ? 'text-zest-6' : ''}`}
+            className={`absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4 $${errors[`dateOfBirth${section}`] ? 'text-zest-6' : ''}`}
           >
             Subscriber Date of Birth
             <span className={`text-xs font-normal text-zest-6 `}>*</span>
@@ -730,7 +788,7 @@ const DoYouHaveInsuranceForm = ({
         </div>
 
         <div className={`pl-4 text-xs font-normal text-zest-6`}>
-          {errors.dateOfBirth as string}
+          {errors[`dateOfBirth${section}`] as string}
         </div>
       </div>
     )}
@@ -761,7 +819,7 @@ const DoYouHaveInsuranceForm = ({
               disabled={isLoading}
               name={`hasInsurance${section}`}
               checked={values[`hasInsurance${section}`] === '0'}
-              onChange={() => setFieldValue(`hasInsurance${section}`, '1')}
+              onChange={() => setFieldValue(`hasInsurance${section}`, '0')}
               className="peer-not rounded-md border-hidden p-0.5"
             ></input>
           </div>
@@ -791,7 +849,7 @@ const DoYouHaveInsuranceForm = ({
       <button
         id="validate"
         type="button"
-        onClick={handleValidation}
+        // onClick={handleValidation}
         className={`relative w-full rounded-3xl bg-spruce-4 py-2 text-center text-white`}
       >
         {isLoading ? (
