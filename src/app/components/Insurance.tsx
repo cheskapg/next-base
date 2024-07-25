@@ -21,6 +21,16 @@ export default function Insurance() {
   const { onHandleNext, onHandleBack, setPatientData, patientData } =
     useFormState();
   //   console.log("insurance " + patientData);
+  const onHandleFormSubmit = (data: TFormValues) => {
+    //setPatientData((prev: any) => ({ ...prev, ...data }));
+    console.log(`test${JSON.stringify(data)}`);
+    onHandleNext();
+  };
+  const onHandleBackBtn = (data: TFormValues) => {
+    setPatientData((prev: any) => ({ ...prev, ...data }));
+    console.log(`back${JSON.stringify(patientData)}`);
+    onHandleBack();
+  };
 
   const { values, errors, handleSubmit, handleChange, setFieldValue } =
     useFormik({
@@ -70,22 +80,33 @@ export default function Insurance() {
   const [isLoading, setIsLoading] = useState(false);
   const handleValidation = () => {
     // Simulate loading state
-    setIsLoading(true);
+    if (values.hasInsurance && values.hasInsurance === '1') {
+      setIsLoading(true);
 
-    // Simulate validation delay
-    setTimeout(() => {
-      // Update state after validation
-      setIsLoading(false);
-      values.isValidInsurance = 'true';
-      console.log(`test${values.isValidInsurance}`);
-      console.log(values.isValidInsurance);
-    }, 3000); // 3 seconds delay (adjust as needed)
+      // Simulate validation delay
+      setTimeout(() => {
+        // Update state after validation
+        setIsLoading(false);
+        values.isValidInsurance = 'true';
+        console.log(`test${values.isValidInsurance}`);
+        console.log(values.isValidInsurance);
+      }, 3000); // 3 seconds delay (adjust as needed)
+    }
   };
+  const falseValidation = () => {
+    // Simulate loading state
+    if (values.hasInsurance && values.hasInsurance === '1') {
+      setIsLoading(true);
 
-  const onHandleFormSubmit = (data: TFormValues) => {
-    //setPatientData((prev: any) => ({ ...prev, ...data }));
-    console.log(`test${JSON.stringify(data)}`);
-    onHandleNext();
+      // Simulate validation delay
+      setTimeout(() => {
+        // Update state after validation
+        setIsLoading(false);
+        values.isValidInsurance = 'false';
+        console.log(`test${values.isValidInsurance}`);
+        console.log(values.isValidInsurance);
+      }, 3000); // 3 seconds delay (adjust as needed)
+    }
   };
 
   const handleWithInsurance = (e: any) => {
@@ -139,7 +160,7 @@ export default function Insurance() {
             </div>
           </div>
 
-          <div className={`text-zest-6 text-xs font-normal `}>
+          <div className={`text-xs font-normal text-zest-6 `}>
             {errors.hasInsurance as string}
           </div>
         </div>
@@ -147,7 +168,7 @@ export default function Insurance() {
         {/* Carrier Section*/}
         <div
           id="carrierSection"
-          className={`flex h-full flex-1 flex-col bg-[#e8f2f5] p-4 ${!values.isValidInsurance && values.isValidInsurance !== 'true' && values.hasInsurance ==='1' ? 'block' : 'hidden'}`}
+          className={`flex h-full flex-1 flex-col bg-[#e8f2f5] p-4 ${!values.isValidInsurance && values.isValidInsurance !== 'true' && values.hasInsurance === '1' ? 'block' : 'hidden'}`}
         >
           {/* Who is the insurance carrier */}
           <div className="relative mt-4 items-center">
@@ -179,7 +200,7 @@ export default function Insurance() {
             </div>
             <label
               htmlFor="insuranceCarrier"
-              className={`absolute ${isLoading ? 'bg-[#e8f2f5]' : ''} text-black-4 left-0 top-0 ml-4 mt-2 text-xs `}
+              className={`absolute ${isLoading ? 'bg-[#e8f2f5]' : ''} left-0 top-0 ml-4 mt-2 text-xs text-black-4 `}
             >
               Who is the insurance carrier?
             </label>
@@ -214,12 +235,12 @@ export default function Insurance() {
 
               <label
                 htmlFor="subscriberId"
-                className={`text-black-4 absolute left-0 top-0  ml-4 mt-2 text-xs  ${isLoading ? 'bg-[#e8f2f5]' : ''}`}
+                className={`absolute left-0 top-0 ml-4  mt-2 text-xs text-black-4  ${isLoading ? 'bg-[#e8f2f5]' : ''}`}
               >
                 Subscriber Id
               </label>
             </div>
-            <div className=" text-black-2 text-sm">
+            <div className=" text-sm text-black-2">
               This is NOT group, issuer, or RX number and may contain letters
               and numbers.
             </div>
@@ -236,15 +257,15 @@ export default function Insurance() {
               value={values.subscriberDob}
               onChange={handleChange}
               disabled={isLoading}
-              className={`border ${errors.dateOfBirth ? 'border-zest-6' : ''}  ${values.isValidInsurance !== 'true' ? '' : ''} w-full appearance-none  rounded-lg px-4 py-2 pt-6  ${isLoading ? 'placeholder:text-black-4 border-0 bg-[#e8f2f5] outline-0 ring-0' : 'border'}`}
+              className={`border ${errors.dateOfBirth ? 'border-zest-6' : ''}  ${values.isValidInsurance !== 'true' ? '' : ''} w-full appearance-none  rounded-lg px-4 py-2 pt-6  ${isLoading ? 'border-0 bg-[#e8f2f5] outline-0 ring-0 placeholder:text-black-4' : 'border'}`}
               placeholder="mm/dd/yyyy"
             ></input>
             <label
               htmlFor="subscriberDobLbl"
-              className={`text-black-4 absolute left-0 top-0 ml-4 mt-2 text-xs ${errors.dateOfBirth ? 'text-zest-6' : ''}`}
+              className={`absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4 ${errors.dateOfBirth ? 'text-zest-6' : ''}`}
             >
               Subscriber Date of Birth
-              <span className={`text-zest-6 text-xs font-normal `}>*</span>
+              <span className={`text-xs font-normal text-zest-6 `}>*</span>
             </label>
             <img
               width={18}
@@ -255,8 +276,24 @@ export default function Insurance() {
             ></img>
           </div>
 
-          <div className={`text-zest-6 pl-4 text-xs font-normal`}>
+          <div className={`pl-4 text-xs font-normal text-zest-6`}>
             {errors.dateOfBirth as string}
+          </div>
+          <div className={`${isLoading ? 'block' : 'hidden'}`}>
+            {/* Validation status inside the carrier */}
+            <div
+              className={`mt-4 items-center justify-center gap-10 rounded border   ${
+                values.isValidInsurance === 'true'
+                  ? 'bg-[#31936e]/25  text-status-green-text'
+                  : 'bg-[#d13e27]/25 text-status-red-text'
+              }`}
+            >
+              <div className=" py-3 text-center text-sm font-bold ">
+                {values.isValidInsurance === 'true'
+                  ? 'Valid Insurance'
+                  : 'Invalid Insurance'}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -271,18 +308,19 @@ export default function Insurance() {
               id="insuranceSubscriber"
               name="insuranceSubscriber"
               onChange={handleChange}
-              className="border-poise-2 w-full rounded-lg border px-4 py-2 pt-6"
+              className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
             >
               <option value="">-- Select an Option --</option>
               <option value="1">Patient</option>
               <option value="2">Mother</option>
               <option value="3">Father</option>
               <option value="4">Guardian</option>
+              <option value="5">Spouse</option>
             </select>
 
             <label
               htmlFor="insuranceSubscriber"
-              className="text-black-4 absolute left-0 top-0 ml-4 mt-2 text-xs"
+              className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
             >
               Who is the subscriber?
             </label>
@@ -297,12 +335,12 @@ export default function Insurance() {
                 id="firstName"
                 placeholder="John"
                 name="firstName"
-                className="border-poise-2 w-full rounded-lg border px-4 py-2 pt-6"
+                className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
               />
 
               <label
                 htmlFor="firstName"
-                className="text-black-4 absolute left-0 top-0 ml-4 mt-2 text-xs"
+                className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
               >
                 Patient&apos;s Legal First Name
               </label>
@@ -313,12 +351,12 @@ export default function Insurance() {
                 id="lastName"
                 placeholder="Doe"
                 name="lastName"
-                className="border-poise-2 w-full rounded-lg border px-4 py-2 pt-6"
+                className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
               />
 
               <label
                 htmlFor="lastName"
-                className="text-black-4 absolute left-0 top-0 ml-4 mt-2 text-xs"
+                className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
               >
                 Patient&apos;s Legal Last Name
               </label>
@@ -329,12 +367,12 @@ export default function Insurance() {
                 type="date"
                 id="dob"
                 name="dob"
-                className="border-poise-2 text-black-4 w-full  rounded-lg border py-2 pt-6"
+                className="w-full rounded-lg border  border-poise-2 py-2 pl-4 pt-6 text-black-4"
                 placeholder="mm/dd/yyyy"
               ></input>
               <label
                 htmlFor="dobLbl"
-                className="text-black-4 absolute left-0 top-0 ml-4 mt-2 text-xs"
+                className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
               >
                 Patient&apos;s Date of Birth
               </label>
@@ -346,30 +384,35 @@ export default function Insurance() {
                 <input
                   type="tel"
                   placeholder="(555) 555-5555"
-                  className=" border-poise-2 w-full rounded-lg px-4 py-2 pt-6"
+                  className=" w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
                 ></input>
-                <label className="text-black-4 absolute left-0 top-0 ml-4 mt-2 text-xs">
+                <label className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4">
                   Phone Number
                 </label>
               </div>
             </div>
 
             {/* Same as Patient */}
-            <div className="relative mt-4 items-center">
-              <input
-                type="checkbox"
-                name="sameAsPatientChkBox"
-                id="sameAsPatientChkBox"
-                onChange={handleChange}
-                placeholder="Same address as patient"
-                className=" border-poise-2 rounded-md px-2 py-2 pt-2"
-              ></input>
+            <div className="flex flex-row ml-2 mt-4 items-center">
+              <div className="inline-flex h-6 w-6 flex-col items-center justify-center rounded-lg  border">
+                <input
+                  type="checkbox"
+                  name="sameAsPatientChkBox"
+                  id="sameAsPatientChkBox"
+                  onChange={handleChange}
+                  placeholder="Same address as patient"
+                  className="  h-5 w-4 rounded-xl border border-[#dbddde]"
+                ></input>
+              </div>
+              <div>
               <label
                 htmlFor="sameAsPatientChkBox"
-                className="text-black-4 absolute left-0 top-0 ml-8 mt-1 text-sm"
+                className="ml-4 items-center text-sm text-black-4"
               >
-                Same as patient
+                Same address as patient
               </label>
+              </div>
+          
             </div>
 
             {/* Address */}
@@ -378,11 +421,11 @@ export default function Insurance() {
                 type="text"
                 id="address"
                 placeholder="999 High Garden"
-                className="border-poise-2 w-full rounded-lg border px-4 py-2 pt-6"
+                className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
               />
               <label
                 htmlFor="address"
-                className="text-black-4 absolute left-0 top-0 ml-4 mt-2 text-xs"
+                className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
               >
                 Address
               </label>
@@ -394,11 +437,11 @@ export default function Insurance() {
                 type="text"
                 id="address2"
                 placeholder="#1"
-                className="border-poise-2 w-full rounded-lg border px-4 py-2 pt-6"
+                className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
               />
               <label
                 htmlFor="address2"
-                className="text-black-4 absolute left-0 top-0 ml-4 mt-2 text-xs"
+                className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
               >
                 Apt. Suite, Unit, (Optional)
               </label>
@@ -410,11 +453,11 @@ export default function Insurance() {
                 type="text"
                 id="city"
                 placeholder="Winterfell"
-                className="border-poise-2 w-full rounded-lg border px-4 py-2 pt-6"
+                className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
               />
               <label
                 htmlFor="city"
-                className="text-black-4 absolute left-0 top-0 ml-4 mt-2 text-xs"
+                className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
               >
                 City
               </label>
@@ -426,7 +469,7 @@ export default function Insurance() {
                 <select
                   name="state"
                   id="state"
-                  className=" border-poise-2 w-full rounded-lg px-4 py-2 pt-6"
+                  className=" w-full rounded-lg border-poise-2 px-4 py-2 pt-6"
                 >
                   <option disabled defaultValue={''}>
                     -- State --
@@ -436,7 +479,7 @@ export default function Insurance() {
                   <option value="CA">NV</option>
                   <option value="CA">TX</option>
                 </select>
-                <label className="text-black-4 absolute left-0 top-0 ml-8 mt-2 text-xs">
+                <label className="absolute left-0 top-0 ml-8 mt-2 text-xs text-black-4">
                   State
                 </label>
               </div>
@@ -444,18 +487,18 @@ export default function Insurance() {
                 <input
                   type="text"
                   placeholder="-"
-                  className=" border-poise-2 w-full rounded-lg px-4 py-2 pt-6"
+                  className=" w-full rounded-lg border-poise-2 px-4 py-2 pt-6"
                 ></input>
-                <label className="text-black-4 absolute left-0 top-0 ml-8 mt-2 text-xs">
+                <label className="absolute left-0 top-0 ml-8 mt-2 text-xs text-black-4">
                   Zip / Postal Code
                 </label>
               </div>
             </div>
 
-            <div className=" pt-8 text-base font-medium text-black">
+            <div className=" text-black pt-8 text-base font-medium">
               Upload insurance card
             </div>
-            <div className="text-sm font-normal text-black">
+            <div className="text-black text-sm font-normal">
               If you have a digital insurance card, download or screenshot both
               sides to upload.
             </div>
@@ -542,13 +585,23 @@ export default function Insurance() {
           </div>
         </div>
         {/* Validation Status  for testing */}
-        <div className={`${isLoading ? 'block' : 'hidden'}`}>
-          <div className="mt-4 items-center justify-center gap-10 rounded border border-emerald-50 bg-[#31936e]/25 ">
-            <div className=" text-status-green-text py-3 text-center text-sm font-bold">
-              Valid Insurance
+        {/* <div
+            className={`${isLoading ? 'block' : 'hidden'}`}
+          >
+            <div className={`mt-4 items-center justify-center gap-10 rounded border border-emerald-50   ${
+              values.isValidInsurance === 'true'
+                ? 'text-status-green-text  bg-[#31936e]/25'
+                : 'text-status-red-text bg-[#d13e27]/25'
+            }`}>
+              <div className=" py-3 text-center text-sm font-bold ">
+                
+                {values.isValidInsurance === 'true'
+                  ? 'Valid Insurance'
+                  : 'Invalid Insurance'}
+                
+              </div>
             </div>
-          </div>
-        </div>
+          </div> */}
         {/* No i dont have */}
         <div
           className={`flex flex-col ${values.isValidInsurance !== 'true' ? 'block' : 'hidden'}`}
@@ -579,7 +632,7 @@ export default function Insurance() {
             </div>
           </div>
 
-          <div className={`text-zest-6 text-xs font-normal `}>
+          <div className={`text-xs font-normal text-zest-6 `}>
             {errors.hasInsurance as string}
           </div>
         </div>
@@ -601,15 +654,15 @@ export default function Insurance() {
           </button>
         </div> */}
 
-        {/* Validate FOR TESTING */}
+        {/* Validate Button FOR TESTING */}
         <div
-          className={`py-4 ${!values.isValidInsurance && values.isValidInsurance !== 'true' && values.hasInsurance ==='1' ? 'block' : 'hidden'} ${isLoading ? 'bg-[#e8f2f5]' : ''}`}
+          className={`py-4 ${!values.isValidInsurance && values.isValidInsurance !== 'true' && values.hasInsurance === '1' ? 'block' : 'hidden'} ${isLoading ? 'bg-[#e8f2f5]' : ''}`}
         >
           <button
-            id="validate"
+            id="falseValidate"
             type="button"
-            onClick={handleValidation}
-            className={`bg-spruce-4 relative w-full rounded-3xl py-2 text-center text-white`}
+            onClick={falseValidation}
+            className={`relative w-full rounded-3xl bg-spruce-4 py-2 text-center text-white`}
           >
             {isLoading ? (
               <span className=" flex items-center   justify-center">
@@ -650,27 +703,61 @@ export default function Insurance() {
               id="back"
               onClick={(e) => {
                 handleChange(e);
-              
-                if(values.isValidInsurance=== 'true'){
+
+                if (values.isValidInsurance === 'true') {
                   values.isValidInsurance = 'false';
-                  values.hasInsurance = '1';
-                }
-                else{
-                    onHandleBack();
+                  values.hasInsurance = null;
+                  onHandleBack();
                 }
               }}
-              className={` w-full rounded-3xl border-2 border-slate-600 py-2 text-center font-semibold text-black `}
+              className={` text-black w-full rounded-3xl border-2 border-slate-600 py-2 text-center font-semibold `}
             >
               Back
             </button>
           </div>
           <div className="w-4/6">
-            <button
-              id="Next"
-              className={` bg-spruce-4  w-full rounded-3xl py-2 text-center font-semibold  text-white `}
-            >
-              Validate Insurance
-            </button>
+            {values.hasInsurance ? (
+              <button
+                id={values.isValidInsurance === 'true' ? 'Next' : 'validate'}
+                onClick={handleValidation}
+                type="button"
+                className={` w-full  rounded-3xl bg-spruce-4 py-2 text-center font-semibold  text-white `}
+              >
+                {isLoading ? (
+                  <span className=" flex items-center   justify-center">
+                    <svg
+                      className="mr-3 h-5 w-5 animate-spin"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Loading...
+                  </span>
+                ) : (
+                  `${values.isValidInsurance === 'true' ? 'Next' : 'Validate'}`
+                )}
+              </button>
+            ) : (
+              <div
+                className={` w-full rounded-3xl  py-2 text-center text-sm font-normal text-[#5e6366]  `}
+              >
+                Select an option to proceed
+              </div>
+            )}
           </div>
         </div>
       </div>
