@@ -393,7 +393,7 @@ export default function Insurance() {
             </div>
 
             {/* Same as Patient */}
-            <div className="flex flex-row ml-2 mt-4 items-center">
+            <div className="ml-2 mt-4 flex flex-row items-center">
               <div className="inline-flex h-6 w-6 flex-col items-center justify-center rounded-lg  border">
                 <input
                   type="checkbox"
@@ -405,14 +405,13 @@ export default function Insurance() {
                 ></input>
               </div>
               <div>
-              <label
-                htmlFor="sameAsPatientChkBox"
-                className="ml-4 items-center text-sm text-black-4"
-              >
-                Same address as patient
-              </label>
+                <label
+                  htmlFor="sameAsPatientChkBox"
+                  className="ml-4 items-center text-sm text-black-4"
+                >
+                  Same address as patient
+                </label>
               </div>
-          
             </div>
 
             {/* Address */}
