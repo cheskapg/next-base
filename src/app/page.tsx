@@ -16,9 +16,11 @@
 //    </main>
 //   );
 // }
+import Head from "next/head";
 export default function Home() {
   return (
     <main className="h-screen">
+      
       <div className="flex h-screen items-center justify-center">
         <div className="w-[500px] rounded-lg bg-white p-16 shadow">
           <h1 className="text-2xl font-semibold text-gray-600">

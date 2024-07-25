@@ -14,6 +14,8 @@ import React, { useState } from 'react';
 // import Link from "@/node_modules/next/link";
 import { useFormik } from 'formik';
 import { useFormState } from './FormContext';
+import { DayPicker } from 'react-day-picker';
+
 import { handleWebpackExternalForEdgeRuntime } from 'next/dist/build/webpack/plugins/middleware-plugin';
 // import { insuranceSchema } from "../schemas/insurance";
 // import { loadUploadedImage } from "../utils/helper";
@@ -123,16 +125,14 @@ export default function Insurance() {
       case 1:
         if (values[`hasInsurance`] === '1') {
           setCurrentStep(currentStep + 1);
-        }
-        else{
+        } else {
           onHandleNext();
         }
         break;
       case 3:
         if (values[`hasInsurance2`] === '1') {
           setCurrentStep(currentStep + 1);
-        }
-        else{
+        } else {
           onHandleNext();
         }
         break;
@@ -177,141 +177,171 @@ export default function Insurance() {
   const handleCheckboxChange = (value: '0' | '1') => {
     setFieldValue('hasInsurance', value);
   };
+  // test date
+
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState(new Date());
 
   return (
-    <form onSubmit={handleSubmit} className="min-h-screen ">
-      <div
-        className={`flex flex-1 flex-col p-6 ${values.insuranceSubscriber === '1' || values.insuranceSubscriber === undefined ? 'h-screen' : 'h-full'} `}
-      >
-        <div className="text-xl ">
-          {(() => {
-            switch (currentStep) {
-              case 1:
-                return 'Do you have health insurance';
-              case 2:
-                return 'Insurance Details';
-              case 3:
-                return 'Do you have additional health insurance';
-              case 4:
-                return 'Additional Insurance Details';
-              default:
-                return 'Insurance';
-            }
-          })()}
-        </div>
-
-        {currentStep === 1 && (
-          <DoYouHaveInsuranceForm
-            values={values}
-            handleChange={handleChange}
-            setFieldValue={setFieldValue}
-            errors={errors}
-            // handleCheckboxChange={handleCheckboxChange}
-            handleValidation={handleValidation}
-            isLoading={isLoading}
-            section=""
-          />
-        )}
-        {currentStep === 2 && (
-          <SubscriberForm
-            values={values}
-            handleChange={handleChange}
-            section=""
-          />
-        )}
-        {currentStep === 3 && (
-          <DoYouHaveInsuranceForm
-            values={values}
-            handleChange={handleChange}
-            setFieldValue={setFieldValue}
-            errors={errors}
-            // handleCheckboxChange={handleCheckboxChange}
-            handleValidation={handleValidation}
-            isLoading={isLoading}
-            section="2"
-          />
-        )}
-        {currentStep === 4 && (
-          <SubscriberForm
-            values={values}
-            handleChange={handleChange}
-            section="2"
-          />
-        )}
-
-        {/* Action */}
+    <>
+         <input
+        type="date"
+        id="start"
+        name="trip-start"
+        value="2018-07-22"
+        min="2018-01-01"
+        max="2018-12-31"
+      />
+      <form onSubmit={handleSubmit} className="min-h-screen ">
         <div
-          className={`flex items-end gap-4 ${values.insuranceSubscriber === '1' || values.insuranceSubscriber === undefined ? 'h-full' : 'h-full'}`}
+          className={`flex flex-1 flex-col p-6 ${values.insuranceSubscriber === '1' || values.insuranceSubscriber === undefined ? 'h-screen' : 'h-full'} `}
         >
-          <div className="w-2/6 ">
-            <button
-              id="back"
-              onClick={(e) => {
-                e.preventDefault();
-                handleBack();
-              }}
-              className={` text-black w-full rounded-3xl border-2 border-slate-600 py-2 text-center font-semibold `}
-            >
-              Back
-            </button>
+          <div className="text-xl ">
+            {(() => {
+              switch (currentStep) {
+                case 1:
+                  return 'Do you have health insurance';
+                case 2:
+                  return 'Insurance Details';
+                case 3:
+                  return 'Do you have additional health insurance';
+                case 4:
+                  return 'Additional Insurance Details';
+                default:
+                  return 'Insurance';
+              }
+            })()}
           </div>
-          <div className="w-4/6">
-            <button
-              id="Next"
-              onClick={(e) => {
-                e.preventDefault();
-                handleNext();
-              }}
-              className="w-full rounded-3xl bg-spruce-4 py-2 text-center font-semibold text-white"
-            >
-              {isLoading ? (
-                <span className="flex items-center justify-center">
-                  <svg
-                    className="mr-3 h-5 w-5 animate-spin"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Loading...
-                </span>
-              ) : (
-                <>
-                  {currentStep === 1 && values[`hasInsurance`] === '1' ? (
-                    <span>Validate</span>
-                  ) : currentStep === 1 ? (
-                    <span>Next</span>
-                  ) : null}
 
-                  {currentStep === 2 && <span>Next for Step 2</span>}
+          {currentStep === 1 && (
+            <DoYouHaveInsuranceForm
+              values={values}
+              handleChange={handleChange}
+              setFieldValue={setFieldValue}
+              errors={errors}
+              // handleCheckboxChange={handleCheckboxChange}
+              handleValidation={handleValidation}
+              isLoading={isLoading}
+              section=""
+            />
+          )}
+          {currentStep === 2 && (
+            <SubscriberForm
+              values={values}
+              handleChange={handleChange}
+              section=""
+            />
+          )}
+          {currentStep === 3 && (
+            <DoYouHaveInsuranceForm
+              values={values}
+              handleChange={handleChange}
+              setFieldValue={setFieldValue}
+              errors={errors}
+              // handleCheckboxChange={handleCheckboxChange}
+              handleValidation={handleValidation}
+              isLoading={isLoading}
+              section="2"
+            />
+          )}
+          {currentStep === 4 && (
+            <SubscriberForm
+              values={values}
+              handleChange={handleChange}
+              section="2"
+            />
+          )}
 
-                  {currentStep === 3 && values[`hasInsurance2`] === '1' ? (
-                    <span>Validate</span>
-                  ) : currentStep === 3 ? (
-                    <span>Next</span>
-                  ) : null}
+          {/* Action */}
+          <div
+            className={`flex items-end gap-4 ${values.insuranceSubscriber === '1' || values.insuranceSubscriber === undefined ? 'h-full' : 'h-full'}`}
+          >
+            <div className="w-2/6 ">
+              <button
+                id="back"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleBack();
+                }}
+                className={` text-black w-full rounded-3xl border-2 border-slate-600 py-2 text-center font-semibold `}
+              >
+                Back
+              </button>
+            </div>
+            <div className="w-4/6">
+              <button
+                id="Next"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNext();
+                }}
+                className="w-full rounded-3xl bg-spruce-4 py-2 text-center font-semibold text-white"
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <svg
+                      className="mr-3 h-5 w-5 animate-spin"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Loading...
+                  </span>
+                ) : (
+                  <>
+                    {currentStep === 1 && values[`hasInsurance`] === '1' ? (
+                      <span>Validate</span>
+                    ) : currentStep === 1 ? (
+                      <span>Next</span>
+                    ) : null}
 
-                  {currentStep === 4 && <span>Submit</span>}
-                </>
-              )}
-            </button>
+                    {currentStep === 2 && <span>Next for Step 2</span>}
+
+                    {currentStep === 3 && values[`hasInsurance2`] === '1' ? (
+                      <span>Validate</span>
+                    ) : currentStep === 3 ? (
+                      <span>Next</span>
+                    ) : null}
+
+                    {currentStep === 4 && <span>Submit</span>}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
+      </form>
+      <div className="relative mt-4 flex w-full">
+        <DayPicker
+          mode="single"
+          selected={selectedDate}
+          onSelect={setSelectedDate}
+          footer={
+            selectedDate
+              ? `Selected: ${selectedDate.toLocaleDateString()}`
+              : 'Pick a day.'
+          }
+        />
+        <input type="hidden" name="insuranceDob" value={values.insuranceDob} />
       </div>
-    </form>
+      {/* <label >Start date:</label> */}
+
+ 
+    </>
   );
 }
 
