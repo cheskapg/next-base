@@ -104,43 +104,84 @@ export default function Insurance() {
     isValidInsurance2: string;
     insuranceSubscriber2: string;
   };
+  //  for loader
+  const [isValidating, setIsValidating] = useState(false);
 
-  const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState<number>(1);
 
+  // Validation function to check if the subscriber ID is valid
+  const validateSubscriberId = (subscriberId: string) => {
+    // Define valid subscriber IDs
+    const validSubscriberIds = ['1111c'];
+
+    // Check if the provided subscriber ID is in the valid list
+    return validSubscriberIds.includes(subscriberId);
+  };
+  //for validation of insurance result show
+  const [isValidInsurance, setIsValidInsurance] = useState(false);
+  const [validationMessage, setValidationMessage] = useState('');
+
+  const handleValidation = (subscriberId: string, onSuccess: () => void) => {
+    setIsValidating(true);
+    setValidationMessage('Validating...');
+    // Simulate validation delay
+    setTimeout(() => {
+      if (validateSubscriberId(subscriberId)) {
+        setValidationMessage('Valid Insurance');
+        setIsValidInsurance(true);
+
+        // Proceed to next step after an additional 3-second delay
+        setTimeout(() => {
+          setIsValidating(false);
+          setValidationMessage('');
+          setIsValidInsurance(false); // Reset validation state for future submissions
+          onSuccess();
+        }, 3000); // 3 seconds delay
+      } else {
+        setValidationMessage('Invalid Subscriber ID');
+        setIsValidInsurance(false);
+        setIsValidating(false);
+      }
+    }, 2000); // Simulated validation time
+  };
   const onHandleFormSubmit = (data: TFormValues) => {
     console.log(`test${JSON.stringify(data)}`);
-
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      // Store the final data before moving to the next page
-      setPatientData((prev: any) => ({ ...prev, ...data }));
-      onHandleNext();
-    }
-  };
-
-  const handleNext = () => {
     switch (currentStep) {
       case 1:
-        if (values[`hasInsurance`] === '1') {
-          setCurrentStep(currentStep + 1);
+        if (validateSubscriberId(data[`subscriberId`])) {
+          if (data[`hasInsurance`] === '1') {
+            handleValidation(data[`subscriberId`], () => {
+              setCurrentStep(currentStep + 1);
+            });
+          } else {
+            setPatientData((prev: any) => ({ ...prev, ...data }));
+            onHandleNext();
+          }
         } else {
-          onHandleNext();
+          // Handle invalid subscriber ID scenario
+          console.error('Invalid subscriber ID');
         }
         break;
       case 3:
-        if (values[`hasInsurance2`] === '1') {
-          setCurrentStep(currentStep + 1);
+        // Validate subscriber ID for step 3
+        if (validateSubscriberId(data[`subscriberId2`])) {
+          if (data[`hasInsurance2`] === '1') {
+            setCurrentStep(currentStep + 1);
+          } else {
+            setPatientData((prev: any) => ({ ...prev, ...data }));
+            onHandleNext();
+          }
         } else {
-          onHandleNext();
+          // Handle invalid subscriber ID scenario
+          console.error('Invalid additional subscriber ID');
+          // Optionally, you can show an error message to the user here
         }
-        break;
       default:
         if (currentStep < 4) {
           setCurrentStep(currentStep + 1);
         } else {
-          onHandleNext(); // Navigate to the next page if there are no more steps
+          setPatientData((prev: any) => ({ ...prev, ...data }));
+          onHandleNext();
         }
         break;
     }
@@ -154,44 +195,8 @@ export default function Insurance() {
     }
   };
 
-  const handleValidation = () => {
-    // Simulate loading state
-    setIsLoading(true);
-
-    // Simulate validation delay
-    setTimeout(() => {
-      // Update state after validation
-      setIsLoading(false);
-      values.isValidInsurance = 'true';
-      console.log(`test${values.isValidInsurance}`);
-      console.log(values.isValidInsurance);
-    }, 3000); // 3 seconds delay (adjust as needed)
-  };
-
-  // const handleWithInsurance = (e: any) => {
-  //   values.isValidInsurance = 'true';
-  //   console.log(`test${values.isValidInsurance}`);
-  //   //handleChange(values.isValidInsurance);
-  //   console.log(values.isValidInsurance);
-  // };
-  const handleCheckboxChange = (value: '0' | '1') => {
-    setFieldValue('hasInsurance', value);
-  };
-  // test date
-
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [startDate, setStartDate] = useState(new Date());
-
   return (
     <>
-         <input
-        type="date"
-        id="start"
-        name="trip-start"
-        value="2018-07-22"
-        min="2018-01-01"
-        max="2018-12-31"
-      />
       <form onSubmit={handleSubmit} className="min-h-screen ">
         <div
           className={`flex flex-1 flex-col p-6 ${values.insuranceSubscriber === '1' || values.insuranceSubscriber === undefined ? 'h-screen' : 'h-full'} `}
@@ -220,8 +225,9 @@ export default function Insurance() {
               setFieldValue={setFieldValue}
               errors={errors}
               // handleCheckboxChange={handleCheckboxChange}
-              handleValidation={handleValidation}
-              isLoading={isLoading}
+              isValidInsurance={isValidInsurance}
+              isValidating={isValidating}
+              validationMessage={validationMessage}
               section=""
             />
           )}
@@ -239,8 +245,10 @@ export default function Insurance() {
               setFieldValue={setFieldValue}
               errors={errors}
               // handleCheckboxChange={handleCheckboxChange}
-              handleValidation={handleValidation}
-              isLoading={isLoading}
+              isValidInsurance={isValidInsurance}
+              isValidating={isValidating}
+              validationMessage={validationMessage}
+
               section="2"
             />
           )}
@@ -273,11 +281,11 @@ export default function Insurance() {
                 id="Next"
                 onClick={(e) => {
                   e.preventDefault();
-                  handleNext();
+                  onHandleFormSubmit(values);
                 }}
                 className="w-full rounded-3xl bg-spruce-4 py-2 text-center font-semibold text-white"
               >
-                {isLoading ? (
+                {isValidating ? (
                   <span className="flex items-center justify-center">
                     <svg
                       className="mr-3 h-5 w-5 animate-spin"
@@ -325,22 +333,6 @@ export default function Insurance() {
           </div>
         </div>
       </form>
-      <div className="relative mt-4 flex w-full">
-        <DayPicker
-          mode="single"
-          selected={selectedDate}
-          onSelect={setSelectedDate}
-          footer={
-            selectedDate
-              ? `Selected: ${selectedDate.toLocaleDateString()}`
-              : 'Pick a day.'
-          }
-        />
-        <input type="hidden" name="insuranceDob" value={values.insuranceDob} />
-      </div>
-      {/* <label >Start date:</label> */}
-
- 
     </>
   );
 }
@@ -363,7 +355,7 @@ const SubscriberForm = ({
       <select
         id="insuranceSubscriber"
         name={`insuranceSubscriber${section}`}
-        value={values[`insuranceSubscriber${section}`]}
+        value={values[`insuranceSubscriber${section}`] || ''}
         onChange={handleChange}
         className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
       >
@@ -391,7 +383,8 @@ const SubscriberForm = ({
           id="firstName"
           placeholder="John"
           name={`insuranceFirstName${section}`}
-          value={values[`insuranceFirstName${section}`]}
+          value={values[`insuranceFirstName${section}`] || ''}
+          onChange={handleChange}
           className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
         />
 
@@ -407,8 +400,9 @@ const SubscriberForm = ({
         <input
           id="lastName"
           placeholder="Doe"
+          onChange={handleChange}
           name={`insuranceLastName${section}`}
-          value={values[`insuranceLastName${section}`]}
+          value={values[`insuranceLastName${section}`] || ''}
           className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
         />
 
@@ -426,7 +420,8 @@ const SubscriberForm = ({
           id="dob"
           // name="dob"
           name={`insuranceDob${section}`}
-          value={values[`insuranceDob${section}`]}
+          onChange={handleChange}
+          value={values[`insuranceDob${section}`] || ''}
           className="w-full rounded-lg border  border-poise-2 py-2 pt-6 text-black-4"
           placeholder="mm/dd/yyyy"
         ></input>
@@ -444,7 +439,8 @@ const SubscriberForm = ({
           <input
             type="tel"
             name={`insurancePhone${section}`}
-            value={values[`insurancePhone${section}`]}
+            onChange={handleChange}
+            value={values[`insurancePhone${section}`] || ''}
             placeholder="(555) 555-5555"
             className=" w-full rounded-lg border-poise-2 px-4 py-2 pt-6"
           ></input>
@@ -478,7 +474,8 @@ const SubscriberForm = ({
           type="text"
           id="address"
           name={`insuranceAddress${section}`}
-          value={values[`insuranceAddress${section}`]}
+          onChange={handleChange}
+          value={values[`insuranceAddress${section}`] || ''}
           placeholder="999 High Garden"
           className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
         />
@@ -496,7 +493,8 @@ const SubscriberForm = ({
           type="text"
           id="address2"
           name={`insuranceAddress2${section}`}
-          value={values[`insuranceAddress2${section}`]}
+          onChange={handleChange}
+          value={values[`insuranceAddress2${section}`] || ''}
           placeholder="#1"
           className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
         />
@@ -514,7 +512,8 @@ const SubscriberForm = ({
           type="text"
           id="city"
           name={`insuranceCity${section}`}
-          value={values[`insuranceCity${section}`]}
+          onChange={handleChange}
+          value={values[`insuranceCity${section}`] || ''}
           placeholder="Winterfell"
           className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
         />
@@ -533,7 +532,8 @@ const SubscriberForm = ({
             // name="state"
             id="state"
             name={`insuranceState${section}`}
-            value={values[`insuranceState${section}`]}
+            onChange={handleChange}
+            value={values[`insuranceState${section}`] || ''}
             className=" w-full rounded-lg border-poise-2 px-4 py-2 pt-6"
           >
             <option disabled defaultValue={''}>
@@ -553,7 +553,8 @@ const SubscriberForm = ({
             type="text"
             placeholder="-"
             name={`insuranceZip${section}`}
-            value={values[`insuranceZip${section}`]}
+            onChange={handleChange}
+            value={values[`insuranceZip${section}`] || ''}
             className=" w-full rounded-lg border-poise-2 px-4 py-2 pt-6"
           ></input>
           <label className="absolute left-0 top-0 ml-8 mt-2 text-xs text-black-4">
@@ -660,8 +661,9 @@ const DoYouHaveInsuranceForm = ({
   setFieldValue,
   errors,
   // handleCheckboxChange,
-  handleValidation,
-  isLoading,
+  isValidInsurance,
+  isValidating,
+  validationMessage,
   section,
 }: {
   values: any;
@@ -669,8 +671,9 @@ const DoYouHaveInsuranceForm = ({
   setFieldValue: any;
   errors: any;
   // handleCheckboxChange: any;
-  handleValidation: any;
-  isLoading: any;
+  isValidInsurance: any;
+  isValidating: any;
+  validationMessage: any;
   section: any;
 }) => (
   <>
@@ -681,7 +684,7 @@ const DoYouHaveInsuranceForm = ({
             <input
               id="hasInsurance"
               type="checkbox"
-              disabled={isLoading}
+              disabled={isValidating}
               name="hasInsurance"
               checked={values[`hasInsurance${section}`] === '1'}
               onChange={() => setFieldValue(`hasInsurance${section}`, '1')}
@@ -719,15 +722,16 @@ const DoYouHaveInsuranceForm = ({
             <select
               id="insuranceCarrier"
               name={`insuranceCarrier${section}`}
-              value={values[`insuranceCarrier${section}`]}
-              disabled={isLoading}
-              className={`w-full  rounded-lg  border-[#6e787a] px-4 py-2  pt-6  ${isLoading ? 'bg-[#e8f2f5]' : 'border'}`}
+              value={values[`insuranceCarrier${section}`] || ''}
+              onChange={handleChange}
+              disabled={isValidating}
+              className={`w-full  rounded-lg  border-[#6e787a] px-4 py-2  pt-6  ${isValidating ? 'bg-[#e8f2f5]' : 'border'}`}
             >
               <option value="Cigna HMO/PPO">Cigna HMO/PPO</option>
               <option value="Kaiser Permanente">Kaiser Permanente</option>
             </select>
             <svg
-              className={` absolute left-[85%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values[`isValidInsuranc${section}`] !== 'true' ? 'hidden' : 'block'} `}
+              className={` absolute left-[85%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values[`isValidInsuranc${section}`] || ''} !== 'true' ? 'hidden' : 'block'} `}
               xmlns="http://www.w3.org/2000/svg"
               width="16"
               height="16"
@@ -742,7 +746,7 @@ const DoYouHaveInsuranceForm = ({
           </div>
           <label
             htmlFor="insuranceCarrier"
-            className={`absolute ${isLoading ? 'bg-[#e8f2f5]' : ''} left-0 top-0 ml-4 mt-2 text-xs text-black-4 `}
+            className={`absolute ${isValidating ? 'bg-[#e8f2f5]' : ''} left-0 top-0 ml-4 mt-2 text-xs text-black-4 `}
           >
             Who is the insurance carrier?
           </label>
@@ -755,14 +759,14 @@ const DoYouHaveInsuranceForm = ({
                 id="subscriberId"
                 placeholder="Subscriber ID"
                 name={`subscriberId${section}`}
-                value={values[`subscriberId${section}`]}
+                value={values[`subscriberId${section}`] || ''}
                 onChange={handleChange}
-                disabled={isLoading}
+                disabled={isValidating}
                 // name="subscriberId"
-                className={`    ${isLoading ? ' bg-[#e8f2f5] text-[#6e787a]' : 'border'} w-full rounded-lg border-[#6e787a] px-4 py-2 pt-6`}
+                className={`    ${isValidating ? ' bg-[#e8f2f5] text-[#6e787a]' : 'border'} w-full rounded-lg border-[#6e787a] px-4 py-2 pt-6`}
               />
               <svg
-                className={` absolute left-[90%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values.isValidInsurance !== 'true' ? 'hidden' : 'block'}  ${isLoading ? 'bg-[#e8f2f5]' : ''}`}
+                className={` absolute left-[90%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values.isValidInsurance !== 'true' ? 'hidden' : 'block'}  ${isValidating ? 'bg-[#e8f2f5]' : ''}`}
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
                 height="16"
@@ -778,7 +782,7 @@ const DoYouHaveInsuranceForm = ({
 
             <label
               htmlFor="subscriberId"
-              className={`absolute left-0 top-0 ml-4  mt-2 text-xs text-black-4  ${isLoading ? 'bg-[#e8f2f5]' : ''}`}
+              className={`absolute left-0 top-0 ml-4  mt-2 text-xs text-black-4  ${isValidating ? 'bg-[#e8f2f5]' : ''}`}
             >
               Subscriber Id
             </label>
@@ -795,15 +799,15 @@ const DoYouHaveInsuranceForm = ({
             type="date"
             id="subscriberDob"
             name={`subscriberDob${section}`}
-            value={values[`subscriberDob${section}`]}
+            value={values[`subscriberDob${section}`] || ''}
             onChange={handleChange}
-            disabled={isLoading}
-            className={`border ${errors[`dateOfBirth${section}`] ? 'border-zest-6' : ''}  ${values[`isValidInsurance${section}`] !== 'true' ? '' : ''} w-full appearance-none  rounded-lg px-4 py-2 pt-6  ${isLoading ? 'border-0 bg-[#e8f2f5] outline-0 ring-0 placeholder:text-black-4' : 'border'}`}
+            disabled={isValidating}
+            className={`border ${errors[`dateOfBirth${section}`] || ''} ? 'border-zest-6' : ''}  ${values[`isValidInsurance${section}`] || ''} !== 'true' ? '' : ''} w-full appearance-none  rounded-lg px-4 py-2 pt-6  ${isValidating ? 'border-0 bg-[#e8f2f5] outline-0 ring-0 placeholder:text-black-4' : 'border'}`}
             placeholder="mm/dd/yyyy"
           ></input>
           <label
             htmlFor="subscriberDobLbl"
-            className={`absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4 $${errors[`dateOfBirth${section}`] ? 'text-zest-6' : ''}`}
+            className={`absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4 $${errors[`dateOfBirth${section}`] || ''} ? 'text-zest-6' : ''}`}
           >
             Subscriber Date of Birth
             <span className={`text-xs font-normal text-zest-6 `}>*</span>
@@ -822,20 +826,14 @@ const DoYouHaveInsuranceForm = ({
         </div>
       </div>
     )}
-
-    {/* Validation Status  for testing */}
-    {values.isValidInsurance !== 'true' ? (
-      <div className={``}>
-        <div className="mt-4 items-center justify-center gap-10 rounded border border-emerald-50 bg-[#31936e]/25 ">
-          <div className=" py-3 text-center text-sm font-bold text-status-green-text">
-            Valid Insurance
-          </div>
+    {isValidating && <div>{validationMessage}</div>}
+    {!isValidating && isValidInsurance && (
+      <div className="mt-4 items-center justify-center gap-10 rounded border border-emerald-50 bg-[#31936e]/25">
+        <div className="py-3 text-center text-sm font-bold text-status-green-text">
+          Valid Insurance
         </div>
       </div>
-    ) : (
-      <></>
     )}
-
     {/* No i dont have */}
     <div
       className={`flex flex-col ${values.isValidInsurance !== 'true' ? 'block' : 'hidden'}`}
@@ -846,7 +844,7 @@ const DoYouHaveInsuranceForm = ({
             <input
               id="hasInsurance"
               type="checkbox"
-              disabled={isLoading}
+              disabled={isValidating}
               name={`hasInsurance${section}`}
               checked={values[`hasInsurance${section}`] === '0'}
               onChange={() => setFieldValue(`hasInsurance${section}`, '0')}
@@ -874,7 +872,7 @@ const DoYouHaveInsuranceForm = ({
 
     {/* Validate button FOR TESTING */}
     <div
-      className={`py-4 ${!values.isValidInsurance && values.isValidInsurance !== 'true' && values.hasInsurance === '1' ? 'block' : 'hidden'} ${isLoading ? 'bg-[#e8f2f5]' : ''}`}
+      className={`py-4 ${!values.isValidInsurance && values.isValidInsurance !== 'true' && values.hasInsurance === '1' ? 'block' : 'hidden'} ${isValidating ? 'bg-[#e8f2f5]' : ''}`}
     >
       <button
         id="validate"
@@ -882,7 +880,7 @@ const DoYouHaveInsuranceForm = ({
         // onClick={handleValidation}
         className={`relative w-full rounded-3xl bg-spruce-4 py-2 text-center text-white`}
       >
-        {isLoading ? (
+        {isValidating ? (
           <span className=" flex items-center   justify-center">
             <svg
               className="mr-3 h-5 w-5 animate-spin"
