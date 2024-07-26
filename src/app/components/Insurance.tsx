@@ -119,31 +119,32 @@ export default function Insurance() {
   };
   //for validation of insurance result show
   const [isValidInsurance, setIsValidInsurance] = useState(false);
-  const [validationMessage, setValidationMessage] = useState('');
-
+  const [validationStatus, setValidationStatus] = useState(0);
+// 1 = validating 2 = done 0 is default state
   const handleValidation = (subscriberId: string, onSuccess: () => void) => {
     setIsValidating(true);
-    setValidationMessage('Validating...');
+    setValidationStatus(1);
     // Simulate validation delay
     setTimeout(() => {
       if (validateSubscriberId(subscriberId)) {
-        setValidationMessage('Valid Insurance');
+        setValidationStatus(2);
         setIsValidInsurance(true);
+        setIsValidating(false);
 
         // Proceed to next step after an additional 3-second delay
         setTimeout(() => {
-          setIsValidating(false);
-          setValidationMessage('');
+          setValidationStatus(0);
           setIsValidInsurance(false); // Reset validation state for future submissions
           onSuccess();
         }, 3000); // 3 seconds delay
       } else {
-        setValidationMessage('Invalid Subscriber ID');
+        setValidationStatus(2);
         setIsValidInsurance(false);
         setIsValidating(false);
       }
     }, 2000); // Simulated validation time
   };
+
   const onHandleFormSubmit = (data: TFormValues) => {
     console.log(`test${JSON.stringify(data)}`);
     switch (currentStep) {
@@ -159,7 +160,8 @@ export default function Insurance() {
           }
         } else {
           // Handle invalid subscriber ID scenario
-          console.error('Invalid subscriber ID');
+          handleValidation(data[`subscriberId`], () => {});
+          console.error('Invalidss subscriber ID');
         }
         break;
       case 3:
@@ -174,6 +176,7 @@ export default function Insurance() {
         } else {
           // Handle invalid subscriber ID scenario
           console.error('Invalid additional subscriber ID');
+
           // Optionally, you can show an error message to the user here
         }
       default:
@@ -227,7 +230,7 @@ export default function Insurance() {
               // handleCheckboxChange={handleCheckboxChange}
               isValidInsurance={isValidInsurance}
               isValidating={isValidating}
-              validationMessage={validationMessage}
+              validationStatus={validationStatus}
               section=""
             />
           )}
@@ -247,8 +250,7 @@ export default function Insurance() {
               // handleCheckboxChange={handleCheckboxChange}
               isValidInsurance={isValidInsurance}
               isValidating={isValidating}
-              validationMessage={validationMessage}
-
+              validationStatus={validationStatus}
               section="2"
             />
           )}
@@ -663,7 +665,7 @@ const DoYouHaveInsuranceForm = ({
   // handleCheckboxChange,
   isValidInsurance,
   isValidating,
-  validationMessage,
+  validationStatus,
   section,
 }: {
   values: any;
@@ -673,7 +675,7 @@ const DoYouHaveInsuranceForm = ({
   // handleCheckboxChange: any;
   isValidInsurance: any;
   isValidating: any;
-  validationMessage: any;
+  validationStatus: any;
   section: any;
 }) => (
   <>
@@ -824,16 +826,28 @@ const DoYouHaveInsuranceForm = ({
         <div className={`pl-4 text-xs font-normal text-zest-6`}>
           {errors[`dateOfBirth${section}`] as string}
         </div>
+   
+        {!isValidating && validationStatus == (2) && (
+          <div className={`${isValidInsurance ? ("text-status-green-text  bg-[#31936e]/25"):(" bg-[#d13e27]/25 text-status-red-text")} h-[33px] px-3 py-2 mt-4 rounded justify-center items-center gap-2.5 inline-flex`}>
+            <div
+              className={`text-center text-sm font-bold `}
+            >
+              {isValidInsurance ? "Valid Insurance" : "Invalid Insurance"}
+            </div>
+          </div>
+        )}
+        {/* {isValidating && !isValidInsurance && (
+          <div className="mt-4 items-center justify-center gap-10 rounded border border-emerald-50 bg-[#d13e27]/25 ">
+            <div
+              className={`} py-3 text-center text-sm font-bold text-status-red-text`}
+            >
+              Valid Insurance
+            </div>
+          </div>
+        )} */}
       </div>
     )}
-    {isValidating && <div>{validationMessage}</div>}
-    {!isValidating && isValidInsurance && (
-      <div className="mt-4 items-center justify-center gap-10 rounded border border-emerald-50 bg-[#31936e]/25">
-        <div className="py-3 text-center text-sm font-bold text-status-green-text">
-          Valid Insurance
-        </div>
-      </div>
-    )}
+
     {/* No i dont have */}
     <div
       className={`flex flex-col ${values.isValidInsurance !== 'true' ? 'block' : 'hidden'}`}
@@ -868,46 +882,6 @@ const DoYouHaveInsuranceForm = ({
       <div className={`text-xs font-normal text-zest-6 `}>
         {errors.hasInsurance as string}
       </div>
-    </div>
-
-    {/* Validate button FOR TESTING */}
-    <div
-      className={`py-4 ${!values.isValidInsurance && values.isValidInsurance !== 'true' && values.hasInsurance === '1' ? 'block' : 'hidden'} ${isValidating ? 'bg-[#e8f2f5]' : ''}`}
-    >
-      <button
-        id="validate"
-        type="button"
-        // onClick={handleValidation}
-        className={`relative w-full rounded-3xl bg-spruce-4 py-2 text-center text-white`}
-      >
-        {isValidating ? (
-          <span className=" flex items-center   justify-center">
-            <svg
-              className="mr-3 h-5 w-5 animate-spin"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Loading...
-          </span>
-        ) : (
-          'Validate Insurance'
-        )}
-      </button>
     </div>
   </>
 );
