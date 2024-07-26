@@ -1,6 +1,6 @@
 "use client";
 
-import Navbar from "@/app/components/Navbar";
+import Navbar from "../../../../components/Navbar";
 import { useEffect } from "react";
 
 export default async function Logout({ region }: { region: any }) {

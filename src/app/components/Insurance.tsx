@@ -17,6 +17,7 @@ import { useFormState } from './FormContext';
 import { DayPicker } from 'react-day-picker';
 
 import { handleWebpackExternalForEdgeRuntime } from 'next/dist/build/webpack/plugins/middleware-plugin';
+import { insuranceSchema } from '@/schemas/insurance';
 // import { insuranceSchema } from "../schemas/insurance";
 // import { loadUploadedImage } from "../utils/helper";
 
@@ -25,7 +26,7 @@ export default function Insurance() {
     useFormState();
   //   console.log("insurance " + patientData);
 
-  const { values, errors, handleSubmit, handleChange, setFieldValue } =
+  const { values, errors, handleSubmit, handleChange, isValid, setFieldValue } =
     useFormik({
       initialValues: {
         insuranceCarrier: patientData ? patientData.insuranceCarrier : '',
@@ -65,6 +66,9 @@ export default function Insurance() {
           : '',
         subscriberDob2: patientData ? patientData.subscriberDob2 : '',
       },
+
+      validationSchema: insuranceSchema,
+
       onSubmit: (values: any) => {
         onHandleFormSubmit(values);
       },
@@ -104,6 +108,40 @@ export default function Insurance() {
     isValidInsurance2: string;
     insuranceSubscriber2: string;
   };
+  // Function to reset Formik fields
+  const resetInsuranceFields = ( section?: number) => {
+    const fieldNames = [
+      'insuranceCarrier',
+      'insuranceFirstName',
+      'insuranceLastName',
+      'insuranceDob',
+      'insurancePhone',
+      'insuranceCountry',
+      'insuranceAddress',
+      'insuranceAddress2',
+      'insuranceCity',
+      'insuranceState',
+      'insuranceZip',
+      'isValidInsurance',
+      'insuranceSubscriber',
+      'subscriberDob',
+    ];
+
+  
+    fieldNames.forEach((field) => {
+      setFieldValue(`${field}${section || ''}`, '');
+    });
+
+    setPatientData((prev: any) => {
+      const newData = { ...prev };
+      fieldNames.forEach((field) => {
+        newData[`${field}${section || ''}`] = '';
+      });
+      return newData;
+    });
+   
+  };
+
   //  for loader
   const [isValidating, setIsValidating] = useState(false);
 
@@ -120,7 +158,8 @@ export default function Insurance() {
   //for validation of insurance result show
   const [isValidInsurance, setIsValidInsurance] = useState(false);
   const [validationStatus, setValidationStatus] = useState(0);
-// 1 = validating 2 = done 0 is default state
+  // 1 = validating 2 = done 0 is default state
+
   const handleValidation = (subscriberId: string, onSuccess: () => void) => {
     setIsValidating(true);
     setValidationStatus(1);
@@ -128,7 +167,7 @@ export default function Insurance() {
     setTimeout(() => {
       if (validateSubscriberId(subscriberId)) {
         setValidationStatus(2);
-        setIsValidInsurance(true);
+        setIsValidInsurance(true); // if valid - passed from validate sub Id
         setIsValidating(false);
 
         // Proceed to next step after an additional 3-second delay
@@ -139,7 +178,7 @@ export default function Insurance() {
         }, 3000); // 3 seconds delay
       } else {
         setValidationStatus(2);
-        setIsValidInsurance(false);
+        setIsValidInsurance(false); // if not valid
         setIsValidating(false);
       }
     }, 2000); // Simulated validation time
@@ -149,38 +188,44 @@ export default function Insurance() {
     console.log(`test${JSON.stringify(data)}`);
     switch (currentStep) {
       case 1:
-        if (validateSubscriberId(data[`subscriberId`])) {
-          if (data[`hasInsurance`] === '1') {
+        if (data[`hasInsurance`] === '1') {
+          if (validateSubscriberId(data[`subscriberId`])) {
             handleValidation(data[`subscriberId`], () => {
               setCurrentStep(currentStep + 1);
             });
           } else {
-            setPatientData((prev: any) => ({ ...prev, ...data }));
-            onHandleNext();
+            // Handle invalid subscriber ID scenario
+            handleValidation(data[`subscriberId`], () => {});
+            console.error('Invalidss subscriber ID');
           }
-        } else {
-          // Handle invalid subscriber ID scenario
-          handleValidation(data[`subscriberId`], () => {});
-          console.error('Invalidss subscriber ID');
         }
+        if (data[`hasInsurance`] === '0') {
+          // next page if no
+          setPatientData((prev: any) => ({ ...prev, ...data }));
+          onHandleNext();
+        }
+
         break;
       case 3:
         // Validate subscriber ID for step 3
-        if (validateSubscriberId(data[`subscriberId2`])) {
-          if (data[`hasInsurance2`] === '1') {
-            setCurrentStep(currentStep + 1);
+        if (data[`hasInsurance2`] === '1') {
+          if (validateSubscriberId(data[`subscriberId2`])) {
+            handleValidation(data[`subscriberId2`], () => {
+              setCurrentStep(currentStep + 1);
+            });
           } else {
-            setPatientData((prev: any) => ({ ...prev, ...data }));
-            onHandleNext();
+            handleValidation(data[`subscriberId2`], () => {});
+            console.error('Invalidss subscriber ID');
+            // Handle invalid subscriber ID scenario
           }
         } else {
-          // Handle invalid subscriber ID scenario
-          console.error('Invalid additional subscriber ID');
-
-          // Optionally, you can show an error message to the user here
+          setPatientData((prev: any) => ({ ...prev, ...data }));
+          onHandleNext();
         }
+        break;
       default:
         if (currentStep < 4) {
+          setPatientData((prev: any) => ({ ...prev, ...data }));
           setCurrentStep(currentStep + 1);
         } else {
           setPatientData((prev: any) => ({ ...prev, ...data }));
@@ -190,14 +235,69 @@ export default function Insurance() {
     }
   };
 
-  const handleBack = () => {
+  // const handleBack = () => {
+  //   if (currentStep > 1) {
+  //     // console.log("Previous Patient Data:", patientData);
+
+  //     // let data = { ...patientData };
+
+  //     // data = resetInsurance(data);
+  //     // setPatientData(data);
+  //     // console.log("Previous updatedData Data:", patientData);
+
+  //     console.log('Current Step:', currentStep);
+  //     console.log('Previous Patient Data:', patientData);
+
+  //     let updatedData = { ...patientData };
+
+  //     // Apply resetInsurance or resetInsurance2 based on the step
+  //     switch (currentStep) {
+  //       case 2:
+  //         updatedData = resetInsurance(updatedData);
+  //         break;
+  //       case 4:
+  //         updatedData = resetInsurance2(updatedData);
+  //         break;
+  //       default:
+  //         break;
+  //     }
+
+  //     // Update state with the modified data
+  //     setPatientData(updatedData);
+  //     console.log(' updatedData Data:', patientData);
+
+  //     // Move to the previous step
+  //     setCurrentStep(currentStep - 1);
+  //   } else {
+  //     onHandleBack(); // Navigate to the previous page if at the beginning of the steps
+  //   }
+  // };
+
+  const handleBack = (values: TFormValues) => {
     if (currentStep > 1) {
+      console.log(currentStep, 'back');
+      console.log('Current Step:', currentStep);
+
+      switch (currentStep) {
+        case 2:
+          resetInsuranceFields();
+          break;
+        case 4:
+          resetInsuranceFields(2);
+          break;
+        default:
+          if (currentStep < 4) {
+            setCurrentStep(currentStep + 1);
+          } else {
+            onHandleBack();
+          }
+          break;
+      }
       setCurrentStep(currentStep - 1);
     } else {
       onHandleBack(); // Navigate to the previous page if at the beginning of the steps
     }
   };
-
   return (
     <>
       <form onSubmit={handleSubmit} className="min-h-screen ">
@@ -271,67 +371,81 @@ export default function Insurance() {
                 id="back"
                 onClick={(e) => {
                   e.preventDefault();
-                  handleBack();
+                  handleBack(values);
                 }}
                 className={` text-black w-full rounded-3xl border-2 border-slate-600 py-2 text-center font-semibold `}
               >
                 Back
               </button>
             </div>
-            <div className="w-4/6">
-              <button
-                id="Next"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onHandleFormSubmit(values);
-                }}
-                className="w-full rounded-3xl bg-spruce-4 py-2 text-center font-semibold text-white"
-              >
-                {isValidating ? (
-                  <span className="flex items-center justify-center">
-                    <svg
-                      className="mr-3 h-5 w-5 animate-spin"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Loading...
-                  </span>
-                ) : (
-                  <>
-                    {currentStep === 1 && values[`hasInsurance`] === '1' ? (
-                      <span>Validate</span>
-                    ) : currentStep === 1 ? (
-                      <span>Next</span>
-                    ) : null}
+            {values[`hasInsurance`] === '0' ||
+            values[`hasInsurance`] === '1' ||
+            values[`hasInsurance2`] === '0' ||
+            values[`hasInsurance2`] === '1' ? (
+              <div className="w-4/6">
+                <button
+                  id="Next"
 
-                    {currentStep === 2 && <span>Next for Step 2</span>}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onHandleFormSubmit(values);
+                  }}
+                  className="w-full rounded-3xl bg-spruce-4 py-2 text-center font-semibold text-white"
+                >
+                  {isValidating ? (
+                    <span className="flex items-center justify-center">
+                      <svg
+                        className="mr-3 h-5 w-5 animate-spin"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Validating...
+                    </span>
+                  ) : (
+                    <>
+                      {currentStep === 1 && values[`hasInsurance`] === '1' ? (
+                        <span>Validate</span>
+                      ) : currentStep === 1 ? (
+                        <span>Next</span>
+                      ) : null}
 
-                    {currentStep === 3 && values[`hasInsurance2`] === '1' ? (
-                      <span>Validate</span>
-                    ) : currentStep === 3 ? (
-                      <span>Next</span>
-                    ) : null}
+                      {currentStep === 2 && <span>Next for Step 2</span>}
 
-                    {currentStep === 4 && <span>Submit</span>}
-                  </>
-                )}
-              </button>
-            </div>
+                      {currentStep === 3 && values[`hasInsurance2`] === '1' ? (
+                        <span>Validate</span>
+                      ) : currentStep === 3 ? (
+                        <span>Next</span>
+                      ) : null}
+
+                      {currentStep === 4 && <span>Submit</span>}
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="w-4/6">
+                <div className=" flex h-10 items-center justify-center gap-2.5 rounded-[100px] px-4 py-[17px]">
+                  <div className=" text-sm font-normal text-[#5e6366]">
+                    Select an option to proceed
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </form>
@@ -387,8 +501,8 @@ const SubscriberForm = ({
           name={`insuranceFirstName${section}`}
           value={values[`insuranceFirstName${section}`] || ''}
           onChange={handleChange}
-          className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
-        />
+          className={`border ${errors[`insuranceFirstName${section}`] ? 'border-zest-6' : 'border-poise-2'}  w-full rounded-lg px-4 py-2 pt-6 `}
+          />
 
         <label
           htmlFor="firstName"
@@ -826,25 +940,16 @@ const DoYouHaveInsuranceForm = ({
         <div className={`pl-4 text-xs font-normal text-zest-6`}>
           {errors[`dateOfBirth${section}`] as string}
         </div>
-   
-        {!isValidating && validationStatus == (2) && (
-          <div className={`${isValidInsurance ? ("text-status-green-text  bg-[#31936e]/25"):(" bg-[#d13e27]/25 text-status-red-text")} h-[33px] px-3 py-2 mt-4 rounded justify-center items-center gap-2.5 inline-flex`}>
-            <div
-              className={`text-center text-sm font-bold `}
-            >
-              {isValidInsurance ? "Valid Insurance" : "Invalid Insurance"}
+
+        {!isValidating && validationStatus == 2 && (
+          <div
+            className={`${isValidInsurance ? 'bg-[#31936e]/25  text-status-green-text' : ' bg-[#d13e27]/25 text-status-red-text'} mt-4 inline-flex h-[33px] items-center justify-center gap-2.5 rounded px-3 py-2`}
+          >
+            <div className={`text-center text-sm font-bold `}>
+              {isValidInsurance ? 'Valid Insurance' : 'Invalid Insurance'}
             </div>
           </div>
         )}
-        {/* {isValidating && !isValidInsurance && (
-          <div className="mt-4 items-center justify-center gap-10 rounded border border-emerald-50 bg-[#d13e27]/25 ">
-            <div
-              className={`} py-3 text-center text-sm font-bold text-status-red-text`}
-            >
-              Valid Insurance
-            </div>
-          </div>
-        )} */}
       </div>
     )}
 
@@ -883,5 +988,6 @@ const DoYouHaveInsuranceForm = ({
         {errors.hasInsurance as string}
       </div>
     </div>
+    <></>
   </>
 );
