@@ -27,7 +27,7 @@ export default function Insurance() {
   //   console.log("insurance " + patientData);
 
   const { values, errors, handleSubmit, handleChange, isValid, setFieldValue } =
-    useFormik({
+    useForWERWERmik({
       initialValues: {
         insuranceCarrier: patientData ? patientData.insuranceCarrier : '',
         subscriberId: patientData ? patientData.subscriberId : '',
@@ -339,6 +339,7 @@ export default function Insurance() {
               values={values}
               handleChange={handleChange}
               section=""
+              errors={errors}
             />
           )}
           {currentStep === 3 && (
@@ -359,6 +360,7 @@ export default function Insurance() {
               values={values}
               handleChange={handleChange}
               section="2"
+              errors={errors}
             />
           )}
 
@@ -461,6 +463,7 @@ const SubscriberForm = ({
   values: any;
   handleChange: any;
   section: any;
+  errors:any
 }) => (
   <div
     id="subsciberSection"
@@ -781,6 +784,7 @@ const DoYouHaveInsuranceForm = ({
   isValidating,
   validationStatus,
   section,
+
 }: {
   values: any;
   handleChange: any;

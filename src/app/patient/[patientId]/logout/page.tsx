@@ -6,8 +6,8 @@ import {
   fetchPatientRegistrationById,
   fetchRegionSpecificDetails,
   fetchSuffixList,
-} from "@/app/actions/api";
-import GlobalDropdowns from "@/app/interface/GlobalDropdowns";
+} from "../../../actions/api";
+import GlobalDropdowns from "../../../interface/GlobalDropdown";
 import Logout from "./section/Logout";
 import UnauthorizedContainer from "./section/Logout";
 
