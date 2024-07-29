@@ -70,7 +70,7 @@ export default function Insurance() {
     validateOnChange: true,
     // isValidating: true,
     validateOnBlur: true,
-    // enableReinitialize: true,
+    enableReinitialize: true,
 
     onSubmit: (values: any) => {
       onHandleFormSubmit(values);
@@ -165,17 +165,34 @@ export default function Insurance() {
   const handleValidation = (subscriberId: string, onSuccess: () => void) => {
     setIsValidating(true);
     setValidationStatus(1);
+    console.log(
+      isValidInsurance,
+      validationStatus,
+      'isValidInsurance validationStatus',
+    );
     // Simulate validation delay
     setTimeout(() => {
       if (validateSubscriberId(subscriberId)) {
         setValidationStatus(2);
         setIsValidInsurance(true); // if valid - passed from validate sub Id
         setIsValidating(false);
+        // Simulate validation delay
+        console.log(
+          isValidInsurance,
+          validationStatus,
+          'isValidInsurance validationStatus',
+        );
 
         // Proceed to next step after an additional 3-second delay
         setTimeout(() => {
           setValidationStatus(0);
           setIsValidInsurance(false); // Reset validation state for future submissions
+          console.log(
+            isValidInsurance,
+            validationStatus,
+            'isValidInsurance validationStatus',
+          );
+
           onSuccess();
         }, 3000); // 3 seconds delay
       } else {
@@ -203,43 +220,43 @@ export default function Insurance() {
     return hasErrors;
   };
   const [errorUpload, setErrorUpload] = useState(false);
-  const [frontInsuranceCard, setFrontInsuranceCard] = useState("");
-  const [backInsuranceCard, setBackInsuranceCard] = useState("");
+  const [frontInsuranceCard, setFrontInsuranceCard] = useState('');
+  const [backInsuranceCard, setBackInsuranceCard] = useState('');
 
   const fieldSets: FieldSets = {
     doYouHaveInsurance: ['subscriberId', 'subscriberDob'],
     doYouHaveInsurance2: ['subscriberId2', 'subscriberDob2'],
     subscriberForm: [
-      'insuranceCarrier',
+      'insuranceSubscriber',
       'insuranceFirstName',
       'insuranceLastName',
       'insuranceDob',
       'insurancePhone',
-      'insuranceCountry',
+      // 'insuranceCountry',
       'insuranceAddress',
-      'insuranceAddress2_',
+      // 'insuranceAddress2_',
       'insuranceCity',
-      'insuranceState',
+      // 'insuranceState',
       'insuranceZip',
-      'isValidInsurance',
-      'insuranceSubscriber',
-      'subscriberDob',
+      // 'isValidInsurance',
+      // 'insuranceSubscriber',
+      // 'subscriberDob',
     ],
     subscriberForm2: [
-      'insuranceCarrier2',
+      'insuranceSubscriber2',
       'insuranceFirstName2',
       'insuranceLastName2',
       'insuranceDob2',
       'insurancePhone2',
-      'insuranceCountry2',
+      // // 'insuranceCountry2',
       'insuranceAddress2',
-      'insuranceAddress2_2',
+      // // 'insuranceAddress2_2',
       'insuranceCity2',
-      'insuranceState2',
+      // 'insuranceState2',
       'insuranceZip2',
-      'isValidInsurance2',
-      'insuranceSubscriber2',
-      'subscriberDob2',
+      // 'isValidInsurance2',
+      // 'insuranceSubscriber2',
+      // 'subscriberDob2',
     ],
     // Add more field sets if needed
   };
@@ -297,11 +314,12 @@ export default function Insurance() {
         break;
 
       case 2:
-        const errorsPresent = await checkErrors('doYouHaveInsurance');
+        const errorsPresent = await checkErrors('subscriberForm');
         const formValid = isFormValid('subscriberForm', data);
 
         if (errorsPresent || !formValid) {
           console.error('Validation errors present or form is not valid');
+          console.error(formValid, errorsPresent, 'dafak');
           return; // Exit if there are errors or form is not valid
         }
 
@@ -311,10 +329,21 @@ export default function Insurance() {
       case 3:
         // Validate subscriber ID for step 3
         if (data[`hasInsurance2`] === '1') {
+          const errorsPresent = await checkErrors('doYouHaveInsurance2');
+          const formValid = isFormValid('doYouHaveInsurance2', data);
+
+          if (errorsPresent || !formValid) {
+            console.error('Validation errors present or form is not valid');
+            return; // Exit if there are errors or form is not valid
+          }
+
+
           if (validateSubscriberId(data[`subscriberId2`])) {
             handleValidation(data[`subscriberId2`], () => {
               setCurrentStep(currentStep + 1);
             });
+
+
           } else {
             handleValidation(data[`subscriberId2`], () => {});
             console.error('Invalidss subscriber ID');
@@ -324,6 +353,19 @@ export default function Insurance() {
           setPatientData((prev: any) => ({ ...prev, ...data }));
           onHandleNext();
         }
+        break;
+      case 4:
+        const errorsPresent2 = await checkErrors('subscriberForm2');
+        const formValid2 = isFormValid('subscriberForm2', data);
+
+        if (errorsPresent2 || !formValid2) {
+          console.error('Validation errors present or form is not valid');
+          console.error(formValid2, errorsPresent2, 'dafak');
+          return; // Exit if there are errors or form is not valid
+        }
+
+        setPatientData((prev: any) => ({ ...prev, ...data }));
+        setCurrentStep(currentStep + 1);
         break;
       default:
         if (currentStep < 4) {
@@ -346,6 +388,7 @@ export default function Insurance() {
       switch (currentStep) {
         case 2:
           resetInsuranceFields();
+          setValidationStatus(0);
           break;
         case 4:
           resetInsuranceFields(2);
@@ -366,7 +409,7 @@ export default function Insurance() {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="min-h-screen ">
+      <form onSubmit={handleSubmit} className="h-full min-h-screen">
         <div
           className={`flex flex-1 flex-col p-6 ${values.insuranceSubscriber === '1' || values.insuranceSubscriber === undefined ? 'h-screen' : 'h-full'} `}
         >
@@ -412,7 +455,7 @@ export default function Insurance() {
               errors={errors}
               errorUpload={errorUpload}
               setErrorUpload={setErrorUpload}
-             setFrontInsuranceCard={setFrontInsuranceCard}
+              setFrontInsuranceCard={setFrontInsuranceCard}
               setBackInsuranceCard={setBackInsuranceCard}
             />
           )}
@@ -449,7 +492,7 @@ export default function Insurance() {
 
           {/* Action */}
           <div
-            className={`flex items-end gap-4 ${values.insuranceSubscriber === '1' || values.insuranceSubscriber === undefined ? 'h-full' : 'h-full'}`}
+            className={` flex h-full items-end gap-4 ${values.insuranceSubscriber === '1' || values.insuranceSubscriber === undefined ? 'h-full' : 'h-full'}`}
           >
             <div className="w-2/6 ">
               <button
@@ -458,9 +501,9 @@ export default function Insurance() {
                   e.preventDefault();
                   handleBack(values);
                 }}
-                className={` text-black w-full rounded-3xl border-2 border-slate-600 py-2 text-center font-semibold `}
+                className={` text-black h-10  w-full rounded-3xl border-2 border-slate-600  text-center font-semibold `}
               >
-                Back
+                <span className="flex items-center justify-center">Back</span>
               </button>
             </div>
             {values[`hasInsurance`] === '0' ||
@@ -525,7 +568,7 @@ export default function Insurance() {
               </div>
             ) : (
               <div className="w-4/6">
-                <div className=" flex h-10 items-center justify-center gap-2.5 rounded-[100px] px-4 py-[17px]">
+                <div className=" flex h-10 items-center justify-center gap-2.5 rounded-[100px] px-4 ">
                   <div className=" text-sm font-normal text-[#5e6366]">
                     Select an option to proceed
                   </div>
@@ -550,8 +593,7 @@ const SubscriberForm = ({
   errorUpload,
   setErrorUpload,
   setFrontInsuranceCard,
-  setBackInsuranceCard
-
+  setBackInsuranceCard,
 }: {
   errors: any;
   values: any;
@@ -564,8 +606,7 @@ const SubscriberForm = ({
   setErrorUpload: any;
   setFrontInsuranceCard: any;
 
-  setBackInsuranceCard:any;
-  
+  setBackInsuranceCard: any;
 }) => (
   <div
     id="subsciberSection"
@@ -578,13 +619,20 @@ const SubscriberForm = ({
         name={`insuranceSubscriber${section}`}
         value={values[`insuranceSubscriber${section}`] || ''}
         onChange={handleChange}
-        className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
+        className={`w-full rounded-lg border border-poise-2 px-4 py-2 pt-6  ${
+          touched.insuranceSubscriber && errors.insuranceSubscriber
+            ? 'border-red-500'
+            : 'border-poise-2'
+        }  `}
       >
-        <option value="">-- Select an Option --</option>
+        <option disabled defaultValue="">
+          -- Select an Option --
+        </option>
         <option value="1">Patient</option>
-        <option value="2">Mother</option>
-        <option value="3">Father</option>
-        <option value="4">Guardian</option>
+        <option value="2">Spouse</option>
+        <option value="3">Mother</option>
+        <option value="4">Father</option>
+        <option value="5">Guardian</option>
       </select>
 
       <label
@@ -596,7 +644,7 @@ const SubscriberForm = ({
     </div>
 
     <div
-      className={`flex h-full flex-1 flex-col ${values.insuranceSubscriber === '1' || values.insuranceSubscriber === undefined ? 'hidden' : 'block'}`}
+      className={`flex h-full flex-1 flex-col ${values[`insuranceSubscriber${section}`] === '1' || values[`insuranceSubscriber${section}`] === '' ? 'hidden' : 'block'}`}
     >
       {/* First Name */}
       <div className="relative mt-4 items-center">
@@ -683,7 +731,7 @@ const SubscriberForm = ({
               touched.insurancePhone && errors.insurancePhone
                 ? 'border-red-500'
                 : 'border-poise-2'
-            }  w-full rounded-lg px-4 py-2 pt-6`}
+            }  w-full rounded-lg border px-4 py-2 pt-6`}
           ></input>
           <label className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4">
             Phone Number
@@ -743,7 +791,7 @@ const SubscriberForm = ({
           onChange={handleChange}
           value={values[`insuranceAddress2_${section}`] || ''}
           placeholder="#1"
-          className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
+          className={`w-full rounded-lg border border-poise-2 px-4 py-2 pt-6`}
         />
         <label
           htmlFor="address2"
@@ -825,13 +873,13 @@ const SubscriberForm = ({
         </div>
       </div>
 
-      <div className=" text-black pt-8 text-base font-medium">
+      {/* <div className=" text-black pt-8 text-base font-medium">
         Upload insurance card
       </div>
       <div className="text-black text-sm font-normal">
         If you have a digital insurance card, download or screenshot both sides
         to upload.
-      </div>
+      </div> */}
 
       {/* <Identification /> */}
       {/* Insurance Front Card */}
@@ -911,48 +959,8 @@ const SubscriberForm = ({
           // onChange={loadUploadedImage}
         />
       </div> */}
-        <div className="pt-6 px-6 ">
-          <div className="text-xl">Identification</div>
-        </div>
 
-        <div className="p-6">
-          <div className=" text-black text-base font-medium ">
-            Upload the patient&apos;s photo ID
-          </div>
-
-          <div className="pt-2 text-black text-xs font-normal ">
-            Place the card on a flat and well-lit surface. You can use your
-            Driver&apos;s License, State-Issued ID, or Passport.
-          </div>
-          {/* Insurance Front Card */}
-
-          <div className="mt-4 relative">
-            <ImageUpload
-              id="frontInsuranceCard"
-              name="frontInsuranceCard"
-              label="Upload Front of Identification Card"
-              error={errorUpload}
-              setError={setErrorUpload}
-              value={values[`frontInsuranceCard${section}`] || ''}
-              setValue={setFrontInsuranceCard}
-            ></ImageUpload>
-          </div>
-          {/* Insurance Back Card */}
-          <div className="mt-4 relative">
-            <ImageUpload
-              id="backInsuranceCard"
-              name="backInsuranceCard"
-              label="Upload Back of Identification Card"
-              error={errorUpload}
-              setError={setErrorUpload}
-              value={values[`backInsuranceCard${section}`] || ''}
-              setValue={setBackInsuranceCard}
-            ></ImageUpload>
-          </div>
-        </div>
-
-        {/* Action */}
-        
+      {/* Action */}
     </div>
   </div>
 );
@@ -993,7 +1001,7 @@ const DoYouHaveInsuranceForm = ({
             <input
               id="hasInsurance"
               type="checkbox"
-              disabled={isValidating}
+              disabled={isValidating || isValidInsurance === 0}
               name="hasInsurance"
               onBlur={handleBlur}
               checked={values[`hasInsurance${section}`] === '1'}
@@ -1024,7 +1032,7 @@ const DoYouHaveInsuranceForm = ({
     {values[`hasInsurance${section}`] === '1' && (
       <div
         id="carrierSection"
-        className={`flex h-full flex-1 flex-col bg-[#e8f2f5] p-4 `}
+        className={`flex h-full flex-1 flex-col bg-[#e8f2f5] ${!isValidating && validationStatus === 2 && !isValidInsurance ? 'bg-[#d13e27]/10' : ''} p-4`}
       >
         {/* Who is the insurance carrier */}
         <div className="relative mt-4 items-center">
@@ -1034,15 +1042,17 @@ const DoYouHaveInsuranceForm = ({
               name={`insuranceCarrier${section}`}
               value={values[`insuranceCarrier${section}`] || ''}
               onChange={handleChange}
-              disabled={isValidating}
+              disabled={
+                isValidating || (validationStatus === 2 && isValidInsurance)
+              }
               // onBlur={handleBlur}
 
-              className={`  w-full  rounded-lg  border-[#6e787a] px-4 py-2  pt-6  ${isValidating ? 'bg-[#e8f2f5]' : 'border'}`}
+              className={`  ${!isValidating && validationStatus == 0 && isValidInsurance ? 'border-[#d13e27]' : 'border-[#dbddde]'}   ${isValidating ? ' flex-col border border-[#dbddde] bg-[#e8f2f5]  text-[#6e787a] opacity-70' : 'border'} w-full rounded-lg  px-4 py-2 pt-6 ${!isValidating && validationStatus == 2 ? 'text-[#2a2f31]' : ''} `}
             >
               <option value="Cigna HMO/PPO">Cigna HMO/PPO</option>
               <option value="Kaiser Permanente">Kaiser Permanente</option>
             </select>
-            <svg
+            {/* <svg
               className={` absolute left-[85%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values[`isValidInsuranc${section}`] || ''} !== 'true' ? 'hidden' : 'block'} `}
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -1054,7 +1064,7 @@ const DoYouHaveInsuranceForm = ({
                 d="M12.4732 4.8067C12.4112 4.74421 12.3375 4.69461 12.2563 4.66077C12.175 4.62692 12.0879 4.6095 11.9999 4.6095C11.9119 4.6095 11.8247 4.62692 11.7435 4.66077C11.6623 4.69461 11.5885 4.74421 11.5266 4.8067L6.55989 9.78003L4.47322 7.6867C4.40887 7.62454 4.33291 7.57566 4.24967 7.54286C4.16644 7.51006 4.07755 7.49397 3.9881 7.49552C3.89865 7.49706 3.81037 7.51622 3.72832 7.55188C3.64627 7.58754 3.57204 7.63902 3.50989 7.70336C3.44773 7.76771 3.39885 7.84367 3.36605 7.92691C3.33324 8.01014 3.31716 8.09903 3.31871 8.18848C3.32025 8.27793 3.3394 8.36621 3.37507 8.44826C3.41073 8.53031 3.4622 8.60454 3.52655 8.6667L6.08655 11.2267C6.14853 11.2892 6.22226 11.3388 6.3035 11.3726C6.38474 11.4065 6.47188 11.4239 6.55989 11.4239C6.64789 11.4239 6.73503 11.4065 6.81627 11.3726C6.89751 11.3388 6.97124 11.2892 7.03322 11.2267L12.4732 5.7867C12.5409 5.72427 12.5949 5.6485 12.6318 5.56417C12.6688 5.47983 12.6878 5.38876 12.6878 5.2967C12.6878 5.20463 12.6688 5.11356 12.6318 5.02923C12.5949 4.94489 12.5409 4.86912 12.4732 4.8067Z"
                 fill="#32936F"
               />
-            </svg>
+            </svg> */}
           </div>
           <label
             htmlFor="insuranceCarrier"
@@ -1073,15 +1083,28 @@ const DoYouHaveInsuranceForm = ({
                 name={`subscriberId${section}`}
                 value={values[`subscriberId${section}`] || ''}
                 onChange={handleChange}
-                disabled={isValidating}
+                disabled={
+                  isValidating || (validationStatus === 2 && isValidInsurance)
+                }
                 onBlur={handleBlur}
                 // name="subscriberId"
-                className={`  ${
-                  touched.subscriberId && errors.subscriberId
-                    ? 'border-red-500'
-                    : 'border-gray-400'
-                } ${isValidating ? ' bg-[#e8f2f5] text-[#6e787a]' : 'border'} w-full rounded-lg  px-4 py-2 pt-6`}
+                className={` border
+                  ${isValidating 
+                    ? 'border-[#dbddde] bg-[#e8f2f5] text-[#6e787a] opacity-70'
+                    : validationStatus === 2 
+                      ? isValidInsurance 
+                        ? 'border-[#6ea787a]' 
+                        : 'border-red-500' 
+                      : 'border-[#6e787a]'
+                  } 
+                  ${!values[`subscriberId${section}`] 
+                    ? 'border-red-500' 
+                    : 'border-[#6e787a]'
+                  } 
+                  w-full rounded-lg px-4 py-2 pt-6
+                `}
               />
+
               <svg
                 className={` absolute left-[90%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values.isValidInsurance !== 'true' ? 'hidden' : 'block'}  ${isValidating ? 'bg-[#e8f2f5]' : ''}`}
                 xmlns="http://www.w3.org/2000/svg"
@@ -1104,6 +1127,7 @@ const DoYouHaveInsuranceForm = ({
               Subscriber Id
             </label>
           </div>
+          
           <div className=" text-sm text-black-2">
             This is NOT group, issuer, or RX number and may contain letters and
             numbers.
@@ -1119,27 +1143,44 @@ const DoYouHaveInsuranceForm = ({
             value={values[`subscriberDob${section}`] || ''}
             onChange={handleChange}
             onBlur={handleBlur}
-            disabled={isValidating}
-            className={`border  ${
-              touched.subscriberDob && errors.subscriberDob
-                ? 'border-red-500'
-                : 'border-gray-400'
-            } ${values[`isValidInsurance${section}`] || ''} !== 'true' ? '' : ''} w-full appearance-none  rounded-lg px-4 py-2 pt-6  ${isValidating ? 'border-0 bg-[#e8f2f5] outline-0 ring-0 placeholder:text-black-4' : 'border'}`}
+            disabled={
+              isValidating || (validationStatus === 2 && isValidInsurance)
+            }
+            // ${isValidInsurance  ? 'border-[#dbddde]' : 'border-[#d13e27]'}
+
+            className={`border
+              ${isValidating 
+                ? 'border-[#dbddde] bg-[#e8f2f5] text-[#6e787a] opacity-70'
+                : validationStatus === 2 
+                  ? isValidInsurance 
+                    ? 'border-[#6e787a]' 
+                    : 'border-red-500' 
+                  : 'border-[#6e787a]'
+              }
+              ${!values[`subscriberDob${section}`] 
+                ? 'border-red-500' 
+                : 'border-[#6e787a]'
+              } 
+              w-full appearance-none rounded-lg px-4 py-2 pt-6
+              ${touched[`subscriberDob${section}`] && errors[`subscriberDob${section}`] 
+                ? 'border-red-500' 
+                : 'border-[#6e787a]'
+              }
+            `}
             placeholder="mm/dd/yyyy"
           ></input>
+
           <label
             htmlFor="subscriberDobLbl"
             className={`absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4 $${errors[`dateOfBirth${section}`] || ''} ? 'text-zest-6' : ''}`}
           >
             Subscriber Date of Birth
-            <span className={`text-xs font-normal text-zest-6 `}>*</span>
+            <span className={`text-xs font-normal text-zest-6 `}></span>
           </label>
           <img
-            width={18}
-            height={20}
-            src="../assets/images/calendar.png"
-            className="-border-2 absolute right-0 top-0 mr-[15px] mt-[29px] items-end justify-end border-red-800 "
-            alt="calendaricon"
+            alt="Calendar"
+            src="../assets/images/Calendar.svg"
+            className="absolute right-0 top-0 z-10 mr-[15px] mt-[29px] w-4 items-end justify-end"
           ></img>
         </div>
 
