@@ -27,7 +27,7 @@ export default function Insurance() {
     handleBlur,
     validateForm,
     setFieldValue,
-    dirty,
+    touched,
   } = useFormik({
     initialValues: {
       insuranceCarrier: patientData ? patientData.insuranceCarrier : '',
@@ -433,7 +433,7 @@ export default function Insurance() {
               setFieldValue={setFieldValue}
               errors={errors}
               handleBlur={handleBlur}
-              dirty={dirty}
+              touched={touched}
               // handleCheckboxChange={handleCheckboxChange}
               isValidInsurance={isValidInsurance}
               isValidating={isValidating}
@@ -446,7 +446,7 @@ export default function Insurance() {
               values={values}
               handleChange={handleChange}
               handleBlur={handleBlur}
-              dirty={dirty}
+              touched={touched}
               section=""
               errors={errors}
               errorUpload={errorUpload}
@@ -462,7 +462,7 @@ export default function Insurance() {
               setFieldValue={setFieldValue}
               errors={errors}
               handleBlur={handleBlur}
-              dirty={dirty}
+              touched={touched}
               // handleCheckboxChange={handleCheckboxChange}
               isValidInsurance={isValidInsurance}
               isValidating={isValidating}
@@ -475,7 +475,7 @@ export default function Insurance() {
               values={values}
               handleChange={handleChange}
               handleBlur={handleBlur}
-              dirty={dirty}
+              touched={touched}
               section="2"
               errors={errors}
               //insurance card
@@ -582,7 +582,7 @@ const SubscriberForm = ({
   values,
   handleChange,
   handleBlur,
-  dirty,
+  touched,
   section,
   errors,
   //insurancecard
@@ -595,7 +595,7 @@ const SubscriberForm = ({
   values: any;
   handleChange: any;
   handleBlur: any;
-  dirty: any;
+  touched: any;
   section: any;
   //insurance cards
   errorUpload: any;
@@ -616,8 +616,9 @@ const SubscriberForm = ({
         value={values[`insuranceSubscriber${section}`] || ''}
         onChange={handleChange}
         className={`w-full rounded-lg border border-poise-2 px-4 py-2 pt-6  ${
-          !dirty[`insuranceSubscriber${section}`] &&   errors[`insuranceSubscriber${section}`]
-          ? 'border-red-500'
+          !touched[`insuranceSubscriber${section}`] &&
+          errors[`insuranceSubscriber${section}`]
+            ? 'border-red-500'
             : 'border-poise-2'
         }  `}
       >
@@ -640,7 +641,7 @@ const SubscriberForm = ({
     </div>
 
     <div
-      className={`flex h-full flex-1 flex-col ${values[`insuranceSubscriber${section}`] === '1' || values[`insuranceSubscriber${section}`] === '' ? 'hidden' : 'block'}`}
+      className={` ${errors[`insuranceFirstName${section}`] ? 'text-status-red-text': 'text-black-4 '} flex h-full flex-1 flex-col ${values[`insuranceSubscriber${section}`] === '1' || values[`insuranceSubscriber${section}`] === '' ? 'hidden' : 'block'}`}
     >
       {/* First Name */}
       <div className="relative mt-4 items-center">
@@ -652,7 +653,7 @@ const SubscriberForm = ({
           onChange={handleChange}
           onBlur={handleBlur}
           className={`border ${
-            !dirty[`insuranceFirstName${section}`] &&   errors[`insuranceFirstName${section}`]
+            errors[`insuranceFirstName${section}`]
               ? 'border-red-500'
               : 'border-poise-2'
           }  w-full rounded-lg px-4 py-2 pt-6 `}
@@ -660,13 +661,18 @@ const SubscriberForm = ({
 
         <label
           htmlFor="firstName"
-          className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
+          className="absolute left-0 top-0 ml-4 mt-2 text-xs "
         >
-          Patient&apos;s Legal First Name
+          Patient&apos;s Legal First Name {' '}
+              <span className={`text-xs font-normal text-zest-6 `}>*</span>
+
         </label>
+        <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+          {errors[`insuranceFirstName${section}`] as string}
+        </span>
       </div>
       {/* Last Name */}
-      <div className="relative mt-4 items-center">
+      <div className={`${errors[`insuranceLastName${section}`] ? 'text-status-red-text': 'text-black-4 '} relative mt-4 items-center`}>
         <input
           id={`insuranceLastName${section}`}
           placeholder="Doe"
@@ -675,21 +681,24 @@ const SubscriberForm = ({
           onBlur={handleBlur}
           value={values[`insuranceLastName${section}`] || ''}
           className={`${
-            !dirty[`insuranceLastName${section}`] &&   errors[`insuranceLastName${section}`]
-            ? 'border-red-500'
+            errors[`insuranceLastName${section}`]
+              ? 'border-red-500'
               : 'border-poise-2'
           }  w-full rounded-lg border px-4 py-2 pt-6`}
         />
 
         <label
           htmlFor="lastName"
-          className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
+          className="absolute left-0 top-0 ml-4 mt-2 text-xs"
         >
           Patient&apos;s Legal Last Name
         </label>
+        <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+          {errors[`insuranceLastName${section}`] as string}
+        </span>
       </div>
 
-      <div className="relative mt-4 flex w-full">
+      <div className={`${errors[`insuranceDob${section}`] ? 'text-status-red-text': 'text-black-4 '} relative mt-4 flex w-full`}>
         <input
           type="date"
           id="dob"
@@ -699,7 +708,7 @@ const SubscriberForm = ({
           onBlur={handleBlur}
           value={values[`insuranceDob${section}`] || ''}
           className={`${
-            !dirty[`insuranceDob${section}`] &&   errors[`insuranceDob${section}`]
+            errors[`insuranceDob${section}`]
               ? 'border-red-500'
               : 'border-poise-2'
           } w-full rounded-lg border  py-2 pl-4 pt-6 text-black-4`}
@@ -707,11 +716,17 @@ const SubscriberForm = ({
         ></input>
         <label
           htmlFor="dobLbl"
-          className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
+          className="absolute left-0 top-0 ml-4 mt-2 text-xs "
         >
-          Patient&apos;s Date of Birth
+          Patient&apos;s Date of Birth  {' '}
+              <span className={`text-xs font-normal text-zest-6 `}>*</span>
+
+          
         </label>
       </div>
+        <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+          {errors[`insuranceDob${section}`] as string}
+        </span>
 
       {/*Phone */}
       <div className="mt-4 flex">
@@ -724,14 +739,19 @@ const SubscriberForm = ({
             value={values[`insurancePhone${section}`] || ''}
             placeholder="(555) 555-5555"
             className={`${
-              !dirty[`insurancePhone${section}`] &&   errors[`insurancePhone${section}`]
-              ? 'border-red-500'
+              errors[`insurancePhone${section}`]
+                ? 'border-red-500'
                 : 'border-poise-2'
             }  w-full rounded-lg border px-4 py-2 pt-6`}
           ></input>
           <label className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4">
-            Phone Number
+            Phone Number {' '}
+              <span className={`text-xs font-normal text-zest-6 `}>*</span>
+
           </label>
+          <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+          {errors[`insurancePhone${section}`] as string}
+        </span>
         </div>
       </div>
 
@@ -765,8 +785,8 @@ const SubscriberForm = ({
           value={values[`insuranceAddress${section}`] || ''}
           placeholder="999 High Garden"
           className={` ${
-            !dirty[`insuranceAddress${section}`] &&   errors[`insuranceAddress${section}`]
-            ? 'border-red-500'
+            errors[`insuranceAddress${section}`]
+              ? 'border-red-500'
               : 'border-poise-2'
           }  w-full rounded-lg border  px-4 py-2 pt-6`}
         />
@@ -774,10 +794,14 @@ const SubscriberForm = ({
           htmlFor="address"
           className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
         >
-          Address
+          Address {' '}
+              <span className={`text-xs font-normal text-zest-6 `}>*</span>
+
         </label>
       </div>
-
+      <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+          {errors[`insuranceAddress${section}`] as string}
+        </span>
       {/* Address2 */}
       <div className="relative mt-4">
         <input
@@ -808,7 +832,8 @@ const SubscriberForm = ({
           value={values[`insuranceCity${section}`] || ''}
           placeholder="Winterfell"
           className={`${
-            !dirty[`insuranceCity${section}`] &&   errors[`insuranceCity${section}`]
+            !touched[`insuranceCity${section}`] &&
+            errors[`insuranceCity${section}`]
               ? 'border-red-500'
               : 'border-poise-2'
           } w-full rounded-lg border border-poise-2 px-4 py-2 pt-6`}
@@ -832,8 +857,9 @@ const SubscriberForm = ({
             onBlur={handleBlur}
             value={values[`insuranceState${section}`] || ''}
             className={` border ${
-              !dirty[`insuranceState${section}`] &&   errors[`insuranceState${section}`]
-              ? 'border-red-500'
+              !touched[`insuranceState${section}`] &&
+              errors[`insuranceState${section}`]
+                ? 'border-red-500'
                 : 'border-poise-2'
             } w-full rounded-lg px-4 py-2 pt-6`}
           >
@@ -858,7 +884,8 @@ const SubscriberForm = ({
             onBlur={handleBlur}
             value={values[`insuranceZip${section}`] || ''}
             className={` border ${
-              !dirty[`insuranceZip${section}`] &&   errors[`insuranceZip${section}`]
+              !touched[`insuranceZip${section}`] &&
+              errors[`insuranceZip${section}`]
                 ? 'border-red-500'
                 : 'border-poise-2'
             }   w-full rounded-lg border-poise-2 px-4 py-2 pt-6`}
@@ -970,7 +997,7 @@ const DoYouHaveInsuranceForm = ({
   setFieldValue,
   errors,
   handleBlur,
-  dirty,
+  touched,
   // handleCheckboxChange,
   isValidInsurance,
   isValidating,
@@ -982,7 +1009,7 @@ const DoYouHaveInsuranceForm = ({
   setFieldValue: any;
   errors: any;
   handleBlur: any;
-  dirty: any;
+  touched: any;
   // handleCheckboxChange: any;
   isValidInsurance: any;
   isValidating: any;
@@ -1097,7 +1124,7 @@ const DoYouHaveInsuranceForm = ({
                         : 'border-[#6e787a]'
                   } 
                   ${
-                    !values[`subscriberId${section}`]
+                    errors[`subscriberId${section}`]
                       ? 'border-red-500'
                       : 'border-[#6e787a]'
                   } 
@@ -1122,13 +1149,18 @@ const DoYouHaveInsuranceForm = ({
 
             <label
               htmlFor="subscriberId"
-              className={`absolute left-0 top-0 ml-4  mt-2 text-xs text-black-4  ${isValidating ? 'bg-[#e8f2f5]' : ''}`}
+              className={`absolute left-0 top-0 ml-4  mt-2 text-xs text-black-4 ${errors[`subscriberId${section}`] ? 'text-status-red-text': ''}   ${isValidating ? 'bg-[#e8f2f5]' : ''}`}
             >
-              Subscriber Id
-            </label>
-          </div>
+              Subscriber Id {' '}
+              <span className={`text-xs font-normal text-zest-6 `}>*</span>
 
-          <div className=" text-sm text-black-2">
+            </label>
+            
+          </div>
+          <span className={`pl-2 text-xs font-normal ${errors[`subscriberId${section}`] ? 'block':'hidden'} text-zest-6 `}>
+          {errors[`subscriberId${section}`] as string}
+        </span>
+          <div className=" text-sm mb-2 pl-1 text-black-2">
             This is NOT group, issuer, or RX number and may contain letters and
             numbers.
           </div>
@@ -1165,9 +1197,9 @@ const DoYouHaveInsuranceForm = ({
               } 
               w-full appearance-none rounded-lg px-4 py-2 pt-6
               ${
-                dirty[`subscriberDob${section}`] &&
+                
                 errors[`subscriberDob${section}`]
-                  ? 'border-red-500'
+                  ? 'border-red-500 '
                   : 'border-[#6e787a]'
               }
             `}
@@ -1176,21 +1208,27 @@ const DoYouHaveInsuranceForm = ({
 
           <label
             htmlFor="subscriberDobLbl"
-            className={`absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4 $${errors[`dateOfBirth${section}`] || ''} ? 'text-zest-6' : ''}`}
+            className={`absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4 ${errors[`subscriberDob${section}`] ? 'text-status-red-text': ''} ? 'text-zest-6' : ''}`}
           >
             Subscriber Date of Birth
-            <span className={`text-xs font-normal text-zest-6 `}></span>
+            {' '}
+              <span className={`text-xs font-normal text-zest-6 `}>*</span>
+
           </label>
+
           <img
             alt="Calendar"
             src="../assets/images/Calendar.svg"
             className="absolute right-0 top-0 z-10 mr-[15px] mt-[29px] w-4 items-end justify-end"
           ></img>
         </div>
+        <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+          {errors[`subscriberDob${section}`] as string}
+        </span>
 
-        <div className={`pl-4 text-xs font-normal text-zest-6`}>
+        {/* <div className={`pl-4 text-xs font-normal text-zest-6`}>
           {errors[`dateOfBirth${section}`] as string}
-        </div>
+        </div> */}
 
         {!isValidating && validationStatus == 2 && (
           <div
@@ -1220,7 +1258,7 @@ const DoYouHaveInsuranceForm = ({
               name={`hasInsurance${section}`}
               checked={values[`hasInsurance${section}`] === '0'}
               onChange={() => setFieldValue(`hasInsurance${section}`, '0')}
-              className="peer-not rounded-md appearance-none border-hidden p-0.5"
+              className="peer-not appearance-none rounded-md border-hidden p-0.5"
             ></input>
           </div>
           <div className=" inline-flex flex-col items-start justify-center">
