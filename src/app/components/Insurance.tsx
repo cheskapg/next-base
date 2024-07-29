@@ -1,13 +1,3 @@
-/* eslint-disable eqeqeq */
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable @typescript-eslint/no-shadow */
-/* eslint-disable react/jsx-curly-brace-presence */
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable spaced-comment */
-/* eslint-disable jsx-a11y/no-onchange */
-/* eslint-disable lines-around-directive */
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useState } from 'react';
@@ -15,9 +5,11 @@ import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import { useFormState } from './FormContext';
 import { DayPicker } from 'react-day-picker';
+import Identification from './Indentification';
 
 import { handleWebpackExternalForEdgeRuntime } from 'next/dist/build/webpack/plugins/middleware-plugin';
 import { insuranceSchema } from '@/schemas/insurance';
+import ImageUpload from './Fields/ImageUpload';
 // import { insuranceSchema } from "../schemas/insurance";
 // import { loadUploadedImage } from "../utils/helper";
 
@@ -26,53 +18,64 @@ export default function Insurance() {
     useFormState();
   //   console.log("insurance " + patientData);
 
-  const { values, errors, handleSubmit, handleChange, isValid, setFieldValue } =
-    useForWERWERmik({
-      initialValues: {
-        insuranceCarrier: patientData ? patientData.insuranceCarrier : '',
-        subscriberId: patientData ? patientData.subscriberId : '',
-        hasInsurance: patientData ? patientData.hasInsurance : '',
+  const {
+    values,
+    errors,
+    handleSubmit,
+    handleChange,
+    isValid,
+    handleBlur,
+    validateForm,
+    setFieldValue,
+    touched,
+  } = useFormik({
+    initialValues: {
+      insuranceCarrier: patientData ? patientData.insuranceCarrier : '',
+      subscriberId: patientData ? patientData.subscriberId : '',
+      hasInsurance: patientData ? patientData.hasInsurance : '',
 
-        insuranceFirstName: patientData ? patientData.insuranceFirstName : '',
-        insuranceLastName: patientData ? patientData.insuranceLastName : '',
-        insuranceDob: patientData ? patientData.insuranceDob : '',
-        insurancePhone: patientData ? patientData.insurancePhone : '',
-        insuranceCountry: patientData ? patientData.insuranceCountry : '',
-        insuranceAddress: patientData ? patientData.insuranceAddress : '',
-        insuranceAddress2: patientData ? patientData.insuranceAddress2 : '',
-        insuranceCity: patientData ? patientData.insuranceCity : '',
-        insuranceState: patientData ? patientData.insuranceState : '',
-        insuranceZip: patientData ? patientData.insuranceZip : '',
-        isValidInsurance: patientData ? patientData.isValidInsurance : '',
-        insuranceSubscriber: patientData ? patientData.insuranceSubscriber : '',
-        subscriberDob: patientData ? patientData.subscriberDob : '',
+      insuranceFirstName: patientData ? patientData.insuranceFirstName : '',
+      insuranceLastName: patientData ? patientData.insuranceLastName : '',
+      insuranceDob: patientData ? patientData.insuranceDob : '',
+      insurancePhone: patientData ? patientData.insurancePhone : '',
+      insuranceCountry: patientData ? patientData.insuranceCountry : '',
+      insuranceAddress: patientData ? patientData.insuranceAddress : '',
+      insuranceAddress2_: patientData ? patientData.insuranceAddress2_ : '',
+      insuranceCity: patientData ? patientData.insuranceCity : '',
+      insuranceState: patientData ? patientData.insuranceState : '',
+      insuranceZip: patientData ? patientData.insuranceZip : '',
+      isValidInsurance: patientData ? patientData.isValidInsurance : '',
+      insuranceSubscriber: patientData ? patientData.insuranceSubscriber : '',
+      subscriberDob: patientData ? patientData.subscriberDob : '',
 
-        // Additional Insurance Fields
-        insuranceCarrier2: patientData ? patientData.insuranceCarrier2 : '',
-        subscriberId2: patientData ? patientData.subscriberId2 : '',
-        hasInsurance2: patientData ? patientData.hasInsurance2 : '',
-        insuranceFirstName2: patientData ? patientData.insuranceFirstName2 : '',
-        insuranceLastName2: patientData ? patientData.insuranceLastName2 : '',
-        insuranceDob2: patientData ? patientData.insuranceDob2 : '',
-        insurancePhone2: patientData ? patientData.insurancePhone2 : '',
-        insuranceCountry2: patientData ? patientData.insuranceCountry2 : '',
-        insuranceAddress2_2: patientData ? patientData.insuranceAddress2_2 : '',
-        insuranceCity2: patientData ? patientData.insuranceCity2 : '',
-        insuranceState2: patientData ? patientData.insuranceState2 : '',
-        insuranceZip2: patientData ? patientData.insuranceZip2 : '',
-        isValidInsurance2: patientData ? patientData.isValidInsurance2 : '',
-        insuranceSubscriber2: patientData
-          ? patientData.insuranceSubscriber2
-          : '',
-        subscriberDob2: patientData ? patientData.subscriberDob2 : '',
-      },
+      // Additional Insurance Fields
+      insuranceCarrier2: patientData ? patientData.insuranceCarrier2 : '',
+      subscriberId2: patientData ? patientData.subscriberId2 : '',
+      hasInsurance2: patientData ? patientData.hasInsurance2 : '',
+      insuranceFirstName2: patientData ? patientData.insuranceFirstName2 : '',
+      insuranceLastName2: patientData ? patientData.insuranceLastName2 : '',
+      insuranceDob2: patientData ? patientData.insuranceDob2 : '',
+      insurancePhone2: patientData ? patientData.insurancePhone2 : '',
+      insuranceCountry2: patientData ? patientData.insuranceCountry2 : '',
+      insuranceAddress2_2: patientData ? patientData.insuranceAddress2_2 : '',
+      insuranceCity2: patientData ? patientData.insuranceCity2 : '',
+      insuranceState2: patientData ? patientData.insuranceState2 : '',
+      insuranceZip2: patientData ? patientData.insuranceZip2 : '',
+      isValidInsurance2: patientData ? patientData.isValidInsurance2 : '',
+      insuranceSubscriber2: patientData ? patientData.insuranceSubscriber2 : '',
+      subscriberDob2: patientData ? patientData.subscriberDob2 : '',
+    },
 
-      validationSchema: insuranceSchema,
+    validationSchema: insuranceSchema,
+    validateOnChange: true,
+    // isValidating: true,
+    validateOnBlur: true,
+    // enableReinitialize: true,
 
-      onSubmit: (values: any) => {
-        onHandleFormSubmit(values);
-      },
-    });
+    onSubmit: (values: any) => {
+      onHandleFormSubmit(values);
+    },
+  });
 
   type TFormValues = {
     insuranceCarrier: string;
@@ -84,7 +87,7 @@ export default function Insurance() {
     insurancePhone: string;
     insuranceCountry: string;
     insuranceAddress: string;
-    insuranceAddress2: string;
+    insuranceAddress2_: string;
     insuranceCity: string;
     insuranceState: string;
     insuranceZip: string;
@@ -108,8 +111,8 @@ export default function Insurance() {
     isValidInsurance2: string;
     insuranceSubscriber2: string;
   };
-  // Function to reset Formik fields
-  const resetInsuranceFields = ( section?: number) => {
+  // Function to reset Formik fields on back of insurance
+  const resetInsuranceFields = (section?: number) => {
     const fieldNames = [
       'insuranceCarrier',
       'insuranceFirstName',
@@ -118,7 +121,7 @@ export default function Insurance() {
       'insurancePhone',
       'insuranceCountry',
       'insuranceAddress',
-      'insuranceAddress2',
+      'insuranceAddress2_',
       'insuranceCity',
       'insuranceState',
       'insuranceZip',
@@ -126,12 +129,11 @@ export default function Insurance() {
       'insuranceSubscriber',
       'subscriberDob',
     ];
-
-  
+    //set to empty
     fieldNames.forEach((field) => {
       setFieldValue(`${field}${section || ''}`, '');
     });
-
+    // set the patient data also
     setPatientData((prev: any) => {
       const newData = { ...prev };
       fieldNames.forEach((field) => {
@@ -139,12 +141,11 @@ export default function Insurance() {
       });
       return newData;
     });
-   
   };
 
   //  for loader
   const [isValidating, setIsValidating] = useState(false);
-
+  //     to proceed to insurance steps
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   // Validation function to check if the subscriber ID is valid
@@ -155,11 +156,12 @@ export default function Insurance() {
     // Check if the provided subscriber ID is in the valid list
     return validSubscriberIds.includes(subscriberId);
   };
-  //for validation of insurance result show
+  //for validation of insurance - result show status
   const [isValidInsurance, setIsValidInsurance] = useState(false);
   const [validationStatus, setValidationStatus] = useState(0);
   // 1 = validating 2 = done 0 is default state
 
+  // to update api here for checking
   const handleValidation = (subscriberId: string, onSuccess: () => void) => {
     setIsValidating(true);
     setValidationStatus(1);
@@ -184,27 +186,127 @@ export default function Insurance() {
     }, 2000); // Simulated validation time
   };
 
-  const onHandleFormSubmit = (data: TFormValues) => {
+  // check field errors in each part of the steps, destructuring the formik set of fields
+  //to check fields according to step = e.g in first step ( subsciberid and dob only)
+  type FieldSets = {
+    [key: string]: string[];
+  };
+  const checkErrors = async (section: keyof FieldSets): Promise<boolean> => {
+    // Retrieve the fields based on the section
+    const fields = fieldSets[section] || [];
+    const errors = await validateForm();
+    console.log(errors, 'errors');
+
+    // Check if there are errors for the specified fields
+    const hasErrors = fields.some((field: string | number) => errors[field]);
+    console.log(hasErrors, 'hasss');
+    return hasErrors;
+  };
+  const [errorUpload, setErrorUpload] = useState(false);
+  const [frontInsuranceCard, setFrontInsuranceCard] = useState("");
+  const [backInsuranceCard, setBackInsuranceCard] = useState("");
+
+  const fieldSets: FieldSets = {
+    doYouHaveInsurance: ['subscriberId', 'subscriberDob'],
+    doYouHaveInsurance2: ['subscriberId2', 'subscriberDob2'],
+    subscriberForm: [
+      'insuranceCarrier',
+      'insuranceFirstName',
+      'insuranceLastName',
+      'insuranceDob',
+      'insurancePhone',
+      'insuranceCountry',
+      'insuranceAddress',
+      'insuranceAddress2_',
+      'insuranceCity',
+      'insuranceState',
+      'insuranceZip',
+      'isValidInsurance',
+      'insuranceSubscriber',
+      'subscriberDob',
+    ],
+    subscriberForm2: [
+      'insuranceCarrier2',
+      'insuranceFirstName2',
+      'insuranceLastName2',
+      'insuranceDob2',
+      'insurancePhone2',
+      'insuranceCountry2',
+      'insuranceAddress2',
+      'insuranceAddress2_2',
+      'insuranceCity2',
+      'insuranceState2',
+      'insuranceZip2',
+      'isValidInsurance2',
+      'insuranceSubscriber2',
+      'subscriberDob2',
+    ],
+    // Add more field sets if needed
+  };
+
+  // Utility function to check if any field in the list is empty
+  //for initial load
+  const areFieldsEmpty = (fields: string[], values: any) => {
+    return fields.some(
+      (field) => !values[field] || values[field].trim() === '',
+    );
+  };
+
+  // Function to check if the form is valid based on the current step
+  const isFormValid = (section: keyof FieldSets, values: any): boolean => {
+    const fields = fieldSets[section] || [];
+    //if fields are empty return true -- is form valid? false - vice versa
+    return !areFieldsEmpty(fields, values);
+  };
+  const [disableNext, setDisableNext] = useState(false);
+  const [formStatus, setFormStatus] = useState(false);
+  const onHandleFormSubmit = async (data: TFormValues) => {
     console.log(`test${JSON.stringify(data)}`);
+
     switch (currentStep) {
       case 1:
+        //if user has insurance
         if (data[`hasInsurance`] === '1') {
+          const errorsPresent = await checkErrors('doYouHaveInsurance');
+          const formValid = isFormValid('doYouHaveInsurance', data);
+
+          if (errorsPresent || !formValid) {
+            console.error('Validation errors present or form is not valid');
+            return; // Exit if there are errors or form is not valid
+          }
+
           if (validateSubscriberId(data[`subscriberId`])) {
             handleValidation(data[`subscriberId`], () => {
               setCurrentStep(currentStep + 1);
             });
-          } else {
-            // Handle invalid subscriber ID scenario
+          }
+          // Handle invalid subscriber ID scenario
+          else {
             handleValidation(data[`subscriberId`], () => {});
             console.error('Invalidss subscriber ID');
           }
         }
+        //if user has no insurance
+
         if (data[`hasInsurance`] === '0') {
           // next page if no
           setPatientData((prev: any) => ({ ...prev, ...data }));
           onHandleNext();
         }
 
+        break;
+
+      case 2:
+        const errorsPresent = await checkErrors('doYouHaveInsurance');
+        const formValid = isFormValid('subscriberForm', data);
+
+        if (errorsPresent || !formValid) {
+          console.error('Validation errors present or form is not valid');
+          return; // Exit if there are errors or form is not valid
+        }
+
+        setPatientData((prev: any) => ({ ...prev, ...data }));
+        setCurrentStep(currentStep + 1);
         break;
       case 3:
         // Validate subscriber ID for step 3
@@ -235,44 +337,7 @@ export default function Insurance() {
     }
   };
 
-  // const handleBack = () => {
-  //   if (currentStep > 1) {
-  //     // console.log("Previous Patient Data:", patientData);
-
-  //     // let data = { ...patientData };
-
-  //     // data = resetInsurance(data);
-  //     // setPatientData(data);
-  //     // console.log("Previous updatedData Data:", patientData);
-
-  //     console.log('Current Step:', currentStep);
-  //     console.log('Previous Patient Data:', patientData);
-
-  //     let updatedData = { ...patientData };
-
-  //     // Apply resetInsurance or resetInsurance2 based on the step
-  //     switch (currentStep) {
-  //       case 2:
-  //         updatedData = resetInsurance(updatedData);
-  //         break;
-  //       case 4:
-  //         updatedData = resetInsurance2(updatedData);
-  //         break;
-  //       default:
-  //         break;
-  //     }
-
-  //     // Update state with the modified data
-  //     setPatientData(updatedData);
-  //     console.log(' updatedData Data:', patientData);
-
-  //     // Move to the previous step
-  //     setCurrentStep(currentStep - 1);
-  //   } else {
-  //     onHandleBack(); // Navigate to the previous page if at the beginning of the steps
-  //   }
-  // };
-
+  // if back is pressed and there are fields that are validated, clear form
   const handleBack = (values: TFormValues) => {
     if (currentStep > 1) {
       console.log(currentStep, 'back');
@@ -298,6 +363,7 @@ export default function Insurance() {
       onHandleBack(); // Navigate to the previous page if at the beginning of the steps
     }
   };
+
   return (
     <>
       <form onSubmit={handleSubmit} className="min-h-screen ">
@@ -327,6 +393,8 @@ export default function Insurance() {
               handleChange={handleChange}
               setFieldValue={setFieldValue}
               errors={errors}
+              handleBlur={handleBlur}
+              touched={touched}
               // handleCheckboxChange={handleCheckboxChange}
               isValidInsurance={isValidInsurance}
               isValidating={isValidating}
@@ -338,8 +406,14 @@ export default function Insurance() {
             <SubscriberForm
               values={values}
               handleChange={handleChange}
+              handleBlur={handleBlur}
+              touched={touched}
               section=""
               errors={errors}
+              errorUpload={errorUpload}
+              setErrorUpload={setErrorUpload}
+             setFrontInsuranceCard={setFrontInsuranceCard}
+              setBackInsuranceCard={setBackInsuranceCard}
             />
           )}
           {currentStep === 3 && (
@@ -348,6 +422,8 @@ export default function Insurance() {
               handleChange={handleChange}
               setFieldValue={setFieldValue}
               errors={errors}
+              handleBlur={handleBlur}
+              touched={touched}
               // handleCheckboxChange={handleCheckboxChange}
               isValidInsurance={isValidInsurance}
               isValidating={isValidating}
@@ -359,8 +435,15 @@ export default function Insurance() {
             <SubscriberForm
               values={values}
               handleChange={handleChange}
+              handleBlur={handleBlur}
+              touched={touched}
               section="2"
               errors={errors}
+              //insurance card
+              errorUpload={errorUpload}
+              setErrorUpload={setErrorUpload}
+              setFrontInsuranceCard={setFrontInsuranceCard}
+              setBackInsuranceCard={setBackInsuranceCard}
             />
           )}
 
@@ -386,13 +469,14 @@ export default function Insurance() {
             values[`hasInsurance2`] === '1' ? (
               <div className="w-4/6">
                 <button
+                  // disabled={isValid && isFormValid ? false : true}
                   id="Next"
-
                   onClick={(e) => {
                     e.preventDefault();
+
                     onHandleFormSubmit(values);
                   }}
-                  className="w-full rounded-3xl bg-spruce-4 py-2 text-center font-semibold text-white"
+                  className={`w-full rounded-3xl bg-spruce-4 py-2 text-center font-semibold text-white`}
                 >
                   {isValidating ? (
                     <span className="flex items-center justify-center">
@@ -458,12 +542,30 @@ export default function Insurance() {
 const SubscriberForm = ({
   values,
   handleChange,
+  handleBlur,
+  touched,
   section,
+  errors,
+  //insurancecard
+  errorUpload,
+  setErrorUpload,
+  setFrontInsuranceCard,
+  setBackInsuranceCard
+
 }: {
+  errors: any;
   values: any;
   handleChange: any;
+  handleBlur: any;
+  touched: any;
   section: any;
-  errors:any
+  //insurance cards
+  errorUpload: any;
+  setErrorUpload: any;
+  setFrontInsuranceCard: any;
+
+  setBackInsuranceCard:any;
+  
 }) => (
   <div
     id="subsciberSection"
@@ -504,8 +606,13 @@ const SubscriberForm = ({
           name={`insuranceFirstName${section}`}
           value={values[`insuranceFirstName${section}`] || ''}
           onChange={handleChange}
-          className={`border ${errors[`insuranceFirstName${section}`] ? 'border-zest-6' : 'border-poise-2'}  w-full rounded-lg px-4 py-2 pt-6 `}
-          />
+          onBlur={handleBlur}
+          className={`border ${
+            touched.insuranceFirstName && errors.insuranceFirstName
+              ? 'border-red-500'
+              : 'border-poise-2'
+          }  w-full rounded-lg px-4 py-2 pt-6 `}
+        />
 
         <label
           htmlFor="firstName"
@@ -521,8 +628,13 @@ const SubscriberForm = ({
           placeholder="Doe"
           onChange={handleChange}
           name={`insuranceLastName${section}`}
+          onBlur={handleBlur}
           value={values[`insuranceLastName${section}`] || ''}
-          className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
+          className={`${
+            touched.insuranceLastName && errors.insuranceLastName
+              ? 'border-red-500'
+              : 'border-poise-2'
+          }  w-full rounded-lg border px-4 py-2 pt-6`}
         />
 
         <label
@@ -540,8 +652,13 @@ const SubscriberForm = ({
           // name="dob"
           name={`insuranceDob${section}`}
           onChange={handleChange}
+          onBlur={handleBlur}
           value={values[`insuranceDob${section}`] || ''}
-          className="w-full rounded-lg border  border-poise-2 py-2 pt-6 text-black-4"
+          className={`${
+            touched.insuranceDob && errors.insuranceDob
+              ? 'border-red-500'
+              : 'border-poise-2'
+          } w-full rounded-lg border  py-2 pl-4 pt-6 text-black-4`}
           placeholder="mm/dd/yyyy"
         ></input>
         <label
@@ -559,9 +676,14 @@ const SubscriberForm = ({
             type="tel"
             name={`insurancePhone${section}`}
             onChange={handleChange}
+            onBlur={handleBlur}
             value={values[`insurancePhone${section}`] || ''}
             placeholder="(555) 555-5555"
-            className=" w-full rounded-lg border-poise-2 px-4 py-2 pt-6"
+            className={`${
+              touched.insurancePhone && errors.insurancePhone
+                ? 'border-red-500'
+                : 'border-poise-2'
+            }  w-full rounded-lg px-4 py-2 pt-6`}
           ></input>
           <label className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4">
             Phone Number
@@ -576,6 +698,7 @@ const SubscriberForm = ({
           name="sameAsPatientChkBox"
           id="sameAsPatientChkBox"
           onChange={handleChange}
+          onBlur={handleBlur}
           placeholder="Same address as patient"
           className=" rounded-md border-poise-2 px-2 py-2 pt-2"
         ></input>
@@ -594,9 +717,14 @@ const SubscriberForm = ({
           id="address"
           name={`insuranceAddress${section}`}
           onChange={handleChange}
+          onBlur={handleBlur}
           value={values[`insuranceAddress${section}`] || ''}
           placeholder="999 High Garden"
-          className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
+          className={` ${
+            touched.insuranceAddress && errors.insuranceAddress
+              ? 'border-red-500'
+              : 'border-poise-2'
+          }  w-full rounded-lg border  px-4 py-2 pt-6`}
         />
         <label
           htmlFor="address"
@@ -611,9 +739,9 @@ const SubscriberForm = ({
         <input
           type="text"
           id="address2"
-          name={`insuranceAddress2${section}`}
+          name={`insuranceAddress2_${section}`}
           onChange={handleChange}
-          value={values[`insuranceAddress2${section}`] || ''}
+          value={values[`insuranceAddress2_${section}`] || ''}
           placeholder="#1"
           className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
         />
@@ -632,9 +760,14 @@ const SubscriberForm = ({
           id="city"
           name={`insuranceCity${section}`}
           onChange={handleChange}
+          onBlur={handleBlur}
           value={values[`insuranceCity${section}`] || ''}
           placeholder="Winterfell"
-          className="w-full rounded-lg border border-poise-2 px-4 py-2 pt-6"
+          className={`${
+            touched.insuranceCity && errors.insuranceCity
+              ? 'border-red-500'
+              : 'border-poise-2'
+          } w-full rounded-lg border border-poise-2 px-4 py-2 pt-6`}
         />
         <label
           htmlFor="city"
@@ -652,8 +785,13 @@ const SubscriberForm = ({
             id="state"
             name={`insuranceState${section}`}
             onChange={handleChange}
+            onBlur={handleBlur}
             value={values[`insuranceState${section}`] || ''}
-            className=" w-full rounded-lg border-poise-2 px-4 py-2 pt-6"
+            className={` ${
+              touched.insuranceState && errors.insuranceState
+                ? 'border-red-500'
+                : 'border-poise-2'
+            } w-full rounded-lg px-4 py-2 pt-6`}
           >
             <option disabled defaultValue={''}>
               -- State --
@@ -673,8 +811,13 @@ const SubscriberForm = ({
             placeholder="-"
             name={`insuranceZip${section}`}
             onChange={handleChange}
+            onBlur={handleBlur}
             value={values[`insuranceZip${section}`] || ''}
-            className=" w-full rounded-lg border-poise-2 px-4 py-2 pt-6"
+            className={` ${
+              touched.insuranceZip && errors.insuranceZip
+                ? 'border-red-500'
+                : 'border-poise-2'
+            }   w-full rounded-lg border-poise-2 px-4 py-2 pt-6`}
           ></input>
           <label className="absolute left-0 top-0 ml-8 mt-2 text-xs text-black-4">
             Zip / Postal Code
@@ -690,8 +833,9 @@ const SubscriberForm = ({
         to upload.
       </div>
 
+      {/* <Identification /> */}
       {/* Insurance Front Card */}
-      <div className="relative mt-4">
+      {/* <div className="relative mt-4">
         <div className="bg-slate-100/opacity-60 items-center rounded border border-sky-950 bg-slate-100 px-10 py-7 align-middle ">
           <div className="">
             <div className=" flex w-full justify-center">
@@ -727,10 +871,10 @@ const SubscriberForm = ({
           id="frontInsuranceCard"
           // onChange={loadUploadedImage}
         />
-      </div>
+      </div> */}
 
       {/* Insurance Back Card */}
-      <div className="relative mt-4">
+      {/* <div className="relative mt-4">
         <div className=" bg-slate-100/opacity-60 items-center rounded border border-sky-950 bg-slate-100 px-10 py-7 align-middle">
           <div className="">
             <div className=" flex w-full justify-center">
@@ -766,7 +910,49 @@ const SubscriberForm = ({
           id="backInsuranceCard"
           // onChange={loadUploadedImage}
         />
-      </div>
+      </div> */}
+        <div className="pt-6 px-6 ">
+          <div className="text-xl">Identification</div>
+        </div>
+
+        <div className="p-6">
+          <div className=" text-black text-base font-medium ">
+            Upload the patient&apos;s photo ID
+          </div>
+
+          <div className="pt-2 text-black text-xs font-normal ">
+            Place the card on a flat and well-lit surface. You can use your
+            Driver&apos;s License, State-Issued ID, or Passport.
+          </div>
+          {/* Insurance Front Card */}
+
+          <div className="mt-4 relative">
+            <ImageUpload
+              id="frontInsuranceCard"
+              name="frontInsuranceCard"
+              label="Upload Front of Identification Card"
+              error={errorUpload}
+              setError={setErrorUpload}
+              value={values[`frontInsuranceCard${section}`] || ''}
+              setValue={setFrontInsuranceCard}
+            ></ImageUpload>
+          </div>
+          {/* Insurance Back Card */}
+          <div className="mt-4 relative">
+            <ImageUpload
+              id="backInsuranceCard"
+              name="backInsuranceCard"
+              label="Upload Back of Identification Card"
+              error={errorUpload}
+              setError={setErrorUpload}
+              value={values[`backInsuranceCard${section}`] || ''}
+              setValue={setBackInsuranceCard}
+            ></ImageUpload>
+          </div>
+        </div>
+
+        {/* Action */}
+        
     </div>
   </div>
 );
@@ -779,17 +965,20 @@ const DoYouHaveInsuranceForm = ({
   handleChange,
   setFieldValue,
   errors,
+  handleBlur,
+  touched,
   // handleCheckboxChange,
   isValidInsurance,
   isValidating,
   validationStatus,
   section,
-
 }: {
   values: any;
   handleChange: any;
   setFieldValue: any;
   errors: any;
+  handleBlur: any;
+  touched: any;
   // handleCheckboxChange: any;
   isValidInsurance: any;
   isValidating: any;
@@ -806,6 +995,7 @@ const DoYouHaveInsuranceForm = ({
               type="checkbox"
               disabled={isValidating}
               name="hasInsurance"
+              onBlur={handleBlur}
               checked={values[`hasInsurance${section}`] === '1'}
               onChange={() => setFieldValue(`hasInsurance${section}`, '1')}
               // onChange={() => handleCheckboxChange('1')}
@@ -845,7 +1035,9 @@ const DoYouHaveInsuranceForm = ({
               value={values[`insuranceCarrier${section}`] || ''}
               onChange={handleChange}
               disabled={isValidating}
-              className={`w-full  rounded-lg  border-[#6e787a] px-4 py-2  pt-6  ${isValidating ? 'bg-[#e8f2f5]' : 'border'}`}
+              // onBlur={handleBlur}
+
+              className={`  w-full  rounded-lg  border-[#6e787a] px-4 py-2  pt-6  ${isValidating ? 'bg-[#e8f2f5]' : 'border'}`}
             >
               <option value="Cigna HMO/PPO">Cigna HMO/PPO</option>
               <option value="Kaiser Permanente">Kaiser Permanente</option>
@@ -882,8 +1074,13 @@ const DoYouHaveInsuranceForm = ({
                 value={values[`subscriberId${section}`] || ''}
                 onChange={handleChange}
                 disabled={isValidating}
+                onBlur={handleBlur}
                 // name="subscriberId"
-                className={`    ${isValidating ? ' bg-[#e8f2f5] text-[#6e787a]' : 'border'} w-full rounded-lg border-[#6e787a] px-4 py-2 pt-6`}
+                className={`  ${
+                  touched.subscriberId && errors.subscriberId
+                    ? 'border-red-500'
+                    : 'border-gray-400'
+                } ${isValidating ? ' bg-[#e8f2f5] text-[#6e787a]' : 'border'} w-full rounded-lg  px-4 py-2 pt-6`}
               />
               <svg
                 className={` absolute left-[90%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values.isValidInsurance !== 'true' ? 'hidden' : 'block'}  ${isValidating ? 'bg-[#e8f2f5]' : ''}`}
@@ -921,8 +1118,13 @@ const DoYouHaveInsuranceForm = ({
             name={`subscriberDob${section}`}
             value={values[`subscriberDob${section}`] || ''}
             onChange={handleChange}
+            onBlur={handleBlur}
             disabled={isValidating}
-            className={`border ${errors[`dateOfBirth${section}`] || ''} ? 'border-zest-6' : ''}  ${values[`isValidInsurance${section}`] || ''} !== 'true' ? '' : ''} w-full appearance-none  rounded-lg px-4 py-2 pt-6  ${isValidating ? 'border-0 bg-[#e8f2f5] outline-0 ring-0 placeholder:text-black-4' : 'border'}`}
+            className={`border  ${
+              touched.subscriberDob && errors.subscriberDob
+                ? 'border-red-500'
+                : 'border-gray-400'
+            } ${values[`isValidInsurance${section}`] || ''} !== 'true' ? '' : ''} w-full appearance-none  rounded-lg px-4 py-2 pt-6  ${isValidating ? 'border-0 bg-[#e8f2f5] outline-0 ring-0 placeholder:text-black-4' : 'border'}`}
             placeholder="mm/dd/yyyy"
           ></input>
           <label

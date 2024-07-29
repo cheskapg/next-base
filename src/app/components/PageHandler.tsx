@@ -30,7 +30,7 @@ export default function PageHandler({
 }) {
   const { step } = useFormState();
   const steps = [
-    <PatientDetail patient={patient} patientId={patientNumber} />,
+    // <PatientDetail patient={patient} patientId={patientNumber} />,
     <Insurance />,
     <Identification />,
     <Demographics region={region} globalDropdowns={globalDropdowns} />,
