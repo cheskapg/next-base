@@ -27,7 +27,7 @@ export default function Insurance() {
     handleBlur,
     validateForm,
     setFieldValue,
-    touched,
+    dirty,
   } = useFormik({
     initialValues: {
       insuranceCarrier: patientData ? patientData.insuranceCarrier : '',
@@ -71,7 +71,6 @@ export default function Insurance() {
     // isValidating: true,
     validateOnBlur: true,
     enableReinitialize: true,
-
     onSubmit: (values: any) => {
       onHandleFormSubmit(values);
     },
@@ -216,7 +215,7 @@ export default function Insurance() {
 
     // Check if there are errors for the specified fields
     const hasErrors = fields.some((field: string | number) => errors[field]);
-    console.log(hasErrors, 'hasss');
+    // console.log(hasErrors, 'hasss');
     return hasErrors;
   };
   const [errorUpload, setErrorUpload] = useState(false);
@@ -337,13 +336,10 @@ export default function Insurance() {
             return; // Exit if there are errors or form is not valid
           }
 
-
           if (validateSubscriberId(data[`subscriberId2`])) {
             handleValidation(data[`subscriberId2`], () => {
               setCurrentStep(currentStep + 1);
             });
-
-
           } else {
             handleValidation(data[`subscriberId2`], () => {});
             console.error('Invalidss subscriber ID');
@@ -437,7 +433,7 @@ export default function Insurance() {
               setFieldValue={setFieldValue}
               errors={errors}
               handleBlur={handleBlur}
-              touched={touched}
+              dirty={dirty}
               // handleCheckboxChange={handleCheckboxChange}
               isValidInsurance={isValidInsurance}
               isValidating={isValidating}
@@ -450,7 +446,7 @@ export default function Insurance() {
               values={values}
               handleChange={handleChange}
               handleBlur={handleBlur}
-              touched={touched}
+              dirty={dirty}
               section=""
               errors={errors}
               errorUpload={errorUpload}
@@ -466,7 +462,7 @@ export default function Insurance() {
               setFieldValue={setFieldValue}
               errors={errors}
               handleBlur={handleBlur}
-              touched={touched}
+              dirty={dirty}
               // handleCheckboxChange={handleCheckboxChange}
               isValidInsurance={isValidInsurance}
               isValidating={isValidating}
@@ -479,7 +475,7 @@ export default function Insurance() {
               values={values}
               handleChange={handleChange}
               handleBlur={handleBlur}
-              touched={touched}
+              dirty={dirty}
               section="2"
               errors={errors}
               //insurance card
@@ -586,7 +582,7 @@ const SubscriberForm = ({
   values,
   handleChange,
   handleBlur,
-  touched,
+  dirty,
   section,
   errors,
   //insurancecard
@@ -599,7 +595,7 @@ const SubscriberForm = ({
   values: any;
   handleChange: any;
   handleBlur: any;
-  touched: any;
+  dirty: any;
   section: any;
   //insurance cards
   errorUpload: any;
@@ -620,13 +616,13 @@ const SubscriberForm = ({
         value={values[`insuranceSubscriber${section}`] || ''}
         onChange={handleChange}
         className={`w-full rounded-lg border border-poise-2 px-4 py-2 pt-6  ${
-          touched.insuranceSubscriber && errors.insuranceSubscriber
-            ? 'border-red-500'
+          !dirty[`insuranceSubscriber${section}`] &&   errors[`insuranceSubscriber${section}`]
+          ? 'border-red-500'
             : 'border-poise-2'
         }  `}
       >
         <option disabled defaultValue="">
-          -- Select an Option --
+          Select an option
         </option>
         <option value="1">Patient</option>
         <option value="2">Spouse</option>
@@ -649,14 +645,14 @@ const SubscriberForm = ({
       {/* First Name */}
       <div className="relative mt-4 items-center">
         <input
-          id="firstName"
+          id={`insuranceFirstName${section}`}
           placeholder="John"
           name={`insuranceFirstName${section}`}
           value={values[`insuranceFirstName${section}`] || ''}
           onChange={handleChange}
           onBlur={handleBlur}
           className={`border ${
-            touched.insuranceFirstName && errors.insuranceFirstName
+            !dirty[`insuranceFirstName${section}`] &&   errors[`insuranceFirstName${section}`]
               ? 'border-red-500'
               : 'border-poise-2'
           }  w-full rounded-lg px-4 py-2 pt-6 `}
@@ -672,15 +668,15 @@ const SubscriberForm = ({
       {/* Last Name */}
       <div className="relative mt-4 items-center">
         <input
-          id="lastName"
+          id={`insuranceLastName${section}`}
           placeholder="Doe"
           onChange={handleChange}
           name={`insuranceLastName${section}`}
           onBlur={handleBlur}
           value={values[`insuranceLastName${section}`] || ''}
           className={`${
-            touched.insuranceLastName && errors.insuranceLastName
-              ? 'border-red-500'
+            !dirty[`insuranceLastName${section}`] &&   errors[`insuranceLastName${section}`]
+            ? 'border-red-500'
               : 'border-poise-2'
           }  w-full rounded-lg border px-4 py-2 pt-6`}
         />
@@ -703,7 +699,7 @@ const SubscriberForm = ({
           onBlur={handleBlur}
           value={values[`insuranceDob${section}`] || ''}
           className={`${
-            touched.insuranceDob && errors.insuranceDob
+            !dirty[`insuranceDob${section}`] &&   errors[`insuranceDob${section}`]
               ? 'border-red-500'
               : 'border-poise-2'
           } w-full rounded-lg border  py-2 pl-4 pt-6 text-black-4`}
@@ -728,8 +724,8 @@ const SubscriberForm = ({
             value={values[`insurancePhone${section}`] || ''}
             placeholder="(555) 555-5555"
             className={`${
-              touched.insurancePhone && errors.insurancePhone
-                ? 'border-red-500'
+              !dirty[`insurancePhone${section}`] &&   errors[`insurancePhone${section}`]
+              ? 'border-red-500'
                 : 'border-poise-2'
             }  w-full rounded-lg border px-4 py-2 pt-6`}
           ></input>
@@ -769,8 +765,8 @@ const SubscriberForm = ({
           value={values[`insuranceAddress${section}`] || ''}
           placeholder="999 High Garden"
           className={` ${
-            touched.insuranceAddress && errors.insuranceAddress
-              ? 'border-red-500'
+            !dirty[`insuranceAddress${section}`] &&   errors[`insuranceAddress${section}`]
+            ? 'border-red-500'
               : 'border-poise-2'
           }  w-full rounded-lg border  px-4 py-2 pt-6`}
         />
@@ -812,7 +808,7 @@ const SubscriberForm = ({
           value={values[`insuranceCity${section}`] || ''}
           placeholder="Winterfell"
           className={`${
-            touched.insuranceCity && errors.insuranceCity
+            !dirty[`insuranceCity${section}`] &&   errors[`insuranceCity${section}`]
               ? 'border-red-500'
               : 'border-poise-2'
           } w-full rounded-lg border border-poise-2 px-4 py-2 pt-6`}
@@ -835,9 +831,9 @@ const SubscriberForm = ({
             onChange={handleChange}
             onBlur={handleBlur}
             value={values[`insuranceState${section}`] || ''}
-            className={` ${
-              touched.insuranceState && errors.insuranceState
-                ? 'border-red-500'
+            className={` border ${
+              !dirty[`insuranceState${section}`] &&   errors[`insuranceState${section}`]
+              ? 'border-red-500'
                 : 'border-poise-2'
             } w-full rounded-lg px-4 py-2 pt-6`}
           >
@@ -861,8 +857,8 @@ const SubscriberForm = ({
             onChange={handleChange}
             onBlur={handleBlur}
             value={values[`insuranceZip${section}`] || ''}
-            className={` ${
-              touched.insuranceZip && errors.insuranceZip
+            className={` border ${
+              !dirty[`insuranceZip${section}`] &&   errors[`insuranceZip${section}`]
                 ? 'border-red-500'
                 : 'border-poise-2'
             }   w-full rounded-lg border-poise-2 px-4 py-2 pt-6`}
@@ -974,7 +970,7 @@ const DoYouHaveInsuranceForm = ({
   setFieldValue,
   errors,
   handleBlur,
-  touched,
+  dirty,
   // handleCheckboxChange,
   isValidInsurance,
   isValidating,
@@ -986,7 +982,7 @@ const DoYouHaveInsuranceForm = ({
   setFieldValue: any;
   errors: any;
   handleBlur: any;
-  touched: any;
+  dirty: any;
   // handleCheckboxChange: any;
   isValidInsurance: any;
   isValidating: any;
@@ -997,7 +993,9 @@ const DoYouHaveInsuranceForm = ({
     <div className={`flex flex-col `}>
       <div className="relative mt-4 items-center">
         <div className="flex gap-4">
-          <div className="flex h-6 w-6 justify-center self-center rounded-lg border border-sky-700 p-0.5">
+          <div
+            className={`flex h-6 w-6 justify-center self-center rounded-lg border ${values[`hasInsurance${section}`] === '1' ? 'bg-sky-700 ' : ''} border-sky-700 p-0.5`}
+          >
             <input
               id="hasInsurance"
               type="checkbox"
@@ -1007,7 +1005,7 @@ const DoYouHaveInsuranceForm = ({
               checked={values[`hasInsurance${section}`] === '1'}
               onChange={() => setFieldValue(`hasInsurance${section}`, '1')}
               // onChange={() => handleCheckboxChange('1')}
-              className="peer-not rounded-md border-hidden p-0.5"
+              className="peer-not appearance-none rounded-md border-hidden p-0.5"
             ></input>
           </div>
           <div className=" inline-flex flex-col items-start justify-center">
@@ -1047,7 +1045,7 @@ const DoYouHaveInsuranceForm = ({
               }
               // onBlur={handleBlur}
 
-              className={`  ${!isValidating && validationStatus == 0 && isValidInsurance ? 'border-[#d13e27]' : 'border-[#dbddde]'}   ${isValidating ? ' flex-col border border-[#dbddde] bg-[#e8f2f5]  text-[#6e787a] opacity-70' : 'border'} w-full rounded-lg  px-4 py-2 pt-6 ${!isValidating && validationStatus == 2 ? 'text-[#2a2f31]' : ''} `}
+              className={`  ${!isValidating && validationStatus == 0 && isValidInsurance ? 'border-[#d13e27]' : 'border-[#dbddde]'}   ${isValidating ? ' flex-col border border-[#dbddde] bg-[#e8f2f5]  text-[#6e787a] opacity-70' : 'border'} w-full rounded-lg  py-2 pl-3 pt-6 ${!isValidating && validationStatus == 2 ? 'text-[#2a2f31]' : ''} `}
             >
               <option value="Cigna HMO/PPO">Cigna HMO/PPO</option>
               <option value="Kaiser Permanente">Kaiser Permanente</option>
@@ -1089,17 +1087,19 @@ const DoYouHaveInsuranceForm = ({
                 onBlur={handleBlur}
                 // name="subscriberId"
                 className={` border
-                  ${isValidating 
-                    ? 'border-[#dbddde] bg-[#e8f2f5] text-[#6e787a] opacity-70'
-                    : validationStatus === 2 
-                      ? isValidInsurance 
-                        ? 'border-[#6ea787a]' 
-                        : 'border-red-500' 
-                      : 'border-[#6e787a]'
+                  ${
+                    isValidating
+                      ? 'border-[#dbddde] bg-[#e8f2f5] text-[#6e787a] opacity-70'
+                      : validationStatus === 2
+                        ? isValidInsurance
+                          ? 'border-[#6ea787a]'
+                          : 'border-red-500'
+                        : 'border-[#6e787a]'
                   } 
-                  ${!values[`subscriberId${section}`] 
-                    ? 'border-red-500' 
-                    : 'border-[#6e787a]'
+                  ${
+                    !values[`subscriberId${section}`]
+                      ? 'border-red-500'
+                      : 'border-[#6e787a]'
                   } 
                   w-full rounded-lg px-4 py-2 pt-6
                 `}
@@ -1127,7 +1127,7 @@ const DoYouHaveInsuranceForm = ({
               Subscriber Id
             </label>
           </div>
-          
+
           <div className=" text-sm text-black-2">
             This is NOT group, issuer, or RX number and may contain letters and
             numbers.
@@ -1149,22 +1149,26 @@ const DoYouHaveInsuranceForm = ({
             // ${isValidInsurance  ? 'border-[#dbddde]' : 'border-[#d13e27]'}
 
             className={`border
-              ${isValidating 
-                ? 'border-[#dbddde] bg-[#e8f2f5] text-[#6e787a] opacity-70'
-                : validationStatus === 2 
-                  ? isValidInsurance 
-                    ? 'border-[#6e787a]' 
-                    : 'border-red-500' 
-                  : 'border-[#6e787a]'
+              ${
+                isValidating
+                  ? 'border-[#dbddde] bg-[#e8f2f5] text-[#6e787a] opacity-70'
+                  : validationStatus === 2
+                    ? isValidInsurance
+                      ? 'border-[#6e787a]'
+                      : 'border-red-500'
+                    : 'border-[#6e787a]'
               }
-              ${!values[`subscriberDob${section}`] 
-                ? 'border-red-500' 
-                : 'border-[#6e787a]'
+              ${
+                !values[`subscriberDob${section}`]
+                  ? 'border-red-500'
+                  : 'border-[#6e787a]'
               } 
               w-full appearance-none rounded-lg px-4 py-2 pt-6
-              ${touched[`subscriberDob${section}`] && errors[`subscriberDob${section}`] 
-                ? 'border-red-500' 
-                : 'border-[#6e787a]'
+              ${
+                dirty[`subscriberDob${section}`] &&
+                errors[`subscriberDob${section}`]
+                  ? 'border-red-500'
+                  : 'border-[#6e787a]'
               }
             `}
             placeholder="mm/dd/yyyy"
@@ -1206,7 +1210,9 @@ const DoYouHaveInsuranceForm = ({
     >
       <div className="relative mt-4 items-center">
         <div className="flex gap-4">
-          <div className="flex h-6 w-6 justify-center self-center rounded-lg border border-sky-700 p-0.5">
+          <div
+            className={`flex h-6 w-6 justify-center self-center rounded-lg border ${values[`hasInsurance${section}`] === '0' ? 'bg-sky-700 ' : ''} border-sky-700 p-0.5`}
+          >
             <input
               id="hasInsurance"
               type="checkbox"
@@ -1214,7 +1220,7 @@ const DoYouHaveInsuranceForm = ({
               name={`hasInsurance${section}`}
               checked={values[`hasInsurance${section}`] === '0'}
               onChange={() => setFieldValue(`hasInsurance${section}`, '0')}
-              className="peer-not rounded-md border-hidden p-0.5"
+              className="peer-not rounded-md appearance-none border-hidden p-0.5"
             ></input>
           </div>
           <div className=" inline-flex flex-col items-start justify-center">
