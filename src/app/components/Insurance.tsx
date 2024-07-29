@@ -6,6 +6,7 @@ import { useFormik } from 'formik';
 import { useFormState } from './FormContext';
 import { DayPicker } from 'react-day-picker';
 import Identification from './Indentification';
+import { validateSubscriberId } from '../actions/api'; // Adjust the path as necessary
 
 import { handleWebpackExternalForEdgeRuntime } from 'next/dist/build/webpack/plugins/middleware-plugin';
 import { insuranceSchema } from '@/schemas/insurance';
@@ -147,14 +148,14 @@ export default function Insurance() {
   //     to proceed to insurance steps
   const [currentStep, setCurrentStep] = useState<number>(1);
 
-  // Validation function to check if the subscriber ID is valid
-  const validateSubscriberId = (subscriberId: string) => {
-    // Define valid subscriber IDs
-    const validSubscriberIds = ['1111c'];
+  // // Validation function to check if the subscriber ID is valid
+  // const validateSubscriberId = (subscriberId: string) => {
+  //   // Define valid subscriber IDs
+  //   const validSubscriberIds = ['1111c'];
 
-    // Check if the provided subscriber ID is in the valid list
-    return validSubscriberIds.includes(subscriberId);
-  };
+  //   // Check if the provided subscriber ID is in the valid list
+  //   return validSubscriberIds.includes(subscriberId);
+  // };
   //for validation of insurance - result show status
   const [isValidInsurance, setIsValidInsurance] = useState(false);
   const [validationStatus, setValidationStatus] = useState(0);
@@ -170,8 +171,8 @@ export default function Insurance() {
       'isValidInsurance validationStatus',
     );
     // Simulate validation delay
-    setTimeout(() => {
-      if (validateSubscriberId(subscriberId)) {
+    setTimeout(async () => {
+      if (await validateSubscriberId(subscriberId)) {
         setValidationStatus(2);
         setIsValidInsurance(true); // if valid - passed from validate sub Id
         setIsValidating(false);
@@ -195,9 +196,9 @@ export default function Insurance() {
           onSuccess();
         }, 3000); // 3 seconds delay
       } else {
-        setValidationStatus(2);
+        setValidationStatus(2); // done validating update status done
         setIsValidInsurance(false); // if not valid
-        setIsValidating(false);
+        setIsValidating(false); // done validating
       }
     }, 2000); // Simulated validation time
   };
@@ -291,7 +292,7 @@ export default function Insurance() {
             return; // Exit if there are errors or form is not valid
           }
 
-          if (validateSubscriberId(data[`subscriberId`])) {
+          if (await validateSubscriberId(data[`subscriberId`])) {
             handleValidation(data[`subscriberId`], () => {
               setCurrentStep(currentStep + 1);
             });
@@ -336,7 +337,7 @@ export default function Insurance() {
             return; // Exit if there are errors or form is not valid
           }
 
-          if (validateSubscriberId(data[`subscriberId2`])) {
+          if (await validateSubscriberId(data[`subscriberId2`])) {
             handleValidation(data[`subscriberId2`], () => {
               setCurrentStep(currentStep + 1);
             });
@@ -616,9 +617,8 @@ const SubscriberForm = ({
         value={values[`insuranceSubscriber${section}`] || ''}
         onChange={handleChange}
         className={`w-full rounded-lg border border-poise-2 px-4 py-2 pt-6  ${
-          !touched[`insuranceSubscriber${section}`] &&
           errors[`insuranceSubscriber${section}`]
-            ? 'border-red-500'
+            ? 'border---red-500'
             : 'border-poise-2'
         }  `}
       >
