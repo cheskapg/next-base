@@ -55,6 +55,8 @@ export default function Insurance() {
       isValidInsurance: patientData ? patientData.isValidInsurance : '',
       insuranceSubscriber: patientData ? patientData.insuranceSubscriber : '',
       subscriberDob: patientData ? patientData.subscriberDob : '',
+      frontInsuranceCard: patientData ? patientData.frontInsuranceCard : '',
+      backInsuranceCard: patientData ? patientData.backInsuranceCard : '',
 
       // Additional Insurance Fields
       insuranceCarrier2: patientData ? patientData.insuranceCarrier2 : '',
@@ -72,6 +74,9 @@ export default function Insurance() {
       isValidInsurance2: patientData ? patientData.isValidInsurance2 : '',
       insuranceSubscriber2: patientData ? patientData.insuranceSubscriber2 : '',
       subscriberDob2: patientData ? patientData.subscriberDob2 : '',
+      frontInsuranceCard2: patientData ? patientData.frontInsuranceCard2 : '',
+      backInsuranceCard2: patientData ? patientData.backInsuranceCard2 : '',
+
     },
 
     validationSchema: insuranceSchema,
@@ -101,6 +106,8 @@ export default function Insurance() {
     subscriberDob: string;
     isValidInsurance: string;
     insuranceSubscriber: string;
+    frontInsuranceCard:string;
+    backInsuranceCard:string;
     // Additional Insurance Fields
     insuranceCarrier2: string;
     subscriberId2: string;
@@ -117,6 +124,8 @@ export default function Insurance() {
     subscriberDob2: string;
     isValidInsurance2: string;
     insuranceSubscriber2: string;
+    frontInsuranceCard2: string;
+    backInsuranceCard2: string;
   };
   // Function to reset Formik fields on back of insurance
   const resetInsuranceFields = (section?: number) => {
@@ -555,7 +564,7 @@ export default function Insurance() {
                   ) : (
                     <>
                       {currentStep === 1 && values[`hasInsurance`] === '1' ? (
-                        <span>Validate</span>
+                        <span>Validate Insurance</span>
                       ) : currentStep === 1 ? (
                         <span>Next</span>
                       ) : null}
@@ -585,6 +594,43 @@ export default function Insurance() {
           </div>
         </div>
       </form>
+     {/* // test insurance */}
+        <div className="p-6">
+          <div className=" text-black text-base font-medium ">
+            Upload insurance card
+          </div>
+
+          <div className="pt-2 text-black text-sm font-normal ">
+            If you have a digital insurance card, download or screenshot both sides to upload.
+          
+          </div>
+          {/* Insurance Front Card */}
+
+          <div className="mt-4 relative">
+            <ImageUpload
+              id="frontInsuranceCard"
+              name="frontInsuranceCard"
+              label="Upload Front of Insurance Card"
+              error={errorUpload}
+              setError={setErrorUpload}
+              value={frontInsuranceCard}
+              setValue={setFrontInsuranceCard}
+            ></ImageUpload>
+          </div>
+          {/* Insurance Back Card */}
+          <div className="mt-4 relative">
+            <ImageUpload
+              id="backInsuranceCard"
+              name="backInsuranceCard"
+              label="Upload Back of Insurance Card"
+              error={errorUpload}
+              setError={setErrorUpload}
+              value={backInsuranceCard}
+              setValue={setBackInsuranceCard}
+            ></ImageUpload>
+          </div>
+        </div>
+
     </>
   );
 }

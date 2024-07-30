@@ -49,7 +49,10 @@ export default interface IPatient {
   isValidInsurance: string;
   insuranceSubscriber: string;
   subscriberDob: string;
+  //insurance card
 
+  frontInsuranceCard: string; 
+  backInsuranceCard: string; 
   
   //additional subscriber
   insuranceCarrier2: string;
@@ -66,5 +69,10 @@ export default interface IPatient {
   insuranceZip2: string;
   subscriberDob2: string;
   isValidInsurance2: string;
-  insuranceSubscriber2: string;
+  insuranceSubscriber2: string;   
+  //insurance card
+
+  frontInsuranceCard2: string; 
+  backInsuranceCard2: string; 
+
 }

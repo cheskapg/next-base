@@ -22,6 +22,11 @@ export const insuranceSchema = yup.object().shape({
     .date()
     .required('*Required field')
     .max(new Date(), "Date can't be in the future"),
+
+    //insurance card
+
+    frontInsuranceCard: yup.string().required('*Upload Insurance Card'),
+    backInsuranceCard: yup.string().required('*Upload Insurance Card'),
   // Additional Insurance Fields
   insuranceCarrier2: yup.string().required('*Required field'),
   subscriberId2: yup.string().required('*Required field'),
@@ -43,4 +48,7 @@ export const insuranceSchema = yup.object().shape({
   .max(new Date(), "Date can't be in the future"),
   isValidInsurance2: yup.string().required('*Required field'),
   insuranceSubscriber2: yup.string().required('*Required field'),
+//insurance card
+  frontInsuranceCard2: yup.string().required('*Upload Insurance Card'),
+  backInsuranceCard2: yup.string().required('*Upload Insurance Card'),
 });

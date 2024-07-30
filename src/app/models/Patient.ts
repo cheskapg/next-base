@@ -4,101 +4,108 @@ import IPatient from "@/interface/IPatient";
 export default class Patient implements IPatient {
   personId = 0;
 
-    patientId = 0;
+  patientId = 0;
 
-    firstName = '';
+  firstName = '';
 
-    lastName = '';
+  lastName = '';
 
-    dateOfBirth = '';
+  dateOfBirth = '';
 
-    sex = '';
+  sex = '';
 
-    sexAtBirth = '';
+  sexAtBirth = '';
 
-    preferredPronouns = '';
+  preferredPronouns = '';
 
-    genderIdentity = '';
+  genderIdentity = '';
 
-    suffix = '';
+  suffix = '';
 
-    maritalStatus = '';
+  maritalStatus = '';
 
-    race = '';
+  race = '';
 
-    raceId = 0;
+  raceId = 0;
 
-    ethnicity = '';
+  ethnicity = '';
 
-    ethnicityId = 0;
+  ethnicityId = 0;
 
-    language = '';
+  language = '';
 
-    languageId = 0;
+  languageId = 0;
 
-    phoneNumber = '';
+  phoneNumber = '';
 
-    email = '';
+  email = '';
 
-    addressLine1 = '';
+  addressLine1 = '';
 
-    addressLine2 = '';
+  addressLine2 = '';
 
-    city = '';
+  city = '';
 
-    state = '';
+  state = '';
 
-    zipCode = '';
+  zipCode = '';
 
-    reasonForVisit = '';
+  reasonForVisit = '';
 
-    visitTime = '';
+  visitTime = '';
 
-    primaryCareProvider = '';
+  primaryCareProvider = '';
 
-    registrationId = 0;
+  registrationId = 0;
 
-    regionId = 0;
+  regionId = 0;
 
-    hospitalId = 0;
+  hospitalId = 0;
 
-    status = '';
+  status = '';
 
-//insurance
-    insuranceCarrier =  '' ;
-    subscriberId =  '' ;
-    hasInsurance =  '' ;
-    insuranceFirstName =  '' ;
-    insuranceLastName =  '' ;
-    insuranceDob =  '' ;
-    insurancePhone =  '' ;
-    insuranceCountry =  '' ;
-    insuranceAddress =  '' ;
-    insuranceAddress2 =  '' ;
-    insuranceCity =  '' ;
-    insuranceState =  '' ;
-    insuranceZip =  '' ;
-    isValidInsurance =  '' ;
-    insuranceSubscriber =  '' ;
-    subscriberDob =  '' ;
+  //insurance
+  insuranceCarrier = '';
+  subscriberId = '';
+  hasInsurance = '';
+  insuranceFirstName = '';
+  insuranceLastName = '';
+  insuranceDob = '';
+  insurancePhone = '';
+  insuranceCountry = '';
+  insuranceAddress = '';
+  insuranceAddress2 = '';
+  insuranceCity = '';
+  insuranceState = '';
+  insuranceZip = '';
+  isValidInsurance = '';
+  insuranceSubscriber = '';
+  subscriberDob = '';
+  //insurance card
+
+  frontInsuranceCard = '';
+  backInsuranceCard = '';
 
 
+  // additional carrier
+  insuranceCarrier2 = '';
+  subscriberId2 = '';
+  hasInsurance2 = '';
+  insuranceFirstName2 = '';
+  insuranceLastName2 = '';
+  insuranceDob2 = '';
+  insurancePhone2 = '';
+  insuranceCountry2 = '';
+  insuranceAddress2_2 = '';
+  insuranceCity2 = '';
+  insuranceState2 = '';
+  insuranceZip2 = '';
+  subscriberDob2 = '';
+  isValidInsurance2 = '';
+  insuranceSubscriber2 = '';
+  //insurance card
 
-    // additional carrier
-    insuranceCarrier2 =  '' ;
-      subscriberId2 =  '' ;
-      hasInsurance2 =  '' ;
-      insuranceFirstName2 =  '' ;
-      insuranceLastName2 =  '' ;
-      insuranceDob2 =  '' ;
-      insurancePhone2 =  '' ;
-      insuranceCountry2 =  '' ;
-      insuranceAddress2_2 =  '' ;
-      insuranceCity2 =  '' ;
-      insuranceState2 =  '' ;
-      insuranceZip2 =  '' ;
-      subscriberDob2 =  '' ;
-      isValidInsurance2 =  '' ;
-      insuranceSubscriber2 =  '' ;
-   
-  }
+  frontInsuranceCard2 = '';
+  backInsuranceCard2 = '';
+
+}
