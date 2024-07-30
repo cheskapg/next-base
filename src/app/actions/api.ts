@@ -116,14 +116,15 @@ export const fetchMaritalStatusList = async () => {
 // Static list of valid subscriber IDs
 const validSubscriberIds = ['1111c', '2222d', '3333e'];
 
-export const validateSubscriberId = async (subscriberId:any) => {
+
+export const validateSubscriberId = async (subscriberId: string) => {
   // Static response simulating an API call
   const response = {
     ok: true,
     json: async () => ({
       message: 'Subscriber ID validated successfully',
       data: {
-        isValid: ['1111c', '2222d', '3333e'].includes(subscriberId),
+        isValid: validSubscriberIds.includes(subscriberId),
       },
     }),
   };
@@ -134,5 +135,5 @@ export const validateSubscriberId = async (subscriberId:any) => {
   }
 
   const jsonData = await response.json();
-  return jsonData.data;
+  return jsonData.data.isValid;
 };
