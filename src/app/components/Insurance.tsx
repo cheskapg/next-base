@@ -14,6 +14,14 @@ import ImageUpload from './Fields/ImageUpload';
 // import { insuranceSchema } from "../schemas/insurance";
 // import { loadUploadedImage } from "../utils/helper";
 
+// import React, { useState } from "react";
+// import Link from "@/node_modules/next/link";
+// import { useFormState } from "./FormContext";
+// import { validateSubscriberId } from '../actions/api'; // Adjust the path as necessary
+// import { useFormik } from "formik";
+// import { insuranceSchema } from "../schemas/insurance";
+// import { loadUploadedImage } from "../utils/helper";
+// import ImageUpload from './Fields/ImageUpload';
 export default function Insurance() {
   const { onHandleNext, onHandleBack, setPatientData, patientData } =
     useFormState();
@@ -367,7 +375,7 @@ export default function Insurance() {
         }
 
         setPatientData((prev: any) => ({ ...prev, ...data }));
-        setCurrentStep(currentStep + 1);
+        onHandleNext();
         break;
       default:
         if (currentStep < 4) {
@@ -376,6 +384,7 @@ export default function Insurance() {
         } else {
           setPatientData((prev: any) => ({ ...prev, ...data }));
           onHandleNext();
+
         }
         break;
     }
@@ -413,7 +422,7 @@ export default function Insurance() {
     <>
       <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
         <div
-          className={`flex flex-1 flex-col p-6 `}
+          className={`flex flex-1 flex-col p-6 ${values.insuranceSubscriber === '1' || values.insuranceSubscriber === undefined ? 'h-screen' : 'h-full'} `}
         >
           <div className="text-xl ">
             {(() => {
@@ -508,9 +517,9 @@ export default function Insurance() {
             values[`hasInsurance`] === '1' ||
             values[`hasInsurance2`] === '0' ||
             values[`hasInsurance2`] === '1' ? (
-              <div className="flex flex-1 flex-col">
+              <div className="w-4/6">
                 <button
-                  disabled={isValidating || isValidInsurance ? true : false }
+                  disabled={isValidating || isValidInsurance ? true : false}
                   id="Next"
                   onClick={(e) => {
                     e.preventDefault();
@@ -551,7 +560,7 @@ export default function Insurance() {
                         <span>Next</span>
                       ) : null}
 
-                      {currentStep === 2 && <span>Next for Step 2</span>}
+                      {currentStep === 2 && <span>Next</span>}
 
                       {currentStep === 3 && values[`hasInsurance2`] === '1' ? (
                         <span>Validate</span>
@@ -606,7 +615,7 @@ const SubscriberForm = ({
 }) => (
   <div
     id="subsciberSection"
-    className={`mb-4 mt-4 flex  flex-1 flex-col `}
+    className={`mb-4 mt-4 flex h-full flex-1 flex-col `}
   >
     {/* Who is the subscriber */}
     <div className="relative mt-4 items-center">
@@ -723,6 +732,11 @@ const SubscriberForm = ({
           Patient&apos;s Date of Birth{' '}
           <span className={`text-xs font-normal text-zest-6 `}>*</span>
         </label>
+        <img
+          alt="Calendar"
+          src="../assets/images/Calendar.svg"
+          className="absolute right-0 top-0 z-10 mr-[15px] mt-[29px] w-4 items-end justify-end"
+        ></img>
       </div>
       <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
         {errors[`insuranceDob${section}`] as string}
@@ -1011,12 +1025,19 @@ const DoYouHaveInsuranceForm = ({
   <>
     <div className={`flex flex-col `}>
       <div className="relative mt-4 items-center">
-        <div className="flex gap-4">
+        <div
+          onClick={() =>
+            setFieldValue(
+              `hasInsurance${section}`,
+              values[`hasInsurance${section}`] === '1' ? '' : '1',
+            )
+          }
+          className="flex gap-4"
+        >
           <div
-            className={`flex h-6 w-6 justify-center self-center rounded-lg border ${values[`hasInsurance${section}`] === '1' ? 'bg-sky-700 ' : ''} border-sky-700 p-0.5`}
+            className={`flex h-6 w-6 justify-center self-center rounded-lg border ${values[`hasInsurance${section}`] === '1' ? 'bg-sky-700 ' : 'invisible'} border-sky-700 p-0.5`}
           >
             <input
-              id="hasInsurance"
               type="checkbox"
               disabled={isValidating || isValidInsurance === 0}
               name="hasInsurance"
@@ -1024,7 +1045,7 @@ const DoYouHaveInsuranceForm = ({
               checked={values[`hasInsurance${section}`] === '1'}
               onChange={() => setFieldValue(`hasInsurance${section}`, '1')}
               // onChange={() => handleCheckboxChange('1')}
-              className="peer-not h-6 w-6 appearance-none rounded-md border-hidden "
+              className={`peer-not h-5 w-5 appearance-none ${values[`hasInsurance${section}`] === '1' ? 'invisible' : ''}  rounded-md border-hidden `}
             ></input>
           </div>
           <div className=" inline-flex flex-col items-start justify-center">
@@ -1040,16 +1061,12 @@ const DoYouHaveInsuranceForm = ({
           </div>
         </div>
       </div>
-
-      <div className={`text-xs font-normal text-zest-6 `}>
-        {errors.hasInsurance as string}
-      </div>
     </div>
     {/* Carrier section */}
     {values[`hasInsurance${section}`] === '1' && (
       <div
         id="carrierSection"
-        className={` flex flex-1 flex-col bg-[#e8f2f5] ${!isValidating && validationStatus === 2 && !isValidInsurance ? 'bg-[#d13e27]/10' : ''} p-4`}
+        className={`flex h-full flex-1 flex-col bg-[#e8f2f5] ${!isValidating && validationStatus === 2 && !isValidInsurance ? 'bg-[#d13e27]/10' : ''} p-4`}
       >
         {/* Who is the insurance carrier */}
         <div className="relative mt-4 items-center">
@@ -1143,7 +1160,7 @@ const DoYouHaveInsuranceForm = ({
               htmlFor="subscriberId"
               className={`absolute left-0 top-0 ml-4  mt-2 text-xs text-black-4 ${errors[`subscriberId${section}`] ? 'text-status-red-text' : ''}   ${isValidating ? 'bg-[#e8f2f5]' : ''}`}
             >
-              Subscriber Id{' '}
+              Subscriber ID{' '}
               <span className={`text-xs font-normal text-zest-6 `}>*</span>
             </label>
           </div>
@@ -1159,7 +1176,7 @@ const DoYouHaveInsuranceForm = ({
         </div>
 
         {/* Add Subscriber Date of Birth */}
-        <div className={` mt-4 relative flex w-full`}>
+        <div className={` relative mt-4 flex w-full`}>
           <input
             type="date"
             id="subscriberDob"
@@ -1236,9 +1253,17 @@ const DoYouHaveInsuranceForm = ({
       className={`flex flex-col ${values.isValidInsurance !== 'true' ? 'block' : 'hidden'}`}
     >
       <div className="relative mt-4 items-center">
-        <div className="flex gap-4">
+        <div
+          onClick={() =>
+            setFieldValue(
+              `hasInsurance${section}`,
+              values[`hasInsurance${section}`] === '0' ? '' : '0',
+            )
+          }
+          className="flex gap-4"
+        >
           <div
-            className={`flex h-6 w-6 justify-center self-center rounded-lg border ${values[`hasInsurance${section}`] === '0' ? 'bg-sky-700 ' : ''} border-sky-700 p-0.5`}
+            className={`border-1 flex h-6  w-6 justify-center self-center rounded-lg border border-sky-700 ${values[`hasInsurance${section}`] === '0' ? 'bg-sky-700 ' : 'invisible'} border-sky-700 p-0.5`}
           >
             <input
               id="hasInsurance"
@@ -1247,7 +1272,7 @@ const DoYouHaveInsuranceForm = ({
               name={`hasInsurance${section}`}
               checked={values[`hasInsurance${section}`] === '0'}
               onChange={() => setFieldValue(`hasInsurance${section}`, '0')}
-              className="peer-not h-6 w-6 appearance-none rounded-md border-hidden "
+              className={`peer-not h-5 w-5 appearance-none ${values[`hasInsurance${section}`] === '0' ? 'invisible' : ''}  rounded-md border-hidden `}
             ></input>
           </div>
           <div className=" inline-flex flex-col items-start justify-center">
@@ -1262,10 +1287,6 @@ const DoYouHaveInsuranceForm = ({
             </label>
           </div>
         </div>
-      </div>
-
-      <div className={`text-xs font-normal text-zest-6 `}>
-        {errors.hasInsurance as string}
       </div>
     </div>
     <></>
