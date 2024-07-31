@@ -28,15 +28,14 @@ export default function Insurance() {
         if (data.hasInsurance === '1') {
           setTriggerValidation(true);
           console.log(isValidInsurance, 'parent validity');
+          console.log(isValidating, 'parent setIsValidating');
+
           if (isValidInsurance) {
             setCurrentStep(currentStep + 1);
-            setIsValidInsurance(true);
-            setIsValidating(false)
+
             console.log(isValidInsurance, 'isValidInsurance');
           } else {
-            // Handle not valid 
-            setIsValidInsurance(false);
-            setIsValidating(false)
+
           }
 
         }
@@ -111,6 +110,7 @@ export default function Insurance() {
             onSubmit={updateValues}
             hasInsurance={values.hasInsurance || ''}
             triggerValidation={triggerValidation}
+            setTriggerValidation={setTriggerValidation}
           />
         )}
         {currentStep === 2 && (
@@ -133,6 +133,8 @@ export default function Insurance() {
             onSubmit={updateValues}
             hasInsurance={values.hasInsurance || ''}
             triggerValidation={triggerValidation}
+            setTriggerValidation={setTriggerValidation}
+
           />
         )}
         {currentStep === 4 && (

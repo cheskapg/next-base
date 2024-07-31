@@ -9,20 +9,22 @@ import { validateSubscriberId } from '../../actions/api';
 const DoYouHaveInsuranceForm = ({
   section,
   isValidInsurance,
-  setIsValidInsurance, // Add this prop for setting the validity
+  setIsValidInsurance,
   isValidating,
-  setIsValidating, // Add this prop for setting the validating state
+  setIsValidating,
   validationStatus,
   onSubmit,
   hasInsurance,
   triggerValidation,
+  setTriggerValidation,
 }: {
   onSubmit: any;
   section: any;
-  isValidInsurance: boolean; // Specify as boolean for clarity
-  isValidating: boolean; // Specify as boolean for clarity
-  setIsValidInsurance: (isValid: boolean) => void; // New prop for updating isValidInsurance
-  setIsValidating: (isValidating: boolean) => void; // New prop for updating isValidating
+  isValidInsurance: boolean;
+  isValidating: any // Make statusUpdate optional
+  setIsValidInsurance: (isValid: boolean) => void;
+  setIsValidating: any;
+  setTriggerValidation: (triggerValidation: boolean) => void;
   validationStatus: any;
   hasInsurance: any;
   triggerValidation: any;
@@ -62,34 +64,71 @@ const DoYouHaveInsuranceForm = ({
     });
   };
   useEffect(() => {
-    if (triggerValidation) {
+    // if (triggerValidation) {
+    //   const validate = async () => {
+    //     setIsValidating(true); // Start validating
+    //     try {
+    //       const isValid = await validateSubscriberId(values[`subscriberId${section}`]);
+    //       console.log('Validation Result Child:', isValid);
+    //       if (isValid) {
+    //         setIsValidating(false); // Start validating
+    //         validationStatus = 2
+    //         setIsValidInsurance(true); // Update validity
+    //         onSubmit(values); // Notify parent
+    //       } else {
+    //         setIsValidInsurance(false); // Set invalid
+    //         console.log('Subscriber ID is invalid');
+    //       }
+    //     } catch (error) {
+    //       console.error('Validation Error:', error);
+    //     } finally {
+    //       // setIsValidating(false); // Stop validating
+    //       setTriggerValidation(false)
+    //     }
+    //   };
       const validate = async () => {
-        try {
-          const isValid = await validateSubscriberId(
-            values[`subscriberId${section}`],
+      setIsValidating(true);
+      validationStatus=1;
+      console.log(
+        isValidInsurance,
+        validationStatus,
+        'isValidInsurance validationStatus',
+      );
+      // Simulate validation delay
+      setTimeout(async () => {
+        if (await validateSubscriberId(values[`subscriberId${section}`])) {
+          setValidationStatus(2);
+          setIsValidInsurance(true); // if valid - passed from validate sub Id
+          setIsValidating(false);
+          // Simulate validation delay
+          console.log(
+            isValidInsurance,
+            validationStatus,
+            'isValidInsurance validationStatus',
           );
-          isValidating = true;
-          console.log('Validation Result Child:', isValid);
-          if (isValid) {
-            isValidating = false;
-            isValidInsurance = true;
-            // setIsValidating(false)
-            // setIsValidInsurance(true)
-            onSubmit({
-              ...values,
-              [`subscriberId${section}`]: values[`subscriberId${section}`],
-            });
-            // Handle invalid scenario
-            console.log('Subscriber ID is invalid');
-          }
-        } catch (error) {
-          console.error('Validation Error:', error);
-          // Handle error scenario
+  
+          // Proceed to next step after an additional 3-second delay
+          setTimeout(() => {
+            setValidationStatus(0);
+            setIsValidInsurance(false); // Reset validation state for future submissions
+            console.log(
+              isValidInsurance,
+              validationStatus,
+              'isValidInsurance validationStatus',
+            );
+  
+            onSuccess();
+          }, 3000); // 3 seconds delay
+        } else {
+          setValidationStatus(2); // done validating update status done
+          setIsValidInsurance(false); // if not valid
+          setIsValidating(false); // done validating
         }
-      };
-
+      }, 2000); // Simulated validation time
+    };
+  
       validate();
-    }
+    
   }, [triggerValidation]);
 
   const onHandleFormSubmit = async (data: TFormValues) => {
