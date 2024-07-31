@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import { useFormState } from '../FormContext';
 import {
@@ -12,7 +12,6 @@ const DoYouHaveInsuranceForm = ({
   setIsValidInsurance,
   isValidating,
   setIsValidating,
-  validationStatus,
   onSubmit,
   hasInsurance,
   triggerValidation,
@@ -21,11 +20,10 @@ const DoYouHaveInsuranceForm = ({
   onSubmit: any;
   section: any;
   isValidInsurance: boolean;
-  isValidating: any // Make statusUpdate optional
+  isValidating: any; // Make statusUpdate optional
   setIsValidInsurance: (isValid: boolean) => void;
   setIsValidating: any;
   setTriggerValidation: (triggerValidation: boolean) => void;
-  validationStatus: any;
   hasInsurance: any;
   triggerValidation: any;
 }) => {
@@ -53,6 +51,7 @@ const DoYouHaveInsuranceForm = ({
       onHandleFormSubmit(values);
     },
   });
+  const [validationStatus, setValidationStatus] = useState(0);
 
   const { values, errors, handleChange, handleBlur, setFieldValue } = formik;
   const handleCheckboxChange = (value: string) => {
@@ -86,18 +85,14 @@ const DoYouHaveInsuranceForm = ({
     //       setTriggerValidation(false)
     //     }
     //   };
-      const validate = async () => {
+    const validate = async () => {
       setIsValidating(true);
-      validationStatus=1;
-      console.log(
-        isValidInsurance,
-        validationStatus,
-        'isValidInsurance validationStatus',
-      );
+      setValidationStatus(0);
+
       // Simulate validation delay
       setTimeout(async () => {
         if (await validateSubscriberId(values[`subscriberId${section}`])) {
-          setValidationStatus(2);
+          
           setIsValidInsurance(true); // if valid - passed from validate sub Id
           setIsValidating(false);
           // Simulate validation delay
@@ -106,7 +101,7 @@ const DoYouHaveInsuranceForm = ({
             validationStatus,
             'isValidInsurance validationStatus',
           );
-  
+
           // Proceed to next step after an additional 3-second delay
           setTimeout(() => {
             setValidationStatus(0);
@@ -116,19 +111,20 @@ const DoYouHaveInsuranceForm = ({
               validationStatus,
               'isValidInsurance validationStatus',
             );
-  
-            onSuccess();
+
+            // onSuccess();
           }, 3000); // 3 seconds delay
         } else {
           setValidationStatus(2); // done validating update status done
           setIsValidInsurance(false); // if not valid
           setIsValidating(false); // done validating
+                    setTriggerValidation(false)
+
         }
       }, 2000); // Simulated validation time
     };
-  
-      validate();
-    
+
+    validate();
   }, [triggerValidation]);
 
   const onHandleFormSubmit = async (data: TFormValues) => {
@@ -166,7 +162,7 @@ const DoYouHaveInsuranceForm = ({
                 >
                   <input
                     type="checkbox"
-                    disabled={isValidating || isValidInsurance }
+                    disabled={isValidating || isValidInsurance}
                     name="hasInsurance"
                     onBlur={handleBlur}
                     checked={values[`hasInsurance${section}`] === '1'}

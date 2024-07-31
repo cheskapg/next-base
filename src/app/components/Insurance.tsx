@@ -10,9 +10,9 @@ export default function Insurance() {
   const [values, setValues] = useState<FormValues>({});
   const [isValidInsurance, setIsValidInsurance] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const [validationStatus, setValidationStatus] = useState(false);
   console.log('`child`', values.hasInsurance);
   const [triggerValidation, setTriggerValidation] = useState(false);
+  const [validationStatus, setValidationStatus] = useState(0);
 
   const updateValues = (newValues: any) => {
     setValues((prevValues) => ({ ...prevValues, ...newValues }));
@@ -106,7 +106,6 @@ export default function Insurance() {
             setIsValidInsurance={setIsValidInsurance} // Pass
             isValidating={isValidating}
             setIsValidating={setIsValidating} // Pass
-            validationStatus={validationStatus}
             onSubmit={updateValues}
             hasInsurance={values.hasInsurance || ''}
             triggerValidation={triggerValidation}
@@ -129,7 +128,6 @@ export default function Insurance() {
             setIsValidInsurance={setIsValidInsurance} // Pass
             isValidating={isValidating}
             setIsValidating={setIsValidating} // Pass
-            validationStatus={validationStatus}
             onSubmit={updateValues}
             hasInsurance={values.hasInsurance || ''}
             triggerValidation={triggerValidation}
