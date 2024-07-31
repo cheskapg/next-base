@@ -7,10 +7,13 @@ import React, {
     useState,
   } from "react";
   import Patient from "../models/Patient";
+  import Insurance from "../models/Insurance";
   interface IFormContext {
     patientId: any;
     patientData: any;
     setPatientData: Dispatch<SetStateAction<any>>;
+    insuranceData: any;
+    setInsuranceData: Dispatch<SetStateAction<any>>;
     onHandleBack: () => void;
     onHandleNext: () => void;
     step: number;
@@ -20,8 +23,10 @@ import React, {
   const FormContext = createContext<IFormContext>({
     patientId: "staticPatientId",
     patientData: new Patient(),
+    insuranceData: new Insurance(),
     onHandleBack: () => {},
     onHandleNext: () => {},
+    setInsuranceData: () => {},
     setPatientData: () => {},
     step: 0,
     steppedBack: false,
@@ -31,81 +36,10 @@ import React, {
     children: ReactNode;
   }
   
-  // export function FormProvider({ children }: IProps) {
-
-  //   // const [patientData, setPatientData] = useState({
-  //   //   // Static patient data
-  //   //   hasPhysician: 1,
-  //   //   physicianName: "Dr. Smith",
-
-
-  //   //   insuranceCarrier: '',
-  //   //   subscriberId: '',
-  //   //   hasInsurance: '',
-  //   //   insuranceFirstName: '',
-  //   //   insuranceLastName: '',
-  //   //   insuranceDob: '',
-  //   //   insurancePhone: '',
-  //   //   insuranceCountry: '',
-  //   //   insuranceAddress: '',
-  //   //   insuranceAddress2: '',
-  //   //   insuranceCity: '',
-  //   //   insuranceState: '',
-  //   //   insuranceZip: '',
-  //   //   isValidInsurance: '',
-  //   //   insuranceSubscriber: '',
-  //   //   subscriberDob: '',
-      
-  //   //   insuranceCarrier2: '',
-  //   //   subscriberId2: '',
-  //   //   hasInsurance2: '',
-  //   //   insuranceFirstName2: '',
-  //   //   insuranceLastName2: '',
-  //   //   insuranceDob2: '',
-  //   //   insurancePhone2: '',
-  //   //   insuranceCountry2: '',
-  //   //   insuranceAddress2_2: '',
-  //   //   insuranceCity2: '',
-  //   //   insuranceState2: '',
-  //   //   insuranceZip2: '',
-  //   //   subscriberDob2: '',
-  //   //   isValidInsurance2: '',
-  //   //   insuranceSubscriber2: '',
-  //   // });
-  //   const [patientId, setPatientId] = useState("staticPatientId");
-  //   const [step, setStep] = useState(1);
-  //   const [steppedBack, setSteppedBack] = useState(false);
-  //   const [patientData, setPatientData] = useState(new Patient());
-
-  //   function onHandleNext() {
-  //     setStep((prev) => prev + 1);
-  //   }
-  
-  //   function onHandleBack() {
-  //     setStep((prev) => prev - 1);
-  //     console.log(patientData);
-  //   }
-  
-  //   return (
-  //     <FormContext.Provider
-  //       // eslint-disable-next-line react/jsx-no-constructed-context-values
-  //       value={{
-  //         patientId,
-  //         patientData,
-  //         setPatientData,
-  //         onHandleBack,
-  //         onHandleNext,
-  //         step,
-  //         steppedBack,
-  //       }}
-  //     >
-  //       {children}
-  //     </FormContext.Provider>
-  //   );
-  // }
   
   export  function FormProvider({ children }: IProps) {
     const [patientData, setPatientData] = useState(new Patient());
+    const [insuranceData, setInsuranceData] = useState(new Insurance());
     var [patientId, setPatientId] = useState(0);
     const [step, setStep] = useState(1);
     const [steppedBack, setSteppedBack] = useState(false);
@@ -127,6 +61,8 @@ import React, {
           patientId,
           patientData,
           setPatientData,
+          insuranceData,
+          setInsuranceData,
           onHandleBack,
           onHandleNext,
           step,
