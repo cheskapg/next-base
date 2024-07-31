@@ -1,7 +1,7 @@
 import { useFormik } from "formik";
 import { useFormState } from "./FormContext";
 import RegionSpecificDetails from "../interface/RegionSpecificDetails";
-import GlobalDropdowns from "../interface/GlobalDropdowns";
+import GlobalDropdowns from "../interface/GlobalDropdown";
 import { demographic } from "../schemas/demographic";
 import { UpdatePatientDto } from "../dto/UpdatePatientDto";
 import { mapFromPatient, mapToUpdatePatientDto } from "../utils/mapper";
@@ -148,7 +148,7 @@ export default function Demographics({
             defaultValue={values.patientGender}
             className={`border ${errors.patientGender && touched.patientGender ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
           >
-            <option value="">-- Select an Option --</option>
+            {/* <option value="">-- Select an Option --</option>
             {region.genders
               .filter((x) => x.label != "Unknown")
               .map((gender) => (
@@ -159,7 +159,7 @@ export default function Demographics({
                 >
                   {gender.label}
                 </option>
-              ))}
+              ))} */}
           </select>
           <label
             htmlFor="patientGender"
@@ -342,7 +342,7 @@ export default function Demographics({
             className={`border ${errors.patientMaritalStatus && touched.patientMaritalStatus ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
           >
             <option value="">-- Select an Option --</option>
-            {globalDropdowns.maritalStatuses.map((maritalStatus) => (
+            {/* {globalDropdowns.maritalStatuses.map((maritalStatus) => (
               <option
                 className={`${maritalStatus ? "" : "hidden"}`}
                 value={maritalStatus}
@@ -350,7 +350,7 @@ export default function Demographics({
               >
                 {maritalStatus}
               </option>
-            ))}
+            ))} */}
           </select>
           <label
             htmlFor="patientMaritalStatus"

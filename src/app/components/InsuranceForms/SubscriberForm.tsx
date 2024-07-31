@@ -1,24 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFormik } from 'formik';
 import { useFormState } from '../FormContext';
 import { subscriberSchema, subscriberSchema2 } from '@/schemas/insurance';
 
 const SubscriberForm = ({
   section,
-  isValidInsurance,
-  isValidating,
-  validationStatus,
   onSubmit,
+  triggerNext,
+  setTriggerNext,
 }: {
   onSubmit: any;
   section: any;
-  isValidInsurance: any;
-  isValidating: any;
-  validationStatus: any;
+  triggerNext: any;
+  setTriggerNext: (triggerNext: boolean) => void;
 }) => {
-  const { onHandleNext, onHandleBack, setInsuranceData, insuranceData } =
+  const { setInsuranceData, insuranceData } =
     useFormState();
-  const formik = useFormik({
+  const {
+    values,
+    errors,
+    handleSubmit,
+    handleChange,
+    handleBlur,
+    setFieldValue,
+  } = useFormik({
     initialValues: {
       [`insuranceFirstName${section}`]: insuranceData
         ? insuranceData[`insuranceFirstName${section}`]
@@ -50,9 +55,6 @@ const SubscriberForm = ({
       [`insuranceZip${section}`]: insuranceData
         ? insuranceData[`insuranceZip${section}`]
         : '',
-      [`isValidInsurance${section}`]: insuranceData
-        ? insuranceData[`isValidInsurance${section}`]
-        : '',
       [`insuranceSubscriber${section}`]: insuranceData
         ? insuranceData[`insuranceSubscriber${section}`]
         : '',
@@ -65,9 +67,6 @@ const SubscriberForm = ({
       [`backInsuranceCard${section}`]: insuranceData
         ? insuranceData[`backInsuranceCard${section}`]
         : '',
-      [`hasInsurance${section}`]: insuranceData
-        ? insuranceData[`hasInsurance${section}`]
-        : '',
     },
     validationSchema: section === '2' ? subscriberSchema2 : subscriberSchema,
     validateOnChange: true,
@@ -75,13 +74,10 @@ const SubscriberForm = ({
     enableReinitialize: true,
     onSubmit: (values: any) => {
       onHandleFormSubmit(values);
+      alert(JSON.stringify(values, null, 2));
     },
   });
 
-  const { values, errors, handleChange, handleBlur, setFieldValue } = formik;
-  const onHandleFormSubmit = async (data: TFormValues) => {
-    console.log(`test${JSON.stringify(data)}`);
-  };
   type TFormValues = {
     insuranceFirstName: string;
     insuranceLastName: string;
@@ -115,10 +111,32 @@ const SubscriberForm = ({
     frontInsuranceCard2: string;
     backInsuranceCard2: string;
   };
+  const onHandleFormSubmit = async (data: TFormValues) => {
+    setInsuranceData((prev: any) => ({ ...prev, ...data }));
+    
+    console.log(`subscribertest${JSON.stringify(data)}`);
+    console.log(`insuranceData${JSON.stringify(insuranceData)}`);
+    onSubmit(values)
+    setTriggerNext(false) ;
+  };
+  // const next = () => {
+  //   onSubmit((prev: any) => ({ ...prev, ...values }));
+  //   onHandleFormSubmit(values);
+
+  //   console.log(`subtest${JSON.stringify(values)}`);
+  //   setTriggerNext(false);
+  // };
+  useEffect(() => {
+     if(triggerNext){
+
+       onHandleFormSubmit(values);
+     }
+    
+  }, [triggerNext, insuranceData]);
+
   return (
     <>
-      <form onSubmit={formik.handleSubmit}>
-      
+      <form onSubmit={handleSubmit}>
         <div
           id="subsciberSection"
           className={`mb-4 mt-4 flex h-full flex-1 flex-col `}
@@ -128,7 +146,7 @@ const SubscriberForm = ({
             <select
               id="insuranceSubscriber"
               name={`insuranceSubscriber${section}`}
-              value={values[`insuranceSubscriber${section}`] || ''}
+              value={values[`insuranceSubscriber${section}`]}
               onChange={handleChange}
               className={`w-full rounded-lg border border-poise-2 px-4 py-2 pt-6  ${
                 errors[`insuranceSubscriber${section}`]
@@ -136,7 +154,7 @@ const SubscriberForm = ({
                   : 'border-poise-2'
               }  `}
             >
-              <option disabled value="">
+              <option disabled defaultValue="">
                 Select an option
               </option>
               <option value="1">Patient</option>
@@ -420,6 +438,17 @@ const SubscriberForm = ({
                 If you have a digital insurance card, download or screenshot
                 both sides to upload.
               </div>
+              <button
+                id="submit"
+                // type="submit"
+                onClick={() => {
+                  onHandleFormSubmit(values);
+                }}
+                className={` text-black h-10  w-full rounded-3xl border-2 border-slate-600  text-center font-semibold `}
+              >
+                <span className="flex items-center justify-center">Back</span>
+              </button>
+
               {/* Insurance Front Card */}
 
               {/* <div className="relative mt-4">
@@ -445,8 +474,6 @@ const SubscriberForm = ({
                   setValue={setBackInsuranceCard}
                 ></ImageUpload>
               </div> */}
-
-              
             </div>
             {/* <div className=" text-black pt-8 text-base font-medium">
         Upload insurance card
