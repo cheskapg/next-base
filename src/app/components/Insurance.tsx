@@ -298,7 +298,12 @@ export default function Insurance() {
             <div className="w-4/6">
               <button
                 disabled={
-                  isValidating || isValidInsurance || IsSubmitting || hasErrors ||  (hasErrors && values.hasInsurance2 ==='1')||(hasErrors && values.hasInsurance ==='1')
+                  isValidating ||
+                  isValidInsurance ||
+                  IsSubmitting ||
+                  hasErrors ||
+                  (hasErrors && values.hasInsurance2 === '1') ||
+                  (hasErrors && values.hasInsurance === '1')
                     ? true
                     : false
                 }
