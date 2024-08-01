@@ -1,21 +1,29 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import { useFormState } from '../FormContext';
 import { subscriberSchema, subscriberSchema2 } from '@/schemas/insurance';
-
-const SubscriberForm = ({
-  section,
-  onSubmit,
-  triggerNext,
-  setTriggerNext,
-}: {
-  onSubmit: any;
+import { checkPrice } from '@/actions/api';
+interface SubscriberFormProps {
   section: any;
-  triggerNext: any;
-  setTriggerNext: (triggerNext: boolean) => void;
+  currentStep: any;
+  isSubmitting: boolean;
+  onSubmit: any;
+  triggerSubmit: boolean;
+  setTriggerSubmit: (triggerSubmit: boolean) => void;
+  setIsSubmitting: (isSubmitting: boolean) => void;
+  setCurrentStep: (currentStep: number) => void;
+}
+const SubscriberForm: React.FC<SubscriberFormProps> = ({
+  section,
+  currentStep,
+  isSubmitting,
+  onSubmit,
+  triggerSubmit,
+  setTriggerSubmit,
+  setIsSubmitting,
+  setCurrentStep,
 }) => {
-  const { setInsuranceData, insuranceData } =
-    useFormState();
+  const { setInsuranceData, insuranceData, onHandleNext } = useFormState();
   const {
     values,
     errors,
@@ -78,6 +86,48 @@ const SubscriberForm = ({
     },
   });
 
+  const [isValid, setIsValid] = useState(false);
+
+  const handleCheckPrice = async (copay: string) => {
+    try {
+      const isValid = await checkPrice(copay);
+      setIsValid(isValid);
+      console.error(isValid);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const onHandleFormSubmit = async (data: TFormValues) => {
+    
+    setIsSubmitting(true);
+    setInsuranceData((prev: any) => ({ ...prev, ...data }));
+    console.log(`subscriber test: ${JSON.stringify(data)}`);
+    onSubmit(data);
+    if (currentStep < 4) {
+      setCurrentStep(currentStep + 1);
+      setTriggerSubmit(false);
+    } else {
+      
+
+      console.log('handlenext');
+    }
+
+    setTriggerSubmit(false);
+    setIsSubmitting(false);
+  };
+
+  useEffect(() => {
+    if (triggerSubmit) {
+      setIsSubmitting(true);
+
+      onHandleFormSubmit(values);
+      console.log(isSubmitting, 'is submitting child');
+    } else {
+      setIsSubmitting(false);
+    }
+  }, [triggerSubmit]);
+
   type TFormValues = {
     insuranceFirstName: string;
     insuranceLastName: string;
@@ -111,35 +161,97 @@ const SubscriberForm = ({
     frontInsuranceCard2: string;
     backInsuranceCard2: string;
   };
-  const onHandleFormSubmit = async (data: TFormValues) => {
-    setInsuranceData((prev: any) => ({ ...prev, ...data }));
-    
-    console.log(`subscribertest${JSON.stringify(data)}`);
-    console.log(`insuranceData${JSON.stringify(insuranceData)}`);
-    onSubmit(values)
-    setTriggerNext(false) ;
-  };
-  // const next = () => {
-  //   onSubmit((prev: any) => ({ ...prev, ...values }));
-  //   onHandleFormSubmit(values);
-
-  //   console.log(`subtest${JSON.stringify(values)}`);
-  //   setTriggerNext(false);
-  // };
-  useEffect(() => {
-     if(triggerNext){
-
-       onHandleFormSubmit(values);
-     }
-    
-  }, [triggerNext, insuranceData]);
-
   return (
     <>
       <form onSubmit={handleSubmit}>
+        {/* //enable button for price checking test */}
+        {/* <button
+          // id="submit"
+          type="button"
+          onClick={() => {
+            handleCheckPrice('30'); //
+          }}
+          className={` text-black h-10  w-full rounded-3xl border-2 border-slate-600  text-center font-semibold `}
+        >
+          <span className="flex items-center justify-center">check price</span>
+        </button> */}
+        <div className="inline-flex mt-4  flex-col items-start justify-center gap-2.5 rounded bg-[#ebf9f1] p-3">
+          <div className="inline-flex items-center justify-start gap-1">
+            <div className="flex h-5 w-5 items-center justify-center rounded-[500px] p-0.5">
+              <img
+                alt="Check Green"
+                src="../assets/images/u_check.svg"
+                className="relative flex h-4 w-4 flex-col items-start justify-start"
+              />
+            </div>
+            <div className="text-center text-sm font-bold text-[#066632]">
+              Your insurance is valid.
+            </div>
+          </div>
+          <div className="flex flex-col items-start justify-center ">
+            {isValid ? (
+              <>
+                <div className="self-stretch">
+                  <div>
+                    <span className="text-black text-sm font-bold">
+                      Estimated copay:{' '}
+                    </span>
+                    <span className="text-black text-sm font-normal ">
+                      $30*.
+                    </span>
+                  </div>
+                  <span className="text-black text-sm font-bold">
+                    *Your final responsibility may include deductible or
+                    co-insurance amounts based on your plan.
+                  </span>
+                  <span className="text-black text-sm font-normal"> </span>
+                  <span className="text-black text-sm font-normal">
+                    Info shown is from your insurance company as of today’s date
+                    and is an estimate of your copay.
+                  </span>
+                </div>
+                <div className=" mt-2 inline-flex items-center justify-start gap-2.5 self-stretch">
+                  <div className="flex h-5 w-5 items-center justify-center">
+                    <div className="font-['Font Awesome 6 Pro'] h-5 w-5 text-center text-base font-black text-[#066632]">
+                      ⚠
+                    </div>
+                  </div>
+                  <div className="text-black shrink grow basis-0 text-xs font-normal">
+                    Please bring your insurance card with you when you arrive at
+                    the center.
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div>
+                <div>
+                  <span className="text-black text-sm font-bold  ">
+                    Estimated copay:{' '}
+                  </span>
+                  <span className="text-black text-sm font-normal  ">
+                    We are unable to calculate your copay at this time. If you
+                    owe a copay, a staff member will provide you with the amount
+                    due prior to your visit*.
+                  </span>
+                </div>
+                <div>
+                  <span className="text-black text-xs font-bold  ">
+                    *Your final responsibility may include deductible or
+                    co-insurance amounts based on your plan.
+                  </span>
+                  <span className="text-black text-[10px] font-normal "> </span>
+                  <span className="text-black text-xs font-normal  ">
+                    Info shown is from your insurance company as of today’s date
+                    and is an estimate of your copay.
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
         <div
           id="subsciberSection"
-          className={`mb-4 mt-4 flex h-full flex-1 flex-col `}
+          className={`mb-4  flex h-full flex-1 flex-col `}
         >
           {/* Who is the subscriber */}
           <div className="relative mt-4 items-center">
@@ -438,17 +550,12 @@ const SubscriberForm = ({
                 If you have a digital insurance card, download or screenshot
                 both sides to upload.
               </div>
-              <button
-                id="submit"
-                // type="submit"
-                onClick={() => {
-                  onHandleFormSubmit(values);
-                }}
-                className={` text-black h-10  w-full rounded-3xl border-2 border-slate-600  text-center font-semibold `}
-              >
-                <span className="flex items-center justify-center">Back</span>
-              </button>
 
+              {currentStep !== 2 && (
+                <div>
+                  <p>Current step is not 2, it's {currentStep}</p>
+                </div>
+              )}
               {/* Insurance Front Card */}
 
               {/* <div className="relative mt-4">

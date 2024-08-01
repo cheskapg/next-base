@@ -11,37 +11,127 @@ export default function Insurance() {
   const [values, setValues] = useState<FormValues>({});
   const [isValidInsurance, setIsValidInsurance] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const [validationStatus, setValidationStatus] = useState(0);
+  const [IsSubmitting, setIsSubmitting] = useState(false);
   const [triggerValidation, setTriggerValidation] = useState(false);
-  const [triggerNext, setTriggerNext] = useState(false);
+  const [triggerSubmit, setTriggerSubmit] = useState(false);
 
   const updateValues = (newValues: any) => {
     setValues((prevValues) => ({ ...prevValues, ...newValues }));
   };
+  const handleIsSubmitting = (isSubmitting: boolean) => {
+    setIsSubmitting(isSubmitting);
+  };
+  const handleCurrentStep = (currentStep: number) => {
+    setCurrentStep(currentStep);
+  };
+
+  const resetState = () => {
+    setIsValidInsurance(false);
+    setIsValidating(false);
+    setTriggerValidation(false);
+    setTriggerSubmit(false);
+  };
   const { onHandleNext, onHandleBack, setInsuranceData, insuranceData } =
     useFormState();
-  const onHandleFormSubmit = async (data: any) => {
-    // updateValues(data);
+  // const onHandleFormSubmit = async (data: any) => {
+  //   switch (currentStep) {
+  //     case 1:
+  //       if (data.hasInsurance === '1') {
+  //         setTriggerValidation(true);
+  //         console.log(`triggerValidation`, triggerValidation);
+  //         console.log(currentStep, 'currentstep');
 
+  //         console.log(isValidInsurance, 'parent validity');
+  //         console.log(isValidating, 'parent setIsValidating');
+
+  //         // Proceed to next step after an additional 3-second delay
+  //         setTimeout(() => {
+  //           if (isValidInsurance) {
+  //             setCurrentStep(currentStep + 1);
+  //             console.log(currentStep, 'currentstep');
+
+  //             setIsValidInsurance(false);
+  //             setIsValidating(false);
+  //             setTriggerValidation(false);
+
+  //             console.log(isValidInsurance, 'parent isValidInsurance');
+  //           }
+  //         }, 3000); // 3 seconds delay
+  //       } else {
+  //         //no insurance
+  //         onHandleNext();
+  //       }
+  //       break;
+
+  //     case 2:
+  //       setTriggerSubmit(true);
+  //       // Proceed to next step after saving
+  //       // setIsValidating(false);
+  //       // setIsValidInsurance(false);
+  //       // setIsValidating(false);
+  //       // setTriggerValidation(false);
+  //       break;
+
+  //     case 3:
+  //       setTriggerValidation(false);
+
+  //       if (data.hasInsurance2 === '1') {
+  //         setIsValidInsurance(false);
+  //         setIsValidating(false);
+  //         setTriggerValidation(true);
+  //         console.log(isValidInsurance, 'parent validity');
+  //         console.log(isValidating, 'parent setIsValidating');
+
+  //         // Proceed to next step after an additional 3-second delay
+  //         setTimeout(() => {
+  //           if (isValidInsurance) {
+  //             setCurrentStep(currentStep + 1);
+  //             console.log(currentStep, 'currentstep');
+
+  //             // setIsValidInsurance(false);
+  //             setIsValidating(false);
+  //             setTriggerValidation(false);
+
+  //             console.log(isValidInsurance, 'parent isValidInsurance');
+  //           }
+  //         }, 3000); // 3 seconds delay
+  //         setTriggerSubmit(false);
+
+  //       } else {
+  //         //no insurance
+  //         onHandleNext();
+  //       }
+  //       break;
+
+  //     case 4:
+  //       setTriggerSubmit(true);
+  //       console.log("IsSubmitting", IsSubmitting)
+  //       //simulate api call await submit then proceed to next page
+  //       setTimeout(async () => {
+
+  //         onHandleNext();
+
+  //       }, 2000); // Simulated validation time
+
+  //       break;
+
+  //     default:
+  //       break;
+  //   }
+  // };
+  const onHandleFormSubmit = async (data: any) => {
     switch (currentStep) {
       case 1:
+        // Validation logic
+
         if (data.hasInsurance === '1') {
           setTriggerValidation(true);
-          console.log(`triggerValidation`, triggerValidation);
-
-          console.log(isValidInsurance, 'parent validity');
-          console.log(isValidating, 'parent setIsValidating');
-
-          // Proceed to next step after an additional 3-second delay
           setTimeout(() => {
             if (isValidInsurance) {
               setCurrentStep(currentStep + 1);
-              setIsValidInsurance(false);
-              setIsValidating(false);
-
-              console.log(isValidInsurance, 'parent isValidInsurance');
+              resetState();
             }
-          }, 3000); // 3 seconds delay
+          }, 3000);
         } else {
           //no insurance
           onHandleNext();
@@ -49,71 +139,46 @@ export default function Insurance() {
         break;
 
       case 2:
-        setTriggerNext(true);
-        
-        setCurrentStep(currentStep + 1);
-
-        console.log(currentStep, 'currentstep');
-        setIsValidInsurance(false);
-        setIsValidating(false);
-        setTriggerValidation(false);
-        // Handle subscriber form submission
-
-        // setCurrentStep(currentStep + 1);
-        // // setTriggerNext(false);
-
-        console.log(`test${JSON.stringify(data)}`);
-        console.log(`triggerNext`, triggerNext);
-
+        setTriggerSubmit(true);
+        // setTimeout(() => {
+        //   setCurrentStep(currentStep + 1);
+        //   resetState();
+        // }, 3000);
         break;
-
       case 3:
-        if (data.hasInsurance2 === '1') {
-          setTriggerValidation(true);
-          console.log(isValidInsurance, 'parent validity');
-          console.log(isValidating, 'parent setIsValidating');
-
-          // Proceed to next step after an additional 3-second delay
-          setTimeout(() => {
-            if (isValidInsurance) {
-              setCurrentStep(currentStep + 1);
-              setIsValidInsurance(false);
-              console.log(isValidInsurance, 'parent isValidInsurance');
-            }
-          }, 3000); // 3 seconds delay
-        } else {
-          //no insurance
-          onHandleNext();
-        }
+        
+      if (data.hasInsurance2 === '1') {
+        setTriggerValidation(true);
+        setTimeout(() => {
+          if (isValidInsurance) {
+            setCurrentStep(currentStep + 1);
+            resetState();
+          }
+        }, 3000);
+      } else {
+        //no insurance
+        onHandleNext();
+      }
         break;
-
       case 4:
-        // Handle additional subscriber form submission
-        setCurrentStep(currentStep + 1);
+        setTriggerSubmit(true);
+        console.log('IsSubmitting', IsSubmitting);
+        //simulate api call await submit then proceed to next page
+        setTimeout(async () => {
+          onHandleNext();
+        }, 2000); // Simulated validation time
+
         break;
 
       default:
-        // Handle form completion
         break;
     }
   };
 
   useEffect(() => {
-    if (triggerNext) {
-      onHandleFormSubmit(values);
-      console.log('Trigger Next is set to true', triggerNext);
-      setTriggerNext(false); // Reset triggerNext after use
-    }
-  }, [triggerNext]);
-  useEffect(() => {
     if (isValidInsurance) {
       onHandleFormSubmit(values);
     }
-    // if (triggerNext) {
-    //   setTriggerNext(triggerNext);
-    //   onHandleFormSubmit(values);
-
-    // }
   }, [isValidInsurance]);
 
   const handleBack = () => {
@@ -167,9 +232,13 @@ export default function Insurance() {
         {currentStep === 2 && (
           <SubscriberForm
             section=""
+            setCurrentStep={handleCurrentStep}
+            currentStep={currentStep}
             onSubmit={updateValues}
-            triggerNext={triggerNext}
-            setTriggerNext={setTriggerNext}
+            setIsSubmitting={handleIsSubmitting} // Pass the handleIsSubmitting function
+            isSubmitting={IsSubmitting}
+            triggerSubmit={triggerSubmit}
+            setTriggerSubmit={setTriggerSubmit}
           />
         )}
         {currentStep === 3 && (
@@ -188,9 +257,13 @@ export default function Insurance() {
         {currentStep === 4 && (
           <SubscriberForm
             section="2"
+            setCurrentStep={handleCurrentStep}
+            currentStep={currentStep}
             onSubmit={updateValues}
-            triggerNext={triggerNext}
-            setTriggerNext={setTriggerNext}
+            triggerSubmit={triggerSubmit}
+            setIsSubmitting={handleIsSubmitting}
+            isSubmitting={IsSubmitting}
+            setTriggerSubmit={setTriggerSubmit}
           />
         )}
 
@@ -215,7 +288,11 @@ export default function Insurance() {
           values[`hasInsurance2`] === '1' ? (
             <div className="w-4/6">
               <button
-                disabled={isValidating || isValidInsurance ? true : false}
+                disabled={
+                  isValidating || isValidInsurance || IsSubmitting
+                    ? true
+                    : false
+                }
                 id="Next"
                 type="submit"
                 onClick={(e) => {
@@ -259,8 +336,8 @@ export default function Insurance() {
 
                     {currentStep === 2 && <span>Next</span>}
 
-                    {currentStep === 3 && values.hasInsurance === '1' ? (
-                      <span>Validate</span>
+                    {currentStep === 3 && values.hasInsurance2 === '1' ? (
+                      <span>Validate Insurance</span>
                     ) : currentStep === 3 ? (
                       <span>Next</span>
                     ) : null}

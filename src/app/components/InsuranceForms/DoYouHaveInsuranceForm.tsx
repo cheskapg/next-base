@@ -27,8 +27,7 @@ const DoYouHaveInsuranceForm = ({
   hasInsurance: any;
   triggerValidation: any;
 }) => {
-  const {  setInsuranceData, insuranceData } =
-    useFormState();
+  const { setInsuranceData, insuranceData } = useFormState();
 
   const {
     values,
@@ -71,6 +70,8 @@ const DoYouHaveInsuranceForm = ({
   // } = formik;
 
   const handleCheckboxChange = (value: any) => {
+    setValidationStatus('');
+
     setFieldValue(`hasInsurance${section}`, value);
     console.log(
       'isValidating',
@@ -92,27 +93,27 @@ const DoYouHaveInsuranceForm = ({
     setIsValidating(true);
     setValidationStatus('validating');
     console.log(isValidInsurance, validationStatus, ' validating');
-
+  
     // Simulate validation delay
     setTimeout(async () => {
       if (await validateSubscriberId(values[`subscriberId${section}`])) {
-        setValidationStatus('done');
-        setIsValidInsurance(true);
-        setIsValidating(false);
-
-        // Update parent state
-        onSubmit((prev: any) => ({ ...prev, ...values }));
+        onSubmit((prev:any) => ({ ...prev, ...values }));
         onHandleFormSubmit(values);
+  
+        // Update parent state
+        console.log('child isVALIDInsursa:', isValidInsurance);
         console.log('onSubmit insurance data:', values);
-        // onHandleFormSubmit(values);
-
-        // console.log('Submitted insurance data:', insuranceData);
+  
+        setIsValidInsurance(true);
+        setValidationStatus('done');
       } else {
-        setIsValidInsurance(false);
-        setIsValidating(false);
         setTriggerValidation(false);
         setValidationStatus('done');
       }
+  
+      // Reset state after validation
+      setIsValidating(false);
+      setTriggerValidation(false);
     }, 2000); // Simulated validation time
   };
 
@@ -121,9 +122,16 @@ const DoYouHaveInsuranceForm = ({
       validate();
     }
   }, [triggerValidation]);
+  // useEffect(() => {
+  //   if(currentStep)
+  //     validate();
+  //     console.log("current", currentStep)
+
+  // }, [currentStep]);
 
   const onHandleFormSubmit = (data: any) => {
     setInsuranceData((prev: any) => ({ ...prev, ...data }));
+    setValidationStatus('');
   };
 
   return (
@@ -173,7 +181,7 @@ const DoYouHaveInsuranceForm = ({
         {values[`hasInsurance${section}`] === '1' && (
           <div
             id="carrierSection"
-            className={`flex h-full flex-1 flex-col bg-[#e8f2f5] ${!isValidating && validationStatus === 'done' && !isValidInsurance ? 'bg-[#d13e27]/10' : ''} p-4`}
+            className={`flex h-full flex-1 flex-col ${!isValidating && validationStatus === 'done' && !isValidInsurance ? 'bg-[#d13e27]/10' : 'bg-[#e8f2f5] '} p-4`}
           >
             {/* Who is the insurance carrier */}
             <div className="relative mt-4 items-center">

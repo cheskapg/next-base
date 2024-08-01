@@ -137,3 +137,26 @@ export const validateSubscriberId = async (subscriberId: string) => {
   const jsonData = await response.json();
   return jsonData.data.isValid;
 };
+
+const coPayPrice = ['30', '20', '50'];
+
+export const checkPrice = async (copay: string ) => {
+  // Static response simulating an API call
+  const response = {
+    ok: true,
+    json: async () => ({
+      message: 'copay price available successfully',
+      data: {
+        isValid: coPayPrice.includes(copay),
+      },
+    }),
+  };
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw error;
+  }
+
+  const jsonData = await response.json();
+  return jsonData.data.isValid;
+};
