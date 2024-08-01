@@ -159,7 +159,7 @@ const DoYouHaveInsuranceForm = ({
                     onBlur={handleBlur}
                     checked={values[`hasInsurance${section}`] === '1'}
                     onChange={() => handleCheckboxChange('1')}
-                    className={`peer-not h-5 w-5 appearance-none ${values[`hasInsurance${section}`] === '1' ? '' : ''}  rounded-md border-hidden `}
+                    className={`peer-not h-5 w-5 appearance-none ${values[`hasInsurance${section}`] === '1' ? 'invisible' : ''}  rounded-md border-hidden `}
                   ></input>
                 </div>
               </div>
@@ -181,7 +181,7 @@ const DoYouHaveInsuranceForm = ({
         {values[`hasInsurance${section}`] === '1' && (
           <div
             id="carrierSection"
-            className={`flex h-full flex-1 flex-col ${!isValidating && validationStatus === 'done' && !isValidInsurance ? 'bg-[#d13e27]/10' : 'bg-[#e8f2f5] '} p-4`}
+            className={`flex flex-1 flex-col ${!isValidating && validationStatus === 'done' && !isValidInsurance ? 'bg-[#d13e27]/10' : 'bg-[#e8f2f5] '} p-4`}
           >
             {/* Who is the insurance carrier */}
             <div className="relative mt-4 items-center">
