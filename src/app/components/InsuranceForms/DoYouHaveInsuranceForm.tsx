@@ -6,18 +6,18 @@ import {
   doYouHaveInsuranceSchema2,
 } from '@/schemas/insurance';
 import { validateSubscriberId } from '../../actions/api';
-interface DoYouHaveInsuranceProps{
-onSubmit: any;
-section: any;
-isValidInsurance: boolean;
-isValidating: any; // Make statusUpdate optional
-setIsValidInsurance: (isValidInsurance: boolean) => void;
-setIsValidating: (isValidating: boolean) => void;
-handleErrors: (errors: any) => void; // Add this prop
+interface DoYouHaveInsuranceProps {
+  onSubmit: any;
+  section: any;
+  isValidInsurance: boolean;
+  isValidating: any; // Make statusUpdate optional
+  setIsValidInsurance: (isValidInsurance: boolean) => void;
+  setIsValidating: (isValidating: boolean) => void;
+  handleErrors: (errors: any) => void; // Add this prop
 
-setTriggerValidation: (triggerValidation: boolean) => void;
-hasInsurance: any;
-triggerValidation: any;
+  setTriggerValidation: (triggerValidation: boolean) => void;
+  hasInsurance: any;
+  triggerValidation: any;
 }
 const DoYouHaveInsuranceForm = ({
   section,
@@ -29,8 +29,7 @@ const DoYouHaveInsuranceForm = ({
   triggerValidation,
   setTriggerValidation,
   handleErrors,
-
-}:DoYouHaveInsuranceProps) => {
+}: DoYouHaveInsuranceProps) => {
   const { setInsuranceData, insuranceData } = useFormState();
 
   const {
@@ -41,6 +40,7 @@ const DoYouHaveInsuranceForm = ({
     setFieldValue,
     handleSubmit,
     setErrors,
+    setTouched,
   } = useFormik({
     initialValues: {
       [`insuranceCarrier${section}`]: insuranceData
@@ -68,15 +68,14 @@ const DoYouHaveInsuranceForm = ({
     handleErrors(errors); // Pass the current errors to the parent component
   }, [errors, handleErrors]);
   useEffect(() => {
-    if(values[`hasInsurance${section}`] === '0'){
-      setErrors({}); // clear errors if 1
+    if (values[`hasInsurance${section}`] === '1') {
+      handleErrors(errors);
+          console.log(errors, "errors'");
 
-      handleErrors(errors); // Pass the current errors to the parent component    
-    }
-    else{
-      handleErrors(errors);    
-
-
+    } else {
+      setTouched({}, false);
+      setErrors({});
+      handleErrors(errors); // Pass the current errors to the parent component
     }
   }, [errors, handleErrors, values[`hasInsurance${section}`]]);
   const [validationStatus, setValidationStatus] = useState('');
@@ -113,24 +112,24 @@ const DoYouHaveInsuranceForm = ({
     setIsValidating(true);
     setValidationStatus('validating');
     console.log(isValidInsurance, validationStatus, ' validating');
-  
+
     // Simulate validation delay
     setTimeout(async () => {
       if (await validateSubscriberId(values[`subscriberId${section}`])) {
-        onSubmit((prev:any) => ({ ...prev, ...values }));
+        onSubmit((prev: any) => ({ ...prev, ...values }));
         onHandleFormSubmit(values);
-  
+
         // Update parent state
         console.log('child isVALIDInsursa:', isValidInsurance);
         console.log('onSubmit insurance data:', values);
-  
+
         setIsValidInsurance(true);
         setValidationStatus('done');
       } else {
         setTriggerValidation(false);
         setValidationStatus('done');
       }
-  
+
       // Reset state after validation
       setIsValidating(false);
       setTriggerValidation(false);
