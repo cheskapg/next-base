@@ -19,7 +19,7 @@ setTriggerValidation: (triggerValidation: boolean) => void;
 hasInsurance: any;
 triggerValidation: any;
 }
-const DoYouHaveInsuranceForm: React.FC<DoYouHaveInsuranceProps> = ({
+const DoYouHaveInsuranceForm = ({
   section,
   isValidInsurance,
   setIsValidInsurance,
@@ -30,7 +30,7 @@ const DoYouHaveInsuranceForm: React.FC<DoYouHaveInsuranceProps> = ({
   setTriggerValidation,
   handleErrors,
 
-}) => {
+}:DoYouHaveInsuranceProps) => {
   const { setInsuranceData, insuranceData } = useFormState();
 
   const {

@@ -15,7 +15,7 @@ interface SubscriberFormProps {
   handleErrors: (errors: any) => void; // Add this prop
 
 }
-const SubscriberForm: React.FC<SubscriberFormProps> = ({
+const SubscriberForm =  ({
   section,
   currentStep,
   isSubmitting,
@@ -26,7 +26,7 @@ const SubscriberForm: React.FC<SubscriberFormProps> = ({
   setCurrentStep,
   handleErrors,
 
-}) => {
+}:SubscriberFormProps) => {
   const { setInsuranceData, insuranceData, onHandleNext } = useFormState();
   const {
     values,
