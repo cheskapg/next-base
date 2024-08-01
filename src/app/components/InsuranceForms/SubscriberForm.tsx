@@ -89,9 +89,15 @@ const SubscriberForm: React.FC<SubscriberFormProps> = ({
       alert(JSON.stringify(values, null, 2));
     },
   });
+  
   useEffect(() => {
     handleErrors(errors); // Pass the current errors to the parent component
   }, [errors, handleErrors]);
+
+  // useEffect(() => {
+  //   handleErrors(errors); 
+  //   console.log(errors, "CHILD ERROR");// Pass the current errors to the parent component
+  // }, [errors, handleErrors]);
 
   const [isValid, setIsValid] = useState(false);
 

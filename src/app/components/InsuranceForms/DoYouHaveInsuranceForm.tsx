@@ -205,7 +205,11 @@ const DoYouHaveInsuranceForm: React.FC<DoYouHaveInsuranceProps> = ({
                   }
                   // onBlur={handleBlur}
 
-                  className={`  ${!isValidating && validationStatus == 'done' && !isValidInsurance ? 'border-[#d13e27]' : 'border-[#dbddde]'}   ${isValidating ? ' flex-col border border-[#dbddde] bg-[#e8f2f5]  text-[#6e787a] opacity-70' : 'border'} w-full rounded-lg  py-2 pl-3 pt-6 ${!isValidating && validationStatus == 'done' ? 'text-[#2a2f31]' : ''} `}
+                  className={`  ${!isValidating && validationStatus == 'done' && !isValidInsurance ? 'border-[#d13e27]' : 'border-[#dbddde]'}   ${isValidating ? ' flex-col border border-[#dbddde] bg-[#e8f2f5]  text-[#6e787a] opacity-70' : 'border'} w-full rounded-lg  py-2 pl-3 pt-6 ${!isValidating && validationStatus == 'done' ? 'text-[#2a2f31]' : ''}   ${
+                    errors[`insuranceCarrier${section}`]
+                      ? 'border-red-500'
+                      : 'border-[#6e787a]'
+                  }  `}
                 >
                   <option disabled value={''}>
                     Choose Carrier
