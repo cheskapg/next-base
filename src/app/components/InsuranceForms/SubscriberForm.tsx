@@ -12,6 +12,8 @@ interface SubscriberFormProps {
   setTriggerSubmit: (triggerSubmit: boolean) => void;
   setIsSubmitting: (isSubmitting: boolean) => void;
   setCurrentStep: (currentStep: number) => void;
+  handleErrors: (errors: any) => void; // Add this prop
+
 }
 const SubscriberForm: React.FC<SubscriberFormProps> = ({
   section,
@@ -22,6 +24,8 @@ const SubscriberForm: React.FC<SubscriberFormProps> = ({
   setTriggerSubmit,
   setIsSubmitting,
   setCurrentStep,
+  handleErrors,
+
 }) => {
   const { setInsuranceData, insuranceData, onHandleNext } = useFormState();
   const {
@@ -85,6 +89,9 @@ const SubscriberForm: React.FC<SubscriberFormProps> = ({
       alert(JSON.stringify(values, null, 2));
     },
   });
+  useEffect(() => {
+    handleErrors(errors); // Pass the current errors to the parent component
+  }, [errors, handleErrors]);
 
   const [isValid, setIsValid] = useState(false);
 

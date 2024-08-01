@@ -14,6 +14,13 @@ export default function Insurance() {
   const [IsSubmitting, setIsSubmitting] = useState(false);
   const [triggerValidation, setTriggerValidation] = useState(false);
   const [triggerSubmit, setTriggerSubmit] = useState(false);
+  const [errors, setErrors] = useState({});
+  const handleErrors = (newErrors: any) => {
+    setErrors(newErrors);
+    console.log(newErrors, "newErrors'");
+    setHasErrors(Object.keys(newErrors).length > 0);
+  };
+  const [hasErrors, setHasErrors] = useState(false);
 
   const updateValues = (newValues: any) => {
     setValues((prevValues) => ({ ...prevValues, ...newValues }));
@@ -33,7 +40,6 @@ export default function Insurance() {
   };
   const { onHandleNext, onHandleBack, setInsuranceData, insuranceData } =
     useFormState();
-  // const onHandleFormSubmit = async (data: any) => {
   //   switch (currentStep) {
   //     case 1:
   //       if (data.hasInsurance === '1') {
@@ -146,19 +152,18 @@ export default function Insurance() {
         // }, 3000);
         break;
       case 3:
-        
-      if (data.hasInsurance2 === '1') {
-        setTriggerValidation(true);
-        setTimeout(() => {
-          if (isValidInsurance) {
-            setCurrentStep(currentStep + 1);
-            resetState();
-          }
-        }, 3000);
-      } else {
-        //no insurance
-        onHandleNext();
-      }
+        if (data.hasInsurance === '1') {
+          setTriggerValidation(true);
+          setTimeout(() => {
+            if (isValidInsurance) {
+              setCurrentStep(currentStep + 1);
+              resetState();
+            }
+          }, 3000);
+        } else {
+          //no insurance
+          onHandleNext();
+        }
         break;
       case 4:
         setTriggerSubmit(true);
@@ -222,6 +227,7 @@ export default function Insurance() {
             isValidInsurance={isValidInsurance}
             setIsValidInsurance={setIsValidInsurance} // Pass
             isValidating={isValidating}
+            handleErrors={handleErrors}
             setIsValidating={setIsValidating} // Pass
             onSubmit={updateValues} // update the checkbox values to parent
             hasInsurance={values.hasInsurance || ''}
@@ -235,6 +241,7 @@ export default function Insurance() {
             setCurrentStep={handleCurrentStep}
             currentStep={currentStep}
             onSubmit={updateValues}
+            handleErrors={handleErrors}
             setIsSubmitting={handleIsSubmitting} // Pass the handleIsSubmitting function
             isSubmitting={IsSubmitting}
             triggerSubmit={triggerSubmit}
@@ -249,6 +256,7 @@ export default function Insurance() {
             isValidating={isValidating}
             setIsValidating={setIsValidating} // Pass
             onSubmit={updateValues} // update the checkbox values to parent
+            handleErrors={handleErrors}
             hasInsurance={values.hasInsurance || ''}
             triggerValidation={triggerValidation}
             setTriggerValidation={setTriggerValidation}
@@ -261,6 +269,7 @@ export default function Insurance() {
             currentStep={currentStep}
             onSubmit={updateValues}
             triggerSubmit={triggerSubmit}
+            handleErrors={handleErrors}
             setIsSubmitting={handleIsSubmitting}
             isSubmitting={IsSubmitting}
             setTriggerSubmit={setTriggerSubmit}
@@ -289,7 +298,7 @@ export default function Insurance() {
             <div className="w-4/6">
               <button
                 disabled={
-                  isValidating || isValidInsurance || IsSubmitting
+                  isValidating || isValidInsurance || IsSubmitting || hasErrors
                     ? true
                     : false
                 }

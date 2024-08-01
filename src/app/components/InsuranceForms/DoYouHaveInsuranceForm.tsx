@@ -6,7 +6,20 @@ import {
   doYouHaveInsuranceSchema2,
 } from '@/schemas/insurance';
 import { validateSubscriberId } from '../../actions/api';
-const DoYouHaveInsuranceForm = ({
+interface DoYouHaveInsuranceProps{
+onSubmit: any;
+section: any;
+isValidInsurance: boolean;
+isValidating: any; // Make statusUpdate optional
+setIsValidInsurance: (isValidInsurance: boolean) => void;
+setIsValidating: (isValidating: boolean) => void;
+handleErrors: (errors: any) => void; // Add this prop
+
+setTriggerValidation: (triggerValidation: boolean) => void;
+hasInsurance: any;
+triggerValidation: any;
+}
+const DoYouHaveInsuranceForm: React.FC<DoYouHaveInsuranceProps> = ({
   section,
   isValidInsurance,
   setIsValidInsurance,
@@ -15,17 +28,8 @@ const DoYouHaveInsuranceForm = ({
   onSubmit,
   triggerValidation,
   setTriggerValidation,
-}: {
-  onSubmit: any;
-  section: any;
-  isValidInsurance: boolean;
-  isValidating: any; // Make statusUpdate optional
-  setIsValidInsurance: (isValidInsurance: boolean) => void;
-  setIsValidating: (isValidating: boolean) => void;
+  handleErrors,
 
-  setTriggerValidation: (triggerValidation: boolean) => void;
-  hasInsurance: any;
-  triggerValidation: any;
 }) => {
   const { setInsuranceData, insuranceData } = useFormState();
 
@@ -58,6 +62,10 @@ const DoYouHaveInsuranceForm = ({
       onHandleFormSubmit(values);
     },
   });
+
+  useEffect(() => {
+    handleErrors(errors); // Pass the current errors to the parent component
+  }, [errors, handleErrors]);
 
   const [validationStatus, setValidationStatus] = useState('');
   // const {
