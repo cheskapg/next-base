@@ -91,7 +91,9 @@ const SubscriberForm =  ({
   });
   
   useEffect(() => {
+    if(values[`insuranceSubscriber${section}`]!== 1){
     handleErrors(errors); // Pass the current errors to the parent component
+    }
   }, [errors, handleErrors]);
 
   // useEffect(() => {
