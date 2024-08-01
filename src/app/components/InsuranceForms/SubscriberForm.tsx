@@ -34,6 +34,7 @@ const SubscriberForm =  ({
     handleSubmit,
     handleChange,
     handleBlur,
+    setErrors ,
     setFieldValue,
   } = useFormik({
     initialValues: {
@@ -91,10 +92,17 @@ const SubscriberForm =  ({
   });
   
   useEffect(() => {
-    if(values[`insuranceSubscriber${section}`]!== 1){
-    handleErrors(errors); // Pass the current errors to the parent component
+    if(values[`insuranceSubscriber${section}`]=== 1){
+      setErrors({}); // clear errors if 1
+      handleErrors(errors);    
+
     }
-  }, [errors, handleErrors]);
+    else{
+    
+      handleErrors(errors); // Pass the current errors to the parent component    
+
+    }
+  }, [errors, handleErrors, setErrors, values[`insuranceSubscriber${section}`]]);
 
   // useEffect(() => {
   //   handleErrors(errors); 

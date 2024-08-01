@@ -152,7 +152,7 @@ export default function Insurance() {
         // }, 3000);
         break;
       case 3:
-        if (data.hasInsurance === '1') {
+        if (data.hasInsurance2 === '1') {
           setTriggerValidation(true);
           setTimeout(() => {
             if (isValidInsurance) {
@@ -298,7 +298,7 @@ export default function Insurance() {
             <div className="w-4/6">
               <button
                 disabled={
-                  isValidating || isValidInsurance || IsSubmitting || (hasErrors && values.hasInsurance2 ==='1')||(hasErrors && values.hasInsurance ==='1')
+                  isValidating || isValidInsurance || IsSubmitting || hasErrors ||  (hasErrors && values.hasInsurance2 ==='1')||(hasErrors && values.hasInsurance ==='1')
                     ? true
                     : false
                 }

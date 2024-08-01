@@ -40,6 +40,7 @@ const DoYouHaveInsuranceForm = ({
     handleBlur,
     setFieldValue,
     handleSubmit,
+    setErrors,
   } = useFormik({
     initialValues: {
       [`insuranceCarrier${section}`]: insuranceData
@@ -66,7 +67,18 @@ const DoYouHaveInsuranceForm = ({
   useEffect(() => {
     handleErrors(errors); // Pass the current errors to the parent component
   }, [errors, handleErrors]);
+  useEffect(() => {
+    if(values[`hasInsurance${section}`] === '0'){
+      setErrors({}); // clear errors if 1
 
+      handleErrors(errors); // Pass the current errors to the parent component    
+    }
+    else{
+      handleErrors(errors);    
+
+
+    }
+  }, [errors, handleErrors, values[`hasInsurance${section}`]]);
   const [validationStatus, setValidationStatus] = useState('');
   // const {
   //   values,
