@@ -2,11 +2,14 @@
 
 import IPatient from "../interface/IPatient";
 import Patient from "../models/Patient";
-import { mapToUpdatePatientDto, mapToPatient, mapToPcp } from "../utils/mapper";
+import { mapToUpdatePatientDto, mapToPatient, mapToPcp, mapToUserSession, mapToGuarantor, mapToUpdateGuarantorDto } from "../utils/mapper";
 import { removeNullAttributes } from "../utils/helper";
 import RegionSpecificDetails from "../interface/RegionSpecificDetails";
 import ApiResponse from "../interface/ApiResponse";
 import Pcp from "../models/Pcp";
+import UserSession from "../interface/UserSession";
+import Guarantor from "../models/Guarantor";
+import IGuarantor from "../interface/IGuarantor";
 
 
 export const updatePatientDetails = async (patient: any, step: number): Promise<any> => {
@@ -70,6 +73,71 @@ export const fetchRegionSpecificDetails = async (
     return mapToPatient(jsonData.data);
   };
 
+
+  export const fetchGuarantorRegistrationById = async (
+    id: number,
+  ): Promise<Guarantor> => {
+    const response = await fetch(
+      `${process.env.API_BASE_URL}/reg/${id}/guarantor`,
+      { cache: 'no-store' },
+    );
+    const jsonData: any = await response.json();
+    console.log(jsonData.statusCode != 404);
+    if(jsonData.statusCode != 404)
+      return mapToGuarantor(jsonData.data);
+    else 
+      return  mapToGuarantor(new Guarantor());
+  };
+
+  export const updateGuarantor = async (id:number,guarantor: Guarantor): Promise<Guarantor> => {
+    const response = await fetch(
+      `${process.env.API_BASE_URL}/reg/${id}/guarantor`,
+      {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(mapToUpdateGuarantorDto(guarantor)),
+    });
+  
+    if (!response.ok) {
+      throw new Error('Failed to update guarantor');
+    }
+  
+    const updatedData = await response.json();
+    console.log(updatedData);
+    return updatedData as Guarantor;
+  };
+
+
+  export const generateVerifyToken = async (id:number) => {
+    const response = await fetch(`${process.env.API_BASE_URL}/reg/${id}/token/dob`);
+    const jsonData:any = (await response.json());
+    return jsonData;
+  };
+
+  export const verifyUserSession = async (
+    id: number,
+    dob:string
+  ): Promise<any> => {
+
+    console.log(id);
+    const response = await fetch(
+      `${process.env.API_BASE_URL}/reg/${id}/token/dob/verify`,
+      {
+        method: 'POST',
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({"challenge": `${dob}`}),
+      },
+    );
+    const jsonData: any = await response.json();
+    console.log(jsonData);
+    return jsonData.token;
+  };
+
   export const fetchPatientPcp = async (
     region: number,
     searchText: string,
@@ -85,7 +153,6 @@ export const fetchRegionSpecificDetails = async (
   export const fetchSuffixList = async () => {
     const response = await fetch(`${process.env.API_BASE_URL}/fields/suffix`);
     const jsonData = (await response.json()) as ApiResponse<any[]>;
-    
     return jsonData.data;
   };
 
@@ -104,3 +171,50 @@ export const fetchRegionSpecificDetails = async (
   
     return jsonData.data;
   };
+
+  const validSubscriberIds = ['1111c', '2222d', '3333e'];
+
+
+export const validateSubscriberId = async (subscriberId: string) => {
+  // Static response simulating an API call
+  const response = {
+    ok: true,
+    json: async () => ({
+      message: 'Subscriber ID validated successfully',
+      data: {
+        isValid: validSubscriberIds.includes(subscriberId),
+      },
+    }),
+  };
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw error;
+  }
+
+  const jsonData = await response.json();
+  return jsonData.data.isValid;
+};
+
+const coPayPrice = ['30', '20', '50'];
+
+export const checkPrice = async (copay: string ) => {
+  // Static response simulating an API call
+  const response = {
+    ok: true,
+    json: async () => ({
+      message: 'copay price available successfully',
+      data: {
+        isValid: coPayPrice.includes(copay),
+      },
+    }),
+  };
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw error;
+  }
+
+  const jsonData = await response.json();
+  return jsonData.data.isValid;
+};

@@ -5,6 +5,10 @@ import { UpdatePatientDto } from "../dto/UpdatePatientDto";
 // import Patient from "../models/Patient";
 import ICenter from "../interface/ICenter";
 import IPhysician from "../interface/IPcp";
+import IGuarantor from "@/interface/IGuarantor";
+import Guarantor from "@/models/Guarantor";
+import { UpdateGuarantorDto } from "@/dto/UpdateGuarantorDto";
+import UserSession from "@/interface/UserSession";
 
 export const mapToPatient = (data: any): IPatient => {
     const patient: any = {} as IPatient;
@@ -70,6 +74,29 @@ export const mapToPatient = (data: any): IPatient => {
     return patient;
   };
 
+  export const mapToUserSession = (data: any): UserSession => {
+    return data;
+  };
 
+  export const mapToUpdateGuarantorDto = (data: Guarantor|IGuarantor) => 
+    {
+      let guarantor: {
+        [key: string]: any;
+      } = new UpdateGuarantorDto(data);
+      return guarantor;
+    }
   
-
+  
+  
+  export const mapToGuarantor = (data: any): IGuarantor => {
+    const guarantor: any = {} as IGuarantor;
+    // Dynamically copy properties from data to patient
+    Object.keys(data).forEach((key) => {
+      guarantor[key] = data[key];
+    });
+    // Handle fields that might not be present in the response
+    guarantor.suffix = data.suffix || null;
+    guarantor.maritalStatus = data.maritalStatus || null;
+    guarantor.zip= data.zipCode|| null;
+    return guarantor;
+  };

@@ -5,7 +5,7 @@ import {
   doYouHaveInsuranceSchema,
   doYouHaveInsuranceSchema2,
 } from '@/schemas/insurance';
-import { validateSubscriberId } from '../../actions/api';
+import { updateInsuranceDetails, validateSubscriberId } from '../../actions/api';
 interface DoYouHaveInsuranceProps {
   onSubmit: any;
   section: any;
@@ -39,36 +39,35 @@ const DoYouHaveInsuranceForm = ({
     handleBlur,
     setFieldValue,
     handleSubmit,
+    touched,
     setErrors,
     setTouched,
   } = useFormik({
     initialValues: {
       [`insuranceCarrier${section}`]: insuranceData
         ? insuranceData[`insuranceCarrier${section}`]
-        : '',
+        : "",
       [`subscriberId${section}`]: insuranceData
         ? insuranceData[`subscriberId${section}`]
-        : '',
+        : "",
       [`hasInsurance${section}`]: insuranceData
         ? insuranceData[`hasInsurance${section}`]
-        : '',
+        : "",
       // ... other dynamic fields for the section
     },
     validationSchema:
-      section === '2' ? doYouHaveInsuranceSchema2 : doYouHaveInsuranceSchema,
+      section === "2" ? doYouHaveInsuranceSchema2 : doYouHaveInsuranceSchema,
     validateOnChange: true,
     validateOnBlur: true,
     enableReinitialize: true,
-    onSubmit: (values) => {
+    onSubmit: (values: any) => {
       onHandleFormSubmit(values);
     },
   });
 
+
   useEffect(() => {
-    handleErrors(errors); // Pass the current errors to the parent component
-  }, [errors, handleErrors]);
-  useEffect(() => {
-    if (values[`hasInsurance${section}`] === '1') {
+    if (values[`hasInsurance${section}`] === "1") {
       handleErrors(errors);
           console.log(errors, "errors'");
 
@@ -78,28 +77,13 @@ const DoYouHaveInsuranceForm = ({
       handleErrors(errors); // Pass the current errors to the parent component
     }
   }, [errors, handleErrors, values[`hasInsurance${section}`]]);
-  const [validationStatus, setValidationStatus] = useState('');
-  // const {
-  //   values,
-  //   errors,
-  //   handleChange,
-  //   handleBlur,
-  //   setFieldValue,
-  //   handleSubmit,
-  // } = formik;
+
+  const [validationStatus, setValidationStatus] = useState("");
 
   const handleCheckboxChange = (value: any) => {
-    setValidationStatus('');
+    setValidationStatus("");
 
     setFieldValue(`hasInsurance${section}`, value);
-    console.log(
-      'isValidating',
-      isValidating,
-      'isValidInsurance',
-      isValidInsurance,
-      'validationStatus',
-      validationStatus,
-    );
 
     // Notify parent of the change
     onSubmit({
@@ -110,8 +94,8 @@ const DoYouHaveInsuranceForm = ({
 
   const validate = async () => {
     setIsValidating(true);
-    setValidationStatus('validating');
-    console.log(isValidInsurance, validationStatus, ' validating');
+    setValidationStatus("validating");
+    console.log(isValidInsurance, " Validating");
 
     // Simulate validation delay
     setTimeout(async () => {
@@ -120,14 +104,13 @@ const DoYouHaveInsuranceForm = ({
         onHandleFormSubmit(values);
 
         // Update parent state
-        console.log('child isVALIDInsursa:', isValidInsurance);
-        console.log('onSubmit insurance data:', values);
+        console.log("onSubmit insurance data:", values);
 
         setIsValidInsurance(true);
-        setValidationStatus('done');
+        setValidationStatus("done");
       } else {
         setTriggerValidation(false);
-        setValidationStatus('done');
+        setValidationStatus("done");
       }
 
       // Reset state after validation
@@ -141,50 +124,51 @@ const DoYouHaveInsuranceForm = ({
       validate();
     }
   }, [triggerValidation]);
-  // useEffect(() => {
-  //   if(currentStep)
-  //     validate();
-  //     console.log("current", currentStep)
 
-  // }, [currentStep]);
-
-  const onHandleFormSubmit = (data: any) => {
-    setInsuranceData((prev: any) => ({ ...prev, ...data }));
-    setValidationStatus('');
-  };
+  const onHandleFormSubmit = async (data: any) => {
+    try {
+      const response = await updateInsuranceDetails(data);
+      setInsuranceData((prev: any) => ({ ...prev, ...data }));
+  
+      setValidationStatus("");
+    } catch (error) {
+      console.log(error);
+      alert("Oops! Something went wrong. Please try again");
+    }
+  }
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className={`flex flex-col flex-1`}>
         <div className={`flex flex-col `}>
           <div className="relative mt-4 items-center">
             <div
               onClick={() => {
-                if (!isValidating) handleCheckboxChange('1');
+                if (!isValidating) handleCheckboxChange("1");
               }}
               className="flex gap-4"
             >
               <div
-                onClick={() => handleCheckboxChange('1')}
-                className={`border-1 flex h-6 w-6 justify-center self-center rounded-lg border  ${values[`hasInsurance${section}`] === '1' ? 'border-sky-700 ' : 'border-[#DBDDDE] '} `}
+                onClick={() => handleCheckboxChange("1")}
+                className={`border-1 flex h-6 w-6 justify-center self-center rounded-lg border  ${values[`hasInsurance${section}`] === "1" ? "border-sky-700 " : "border-[#DBDDDE] "} `}
               >
                 <div
-                  className={`flex h-5 w-5 justify-center self-center rounded-md  ${values[`hasInsurance${section}`] === '1' ? 'border border-sky-700 bg-sky-700' : ''} `}
+                  className={`flex h-5 w-5 justify-center self-center rounded-md  ${values[`hasInsurance${section}`] === "1" ? "border border-sky-700 bg-sky-700" : ""} `}
                 >
                   <input
                     type="checkbox"
                     disabled={isValidating || isValidInsurance}
                     name="hasInsurance"
                     onBlur={handleBlur}
-                    checked={values[`hasInsurance${section}`] === '1'}
-                    onChange={() => handleCheckboxChange('1')}
-                    className={`peer-not h-5 w-5 appearance-none ${values[`hasInsurance${section}`] === '1' ? 'invisible' : ''}  rounded-md border-hidden `}
+                    checked={values[`hasInsurance${section}`] === "1"}
+                    onChange={() => handleCheckboxChange("1")}
+                    className={`peer-not h-5 w-5 appearance-none ${values[`hasInsurance${section}`] === "1" ? "invisible" : ""}  rounded-md border-hidden `}
                   ></input>
                 </div>
               </div>
               <div className=" inline-flex flex-col items-start justify-center">
                 <label
-                  htmlFor="havePhysician"
+                  htmlFor="hasInsurance"
                   className="text-right  text-base font-normal text-[#2a2f31]"
                 >
                   Yes, I have.
@@ -197,10 +181,10 @@ const DoYouHaveInsuranceForm = ({
           </div>
         </div>
         {/* Carrier section */}
-        {values[`hasInsurance${section}`] === '1' && (
+        {values[`hasInsurance${section}`] === "1" && (
           <div
             id="carrierSection"
-            className={`flex flex-1 flex-col ${!isValidating && validationStatus === 'done' && !isValidInsurance ? 'bg-[#d13e27]/10' : 'bg-[#e8f2f5] '} p-4`}
+            className={`flex flex-col ${!isValidating && validationStatus === "done" && !isValidInsurance ? "bg-[#d13e27]/10" : "bg-[#e8f2f5] "} p-4`}
           >
             {/* Who is the insurance carrier */}
             <div className="relative mt-4 items-center">
@@ -212,17 +196,16 @@ const DoYouHaveInsuranceForm = ({
                   onChange={handleChange}
                   disabled={
                     isValidating ||
-                    (validationStatus === 'done' && isValidInsurance)
+                    (validationStatus === "done" && isValidInsurance)
                   }
-                  // onBlur={handleBlur}
-
-                  className={`  ${!isValidating && validationStatus == 'done' && !isValidInsurance ? 'border-[#d13e27]' : 'border-[#dbddde]'}   ${isValidating ? ' flex-col border border-[#dbddde] bg-[#e8f2f5]  text-[#6e787a] opacity-70' : 'border'} w-full rounded-lg  py-2 pl-3 pt-6 ${!isValidating && validationStatus == 'done' ? 'text-[#2a2f31]' : ''}   ${
+                  className={`  ${!isValidating && validationStatus == "done" && !isValidInsurance ? "border-[#d13e27]" : "border-[#dbddde]"}   ${isValidating ? " flex-col border border-[#dbddde] bg-[#e8f2f5]  text-[#6e787a] opacity-70" : "border"} w-full rounded-lg  py-2 pl-3 pt-6 ${!isValidating && validationStatus == "done" ? "text-[#2a2f31]" : ""}   ${
+                    touched[`insuranceCarrier${section}`] &&
                     errors[`insuranceCarrier${section}`]
-                      ? 'border-red-500'
-                      : 'border-[#6e787a]'
+                      ? "border-red-500"
+                      : "border-[#6e787a]"
                   }  `}
                 >
-                  <option disabled value={''}>
+                  <option disabled value={""}>
                     Choose Carrier
                   </option>
                   <option value="Cigna HMO/PPO">Cigna HMO/PPO</option>
@@ -231,7 +214,7 @@ const DoYouHaveInsuranceForm = ({
               </div>
               <label
                 htmlFor="insuranceCarrier"
-                className={`absolute ${isValidating ? 'bg-[#e8f2f5]' : ''} left-0 top-0 ml-4 mt-2 text-xs text-black-4 `}
+                className={`absolute ${isValidating ? "bg-[#e8f2f5]" : ""} left-0 top-0 ml-4 mt-2 text-xs text-black-4 `}
               >
                 Who is the insurance carrier?
               </label>
@@ -244,35 +227,35 @@ const DoYouHaveInsuranceForm = ({
                     id="subscriberId"
                     placeholder="Subscriber ID"
                     name={`subscriberId${section}`}
-                    value={values[`subscriberId${section}`] || ''}
+                    value={values[`subscriberId${section}`] || ""}
                     onChange={handleChange}
                     disabled={
                       isValidating ||
-                      (validationStatus === 'done' && isValidInsurance)
+                      (validationStatus === "done" && isValidInsurance)
                     }
                     onBlur={handleBlur}
-                    // name="subscriberId"
                     className={` border
                   ${
                     isValidating
-                      ? 'border-[#dbddde] bg-[#e8f2f5] text-[#6e787a] opacity-70'
-                      : validationStatus === 'done'
+                      ? "border-[#dbddde] bg-[#e8f2f5] text-[#6e787a] opacity-70"
+                      : validationStatus === "done"
                         ? isValidInsurance
-                          ? 'border-[#6ea787a]'
-                          : 'border-red-500'
-                        : 'border-[#6e787a]'
+                          ? "border-[#6ea787a]"
+                          : "border-red-500"
+                        : "border-[#6e787a]"
                   } 
                   ${
+                    touched[`subscriberId${section}`] &&
                     errors[`subscriberId${section}`]
-                      ? 'border-red-500'
-                      : 'border-[#6e787a]'
+                      ? "border-red-500"
+                      : "border-[#6e787a]"
                   } 
                   w-full rounded-lg px-4 py-2 pt-6
                 `}
                   />
 
                   <svg
-                    className={` absolute left-[90%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values.isValidInsurance !== 'true' ? 'hidden' : 'block'}  ${isValidating ? 'bg-[#e8f2f5]' : ''}`}
+                    className={` absolute left-[90%] top-4  mt-2  rounded-full  bg-slate-200 text-xs ${values.isValidInsurance !== "true" ? "hidden" : "block"}  ${isValidating ? "bg-[#e8f2f5]" : ""}`}
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
                     height="16"
@@ -288,16 +271,17 @@ const DoYouHaveInsuranceForm = ({
 
                 <label
                   htmlFor="subscriberId"
-                  className={`absolute left-0 top-0 ml-4  mt-2 text-xs text-black-4 ${errors[`subscriberId${section}`] ? 'text-status-red-text' : ''}   ${isValidating ? 'bg-[#e8f2f5]' : ''}`}
+                  className={`absolute left-0 top-0 ml-4  mt-2 text-xs text-black-4 ${touched[`subscriberId${section}`] && errors[`subscriberId${section}`] ? "text-status-red-text" : ""}   ${isValidating ? "bg-[#e8f2f5]" : ""}`}
                 >
-                  Subscriber ID{' '}
+                  Subscriber ID{" "}
                   <span className={`text-xs font-normal text-zest-6 `}>*</span>
                 </label>
               </div>
               <span
-                className={`pl-2 text-xs font-normal ${errors[`subscriberId${section}`] ? 'block' : 'hidden'} text-zest-6 `}
+                className={`pl-2 text-xs font-normal ${errors[`subscriberId${section}`] ? "block" : "hidden"} text-zest-6 `}
               >
-                {errors[`subscriberId${section}`] as string}
+                {touched[`subscriberId${section}`] &&
+                  (errors[`subscriberId${section}`] as string)}
               </span>
               <div className=" mb-2 pl-1 text-sm text-black-2">
                 This is NOT group, issuer, or RX number and may contain letters
@@ -305,12 +289,12 @@ const DoYouHaveInsuranceForm = ({
               </div>
             </div>
 
-            {!isValidating && validationStatus == 'done' && (
+            {!isValidating && validationStatus == "done" && (
               <div
-                className={`${isValidInsurance ? 'bg-[#31936e]/25  text-status-green-text' : ' bg-[#d13e27]/25 text-status-red-text'} mt-4 inline-flex h-[33px] items-center justify-center gap-2.5 rounded px-3 py-2`}
+                className={`${isValidInsurance ? "bg-[#31936e]/25  text-status-green-text" : " bg-[#d13e27]/25 text-status-red-text"} mt-4 inline-flex h-[33px] items-center justify-center gap-2.5 rounded px-3 py-2`}
               >
                 <div className={`text-center text-sm font-bold `}>
-                  {isValidInsurance ? 'Valid Insurance' : 'Invalid Insurance'}
+                  {isValidInsurance ? "Valid Insurance" : "Invalid Insurance"}
                 </div>
               </div>
             )}
@@ -319,29 +303,29 @@ const DoYouHaveInsuranceForm = ({
 
         {/* No i dont have */}
         <div
-          className={`flex flex-col ${values.isValidInsurance !== 'true' ? 'block' : 'hidden'}`}
+          className={`flex flex-col ${values.isValidInsurance !== "true" ? "block" : "hidden"}`}
         >
           <div className="relative mt-4 items-center">
             <div
               onClick={() => {
-                if (!isValidating) handleCheckboxChange('0');
+                if (!isValidating) handleCheckboxChange("0");
               }}
               className="flex gap-4"
             >
               <div
-                className={`border-1 flex h-6 w-6 justify-center self-center rounded-lg border  ${values[`hasInsurance${section}`] === '0' ? 'border-sky-700 ' : 'border-[#DBDDDE] '} `}
+                className={`border-1 flex h-6 w-6 justify-center self-center rounded-lg border  ${values[`hasInsurance${section}`] === "0" ? "border-sky-700 " : "border-[#DBDDDE] "} `}
               >
                 <div
-                  className={`flex   h-5  w-5 justify-center self-center rounded-md  ${values[`hasInsurance${section}`] === '0' ? 'bg-sky-700 ' : ''}`}
+                  className={`flex   h-5  w-5 justify-center self-center rounded-md  ${values[`hasInsurance${section}`] === "0" ? "bg-sky-700 " : ""}`}
                 >
                   <input
                     id="hasInsurance"
                     type="checkbox"
                     disabled={isValidating}
                     name={`hasInsurance${section}`}
-                    checked={values[`hasInsurance${section}`] === '0'}
-                    onChange={() => handleCheckboxChange('0')}
-                    className={`peer-not h-5 w-5 appearance-none ${values[`hasInsurance${section}`] === '0' ? 'invisible' : ''}  rounded-md border-hidden `}
+                    checked={values[`hasInsurance${section}`] === "0"}
+                    onChange={() => handleCheckboxChange("0")}
+                    className={`peer-not h-5 w-5 appearance-none ${values[`hasInsurance${section}`] === "0" ? "invisible" : ""}  rounded-md border-hidden `}
                   ></input>
                 </div>
               </div>

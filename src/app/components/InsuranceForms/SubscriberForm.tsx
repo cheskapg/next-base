@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import { useFormState } from '../FormContext';
 import { subscriberSchema, subscriberSchema2 } from '@/schemas/insurance';
-import { checkPrice } from '@/actions/api';
+import { checkPrice, updateInsuranceDetails } from '@/actions/api';
+import ImageUpload from '../Fields/ImageUpload';
 interface SubscriberFormProps {
   section: any;
+  patientData: any;
   currentStep: any;
   isSubmitting: boolean;
   onSubmit: any;
@@ -16,6 +18,7 @@ interface SubscriberFormProps {
 }
 const SubscriberForm = ({
   section,
+  patientData,
   currentStep,
   isSubmitting,
   onSubmit,
@@ -25,7 +28,8 @@ const SubscriberForm = ({
   setCurrentStep,
   handleErrors,
 }: SubscriberFormProps) => {
-  const { setInsuranceData, insuranceData, onHandleNext } = useFormState();
+  const { setInsuranceData, insuranceData, onHandleNext } =
+    useFormState();
 
   const initialValues = {
     [`insuranceFirstName${section}`]: insuranceData
@@ -39,9 +43,6 @@ const SubscriberForm = ({
       : '',
     [`insurancePhone${section}`]: insuranceData
       ? insuranceData[`insurancePhone${section}`]
-      : '',
-    [`insuranceCountry${section}`]: insuranceData
-      ? insuranceData[`insuranceCountry${section}`]
       : '',
     [`insuranceAddress${section}`]: insuranceData
       ? insuranceData[`insuranceAddress${section}`]
@@ -61,9 +62,7 @@ const SubscriberForm = ({
     [`insuranceSubscriber${section}`]: insuranceData
       ? insuranceData[`insuranceSubscriber${section}`]
       : '',
-    [`subscriberDob${section}`]: insuranceData
-      ? insuranceData[`subscriberDob${section}`]
-      : '',
+
     [`frontInsuranceCard${section}`]: insuranceData
       ? insuranceData[`frontInsuranceCard${section}`]
       : '',
@@ -96,29 +95,45 @@ const SubscriberForm = ({
       alert(JSON.stringify(values, null, 2));
     },
   });
+  const [sameAsPatient, setSameAsPatient] = useState(false);
+
+  const {
+    insuranceAddress1,
+    insuranceAddress2,
+    insuranceCity,
+    insuranceState,
+    insuranceZip,
+  } = values;
+  const handleSameAsPatientChange = (e: any) => {
+    setSameAsPatient(e.target.checked);
+    console.log(patientData, 'patientData');
+  };
+
+  useEffect(() => {
+    if (sameAsPatient) {
+      setFieldValue(`insuranceAddress${section}`, patientData.addressLine1);
+      setFieldValue(`insuranceAddress2_${section}`, patientData.addressLine2);
+      setFieldValue(`insuranceCity${section}`, patientData.city);
+      setFieldValue(`insuranceState${section}`, patientData.state);
+      setFieldValue(`insuranceZip${section}`, patientData.zipCode);
+    }
+  }, [sameAsPatient]);
 
   useEffect(() => {
     if (values[`insuranceSubscriber${section}`] === 'Patient') {
       setTouched({}, false);
       setErrors({});
       // setValues(initialValues);
+      //set patient subscriber if patient sub filll data
       handleErrors(errors); // Pass the current errors to the parent component
-
     } else {
       handleErrors(errors); // Pass the current errors to the parent component
       console.log(errors, "errors'");
-
     }
-  }, [
-    errors,
-    handleErrors,
-    values[`insuranceSubscriber${section}`],
-  ]);
-
-  // useEffect(() => {
-  //   handleErrors(errors);
-  //   console.log(errors, "CHILD ERROR");// Pass the current errors to the parent component
-  // }, [errors, handleErrors]);
+  }, [errors, handleErrors, values[`insuranceSubscriber${section}`]]);
+  const [errorUpload, setErrorUpload] = useState(false);
+  const [frontInsuranceCard, setFrontInsuranceCard] = useState('');
+  const [backInsuranceCard, setBackInsuranceCard] = useState('');
 
   const [isValid, setIsValid] = useState(false);
 
@@ -134,20 +149,31 @@ const SubscriberForm = ({
 
   const onHandleFormSubmit = async (data: TFormValues) => {
     setIsSubmitting(true);
-    setInsuranceData((prev: any) => ({ ...prev, ...data }));
-    console.log(`subscriber test: ${JSON.stringify(data)}`);
-    onSubmit(data);
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
+  
+    try {
+      const response = await updateInsuranceDetails(data);
+      const updatedInsuranceData = response; // assuming the API returns the updated insurance data
+  
+      setInsuranceData((prev: any) => ({ ...prev, ...data }));
+      console.log(`subscriber test: ${JSON.stringify(data)}`);
+      onSubmit(data);
+  
+      if (currentStep < 4) {
+        setCurrentStep(currentStep + 1);
+        setTriggerSubmit(false);
+        onHandleNext(); // navigate to the next step
+        console.log('handlenext');
+      } else {
+        console.log('handlenext');
+      }
+    } catch (error) {
+      console.log(error);
+      alert('Oops! Something went wrong. Please try again');
+    } finally {
+      setIsSubmitting(false);
       setTriggerSubmit(false);
-    } else {
-      console.log('handlenext');
     }
-
-    setTriggerSubmit(false);
-    setIsSubmitting(false);
   };
-
   useEffect(() => {
     if (triggerSubmit) {
       setIsSubmitting(true);
@@ -160,35 +186,41 @@ const SubscriberForm = ({
   }, [triggerSubmit]);
 
   type TFormValues = {
+    insuranceCarrier: string;
+    subscriberId: string;
+    hasInsurance: string;
     insuranceFirstName: string;
     insuranceLastName: string;
     insuranceDob: string;
     insurancePhone: string;
-    insuranceCountry: string;
     insuranceAddress: string;
-    insuranceAddress2_: string;
+    insuranceAddress2: string;
     insuranceCity: string;
     insuranceState: string;
     insuranceZip: string;
-    subscriberDob: string;
     isValidInsurance: string;
     insuranceSubscriber: string;
+    //insurance card
+
     frontInsuranceCard: string;
     backInsuranceCard: string;
-    // Additional Insurance Fields
 
+    //additional subscriber
+    insuranceCarrier2: string;
+    subscriberId2: string;
+    hasInsurance2: string;
     insuranceFirstName2: string;
     insuranceLastName2: string;
     insuranceDob2: string;
     insurancePhone2: string;
-    insuranceCountry2: string;
     insuranceAddress2_2: string;
     insuranceCity2: string;
     insuranceState2: string;
     insuranceZip2: string;
-    subscriberDob2: string;
     isValidInsurance2: string;
     insuranceSubscriber2: string;
+    //insurance card
+
     frontInsuranceCard2: string;
     backInsuranceCard2: string;
   };
@@ -316,7 +348,7 @@ const SubscriberForm = ({
           </div>
 
           <div
-            className={` ${errors[`insuranceFirstName${section}`] ? 'text-status-red-text' : 'text-black-4 '} flex h-full flex-1 flex-col ${values[`insuranceSubscriber${section}`] === "Patient" || values[`insuranceSubscriber${section}`] === '' ? 'hidden' : 'block'}`}
+            className={` ${errors[`insuranceFirstName${section}`] ? 'text-status-red-text' : 'text-black-4 '} flex h-full flex-1 flex-col ${values[`insuranceSubscriber${section}`] === 'Patient' || values[`insuranceSubscriber${section}`] === '' ? 'hidden' : 'block'}`}
           >
             {/* First Name */}
             <div className="relative mt-4 items-center">
@@ -373,7 +405,6 @@ const SubscriberForm = ({
                 {errors[`insuranceLastName${section}`] as string}
               </span>
             </div>
-
             <div
               className={`${errors[`insuranceDob${section}`] ? 'text-status-red-text' : 'text-black-4 '} relative mt-4 flex w-full`}
             >
@@ -408,7 +439,6 @@ const SubscriberForm = ({
             <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
               {errors[`insuranceDob${section}`] as string}
             </span>
-
             {/*Phone */}
             <div className="mt-4 flex">
               <div className="relative w-full ">
@@ -434,14 +464,13 @@ const SubscriberForm = ({
                 </span>
               </div>
             </div>
-
             {/* Same as Patient */}
             <div className="relative mt-4 items-center">
               <input
                 type="checkbox"
                 name="sameAsPatientChkBox"
                 id="sameAsPatientChkBox"
-                onChange={handleChange}
+                onChange={handleSameAsPatientChange}
                 onBlur={handleBlur}
                 placeholder="Same address as patient"
                 className=" rounded-md border-poise-2 px-2 py-2 pt-2"
@@ -453,7 +482,6 @@ const SubscriberForm = ({
                 Same as patient
               </label>
             </div>
-
             {/* Address */}
             <div className="relative mt-4">
               <input
@@ -499,7 +527,6 @@ const SubscriberForm = ({
                 Apt. Suite, Unit, (Optional)
               </label>
             </div>
-
             {/* City */}
             <div className="relative mt-4">
               <input
@@ -523,7 +550,6 @@ const SubscriberForm = ({
                 City
               </label>
             </div>
-
             {/* State */}
             <div className="mt-4 flex">
               <div className="relative w-3/5">
@@ -589,7 +615,7 @@ const SubscriberForm = ({
               )}
               {/* Insurance Front Card */}
 
-              {/* <div className="relative mt-4">
+              <div className="relative mt-4">
                 <ImageUpload
                   id={`frontInsuranceCard${section}`}
                   name={`frontInsuranceCard${section}`}
@@ -599,9 +625,9 @@ const SubscriberForm = ({
                   value={`frontInsuranceCard${section}`}
                   setValue={setFrontInsuranceCard}
                 ></ImageUpload>
-              </div> */}
+              </div>
               {/* Insurance Back Card */}
-              {/* <div className="relative mt-4">
+              <div className="relative mt-4">
                 <ImageUpload
                   id={`backInsuranceCard${section}`}
                   name={`backInsuranceCard${section}`}
@@ -611,96 +637,8 @@ const SubscriberForm = ({
                   value={`backInsuranceCard${section}`}
                   setValue={setBackInsuranceCard}
                 ></ImageUpload>
-              </div> */}
-            </div>
-            {/* <div className=" text-black pt-8 text-base font-medium">
-        Upload insurance card
-      </div>
-      <div className="text-black text-sm font-normal">
-        If you have a digital insurance card, download or screenshot both sides
-        to upload.
-      </div> */}
-
-            {/* <Identification /> */}
-            {/* Insurance Front Card */}
-            {/* <div className="relative mt-4">
-        <div className="bg-slate-100/opacity-60 items-center rounded border border-sky-950 bg-slate-100 px-10 py-7 align-middle ">
-          <div className="">
-            <div className=" flex w-full justify-center">
-              <img
-                id="frontInsuranceCardImage"
-                src="../assets/images/card-front.svg"
-                alt=""
-              />
-            </div>
-            <div className=" w-full py-2 text-center ">
-              <span className="text-sm  font-bold text-zinc-800">
-                Front of Insurance Card
-              </span>
-              <p className="text-sm font-normal text-zinc-800">
-                Place card on a flat, well-lit surface and tap the button below
-              </p>
-            </div>
-            <div className="items-center justify-center gap-2.5 rounded-[100px] border-2 border-sky-950 bg-slate-100 py-2 text-center">
-              <label
-                className=" text-center text-base font-semibold text-sky-700"
-                htmlFor="frontInsuranceCard"
-              >
-                Take or upload photo
-              </label>
-            </div>
-          </div>
-        </div>
-        <input
-          type="file"
-          className=" hidden"
-          accept="image/*"
-          name="frontInsuranceCard"
-          id="frontInsuranceCard"
-          // onChange={loadUploadedImage}
-        />
-      </div> */}
-
-            {/* Insurance Back Card */}
-            {/* <div className="relative mt-4">
-        <div className=" bg-slate-100/opacity-60 items-center rounded border border-sky-950 bg-slate-100 px-10 py-7 align-middle">
-          <div className="">
-            <div className=" flex w-full justify-center">
-              <img
-                id="backInsuranceCardImage"
-                src="../assets/images/card-back.svg"
-                alt=""
-              />
-            </div>
-            <div className=" w-full py-2 text-center ">
-              <span className="text-sm  font-bold text-zinc-800">
-                Back of Insurance Card
-              </span>
-              <p className="text-sm font-normal text-zinc-800">
-                Place card on a flat, well-lit surface and tap the button below
-              </p>
-            </div>
-            <div className="items-center justify-center gap-2.5 rounded-[100px] border-2 border-sky-700 py-2 text-center">
-              <label
-                className=" text-center text-base font-semibold text-sky-700"
-                htmlFor="backInsuranceCard"
-              >
-                Take or upload photo
-              </label>
-            </div>
-          </div>
-        </div>
-        <input
-          type="file"
-          className=" hidden"
-          accept="image/*"
-          name="backInsuranceCard"
-          id="backInsuranceCard"
-          // onChange={loadUploadedImage}
-        />
-      </div> */}
-
-            {/* Action */}
+              </div>
+            </div>{' '}
           </div>
         </div>
       </form>

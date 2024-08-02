@@ -3,15 +3,14 @@ import IInsurance from "@/interface/IInsurance";
 
 export default class Insurance implements IInsurance {
 
-//insurance
+  //insurance
   insuranceCarrier = '';
   subscriberId = '';
   hasInsurance = '';
   insuranceFirstName = '';
   insuranceLastName = '';
   insuranceDob = '';
-  insurancePhone = '';
-  insuranceCountry = '';
+  insurancePhone = ''; 
   insuranceAddress = '';
   insuranceAddress2 = '';
   insuranceCity = '';
@@ -19,7 +18,6 @@ export default class Insurance implements IInsurance {
   insuranceZip = '';
   isValidInsurance = '';
   insuranceSubscriber = '';
-  subscriberDob = '';
   //insurance card
 
   frontInsuranceCard = '';
@@ -34,12 +32,10 @@ export default class Insurance implements IInsurance {
   insuranceLastName2 = '';
   insuranceDob2 = '';
   insurancePhone2 = '';
-  insuranceCountry2 = '';
   insuranceAddress2_2 = '';
   insuranceCity2 = '';
   insuranceState2 = '';
   insuranceZip2 = '';
-  subscriberDob2 = '';
   isValidInsurance2 = '';
   insuranceSubscriber2 = '';
   //insurance card

@@ -5,7 +5,6 @@ import DoYouHaveInsuranceForm from './InsuranceForms/DoYouHaveInsuranceForm';
 import SubscriberForm from './InsuranceForms/SubscriberForm';
 import { validateSubscriberId } from '../actions/api';
 import { on } from 'events';
-
 export default function Insurance() {
   const [currentStep, setCurrentStep] = useState(1);
   const [values, setValues] = useState<FormValues>({});
@@ -17,7 +16,6 @@ export default function Insurance() {
   const [errors, setErrors] = useState({});
   const handleErrors = (newErrors: any) => {
     setErrors(newErrors);
-    console.log(newErrors, "newErrors'");
     setHasErrors(Object.keys(newErrors).length > 0);
   };
   const [hasErrors, setHasErrors] = useState(false);
@@ -38,100 +36,17 @@ export default function Insurance() {
     setTriggerValidation(false);
     setTriggerSubmit(false);
   };
-  const { onHandleNext, onHandleBack, setInsuranceData, insuranceData } =
+  const { onHandleNext, onHandleBack, patientData, } =
     useFormState();
-  //   switch (currentStep) {
-  //     case 1:
-  //       if (data.hasInsurance === '1') {
-  //         setTriggerValidation(true);
-  //         console.log(`triggerValidation`, triggerValidation);
-  //         console.log(currentStep, 'currentstep');
 
-  //         console.log(isValidInsurance, 'parent validity');
-  //         console.log(isValidating, 'parent setIsValidating');
-
-  //         // Proceed to next step after an additional 3-second delay
-  //         setTimeout(() => {
-  //           if (isValidInsurance) {
-  //             setCurrentStep(currentStep + 1);
-  //             console.log(currentStep, 'currentstep');
-
-  //             setIsValidInsurance(false);
-  //             setIsValidating(false);
-  //             setTriggerValidation(false);
-
-  //             console.log(isValidInsurance, 'parent isValidInsurance');
-  //           }
-  //         }, 3000); // 3 seconds delay
-  //       } else {
-  //         //no insurance
-  //         onHandleNext();
-  //       }
-  //       break;
-
-  //     case 2:
-  //       setTriggerSubmit(true);
-  //       // Proceed to next step after saving
-  //       // setIsValidating(false);
-  //       // setIsValidInsurance(false);
-  //       // setIsValidating(false);
-  //       // setTriggerValidation(false);
-  //       break;
-
-  //     case 3:
-  //       setTriggerValidation(false);
-
-  //       if (data.hasInsurance2 === '1') {
-  //         setIsValidInsurance(false);
-  //         setIsValidating(false);
-  //         setTriggerValidation(true);
-  //         console.log(isValidInsurance, 'parent validity');
-  //         console.log(isValidating, 'parent setIsValidating');
-
-  //         // Proceed to next step after an additional 3-second delay
-  //         setTimeout(() => {
-  //           if (isValidInsurance) {
-  //             setCurrentStep(currentStep + 1);
-  //             console.log(currentStep, 'currentstep');
-
-  //             // setIsValidInsurance(false);
-  //             setIsValidating(false);
-  //             setTriggerValidation(false);
-
-  //             console.log(isValidInsurance, 'parent isValidInsurance');
-  //           }
-  //         }, 3000); // 3 seconds delay
-  //         setTriggerSubmit(false);
-
-  //       } else {
-  //         //no insurance
-  //         onHandleNext();
-  //       }
-  //       break;
-
-  //     case 4:
-  //       setTriggerSubmit(true);
-  //       console.log("IsSubmitting", IsSubmitting)
-  //       //simulate api call await submit then proceed to next page
-  //       setTimeout(async () => {
-
-  //         onHandleNext();
-
-  //       }, 2000); // Simulated validation time
-
-  //       break;
-
-  //     default:
-  //       break;
-  //   }
-  // };
   const onHandleFormSubmit = async (data: any) => {
     switch (currentStep) {
       case 1:
         // Validation logic
 
-        if (data.hasInsurance === '1') {
+        if (data.hasInsurance === "1") {
           setTriggerValidation(true);
+          //simulate api call await
           setTimeout(() => {
             if (isValidInsurance) {
               setCurrentStep(currentStep + 1);
@@ -146,13 +61,10 @@ export default function Insurance() {
 
       case 2:
         setTriggerSubmit(true);
-        // setTimeout(() => {
-        //   setCurrentStep(currentStep + 1);
-        //   resetState();
-        // }, 3000);
+
         break;
       case 3:
-        if (data.hasInsurance2 === '1') {
+        if (data.hasInsurance2 === "1") {
           setTriggerValidation(true);
           setTimeout(() => {
             if (isValidInsurance) {
@@ -167,7 +79,6 @@ export default function Insurance() {
         break;
       case 4:
         setTriggerSubmit(true);
-        console.log('IsSubmitting', IsSubmitting);
         //simulate api call await submit then proceed to next page
         setTimeout(async () => {
           onHandleNext();
@@ -191,7 +102,6 @@ export default function Insurance() {
       setIsValidInsurance(false);
       setIsValidating(false);
       setTriggerValidation(false);
-      // setTriggerNext(false);
       setCurrentStep(currentStep - 1);
     } else {
       onHandleBack();
@@ -211,14 +121,14 @@ export default function Insurance() {
       <div className={`flex flex-1 flex-col p-6`}>
         <div className="text-xl">
           {currentStep === 1
-            ? 'Do you have health insurance'
+            ? "Do you have health insurance"
             : currentStep === 2
-              ? 'Insurance Details'
+              ? "Insurance Details"
               : currentStep === 3
-                ? 'Do you have additional health insurance'
+                ? "Do you have additional health insurance"
                 : currentStep === 4
-                  ? 'Additional Insurance Details'
-                  : 'Insurance'}
+                  ? "Additional Insurance Details"
+                  : "Insurance"}
         </div>
 
         {currentStep === 1 && (
@@ -230,7 +140,7 @@ export default function Insurance() {
             handleErrors={handleErrors}
             setIsValidating={setIsValidating} // Pass
             onSubmit={updateValues} // update the checkbox values to parent
-            hasInsurance={values.hasInsurance || ''}
+            hasInsurance={values.hasInsurance || ""}
             triggerValidation={triggerValidation}
             setTriggerValidation={setTriggerValidation}
           />
@@ -238,6 +148,8 @@ export default function Insurance() {
         {currentStep === 2 && (
           <SubscriberForm
             section=""
+            patientData={patientData}
+
             setCurrentStep={handleCurrentStep}
             currentStep={currentStep}
             onSubmit={updateValues}
@@ -257,7 +169,7 @@ export default function Insurance() {
             setIsValidating={setIsValidating} // Pass
             onSubmit={updateValues} // update the checkbox values to parent
             handleErrors={handleErrors}
-            hasInsurance={values.hasInsurance || ''}
+            hasInsurance={values.hasInsurance || ""}
             triggerValidation={triggerValidation}
             setTriggerValidation={setTriggerValidation}
           />
@@ -265,6 +177,8 @@ export default function Insurance() {
         {currentStep === 4 && (
           <SubscriberForm
             section="2"
+            patientData={patientData}
+
             setCurrentStep={handleCurrentStep}
             currentStep={currentStep}
             onSubmit={updateValues}
@@ -277,7 +191,7 @@ export default function Insurance() {
         )}
 
         {/* Action */}
-        <div className={` flex h-full items-end gap-4 `}>
+        <div className={` flex items-end gap-4 `}>
           <div className="w-2/6 ">
             <button
               id="back"
@@ -291,27 +205,26 @@ export default function Insurance() {
               <span className="flex items-center justify-center">Back</span>
             </button>
           </div>
-          {values[`hasInsurance`] === '0' ||
-          values[`hasInsurance`] === '1' ||
-          values[`hasInsurance2`] === '0' ||
-          values[`hasInsurance2`] === '1' ? (
+          {values[`hasInsurance`] === "0" ||
+          values[`hasInsurance`] === "1" ||
+          values[`hasInsurance2`] === "0" ||
+          values[`hasInsurance2`] === "1" ? (
             <div className="w-4/6">
               <button
                 disabled={
                   isValidating ||
                   isValidInsurance ||
                   IsSubmitting ||
-                  hasErrors ||
-                  (hasErrors && values.hasInsurance2 === '1') ||
-                  (hasErrors && values.hasInsurance === '1')
+                  (hasErrors && values.hasInsurance2 === "1") ||
+                  (hasErrors && values.hasInsurance === "1")
                     ? true
                     : false
                 }
                 id="Next"
                 type="submit"
                 onClick={(e) => {
+                  console.log(currentStep);
                   e.preventDefault();
-
                   onHandleFormSubmit(values);
                 }}
                 className={`w-full rounded-3xl bg-spruce-4 py-2 text-center font-semibold text-white`}
@@ -342,7 +255,7 @@ export default function Insurance() {
                   </span>
                 ) : (
                   <>
-                    {currentStep === 1 && values.hasInsurance === '1' ? (
+                    {currentStep === 1 && values.hasInsurance === "1" ? (
                       <span>Validate Insurance</span>
                     ) : currentStep === 1 ? (
                       <span>Next</span>
@@ -350,7 +263,7 @@ export default function Insurance() {
 
                     {currentStep === 2 && <span>Next</span>}
 
-                    {currentStep === 3 && values.hasInsurance2 === '1' ? (
+                    {currentStep === 3 && values.hasInsurance2 === "1" ? (
                       <span>Validate Insurance</span>
                     ) : currentStep === 3 ? (
                       <span>Next</span>
@@ -363,7 +276,7 @@ export default function Insurance() {
             </div>
           ) : (
             <div className="w-4/6">
-              <div className=" flex h-10 items-center justify-center gap-2.5 rounded-[100px] px-4 ">
+              <div className=" flex h-10 items-center justify-center gap-2.5 rounded-[100px] pl-4 ">
                 <div className=" text-sm font-normal text-[#5e6366]">
                   Select an option to proceed
                 </div>

@@ -8,7 +8,6 @@ export default interface IInsurance {
   insuranceLastName: string;
   insuranceDob: string;
   insurancePhone: string;
-  insuranceCountry: string;
   insuranceAddress: string;
   insuranceAddress2: string;
   insuranceCity: string;
@@ -16,7 +15,6 @@ export default interface IInsurance {
   insuranceZip: string;
   isValidInsurance: string;
   insuranceSubscriber: string;
-  subscriberDob: string;
   //insurance card
 
   frontInsuranceCard: string; 
@@ -30,12 +28,10 @@ export default interface IInsurance {
   insuranceLastName2: string;
   insuranceDob2: string;
   insurancePhone2: string;
-  insuranceCountry2: string;
   insuranceAddress2_2: string;
   insuranceCity2: string;
   insuranceState2: string;
   insuranceZip2: string;
-  subscriberDob2: string;
   isValidInsurance2: string;
   insuranceSubscriber2: string;   
   //insurance card

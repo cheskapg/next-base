@@ -1,5 +1,10 @@
-export default function ProgressBar({ value }: { value: number }) {
-  const total = 5;
+export default function ProgressBar({
+  value,
+  total,
+}: {
+  value: number;
+  total: number;
+}) {
   const progress = value;
   const widthPercentage = Math.floor((progress / total) * 100);
   return (

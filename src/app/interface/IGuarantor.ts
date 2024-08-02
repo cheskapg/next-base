@@ -1,0 +1,21 @@
+export default interface IGuarantor {
+    firstName: string,
+    lastName: string,
+    dateOfBirth: string,
+    sex: string,
+    phoneNumber: string,
+    email: string,
+    addressLine1: string,
+    addressLine2: string,
+    city: string,
+    state: string,
+    zipCode: string,
+    status: string,
+    lastUpdated: string,
+    guarantorId: number,
+    guarantorRelationship: string,
+    registrationId: number,
+    regionId: number,
+    hospitalId: number
+    personId: number,
+  }

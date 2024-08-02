@@ -3,11 +3,14 @@
 // "use server";
 
 // import IPatient from "../interface/IPatient";
-import { mapToUpdatePatientDto, mapToPatient, mapToPcp } from "../utils/mapper"
-// import { removeNullAttributes } from "../utils/helper";
+import { mapToUpdatePatientDto, mapToPatient, mapToPcp, mapToUserSession, mapToGuarantor, mapToUpdateGuarantorDto } from "../utils/mapper";
+import { removeNullAttributes } from "../utils/helper";// import { removeNullAttributes } from "../utils/helper";
 import Patient from "../models/Patient";
 import Pcp from "@/models/Pcp";
 import RegionSpecificDetails from "@/interface/RegionSpecificDetails";// import ApiResponse from "../interface/ApiResponse";
+import IGuarantor from "@/interface/IGuarantor";
+import Guarantor from "@/models/Guarantor";
+import Insurance from "@/models/Insurance";
 export const updatePatientDetails = async (patient: any, step: number): Promise<any> => {
   try {
     console.log('Calling Map Patient Details');
@@ -17,7 +20,6 @@ export const updatePatientDetails = async (patient: any, step: number): Promise<
     console.log('Calling Update Patient Details');
     console.log(JSON.stringify(payload));
     console.log(patient.patientId);
-
     // Static response
     const response = {
       ok: true,
@@ -159,4 +161,138 @@ export const checkPrice = async (copay: string ) => {
 
   const jsonData = await response.json();
   return jsonData.data.isValid;
+};
+
+//Guarantor
+
+
+// export const fetchGuarantorRegistrationById = async (
+//   id: number,
+// ): Promise<Guarantor> => {
+//   const response = await fetch(
+//     `${process.env.API_BASE_URL}/reg/${id}/guarantor`,
+//     { cache: 'no-store' },
+//   );
+//   const jsonData: any = await response.json();
+//   console.log(jsonData.statusCode != 404);
+//   if(jsonData.statusCode != 404)
+//     return mapToGuarantor(jsonData.data);
+//   else 
+//     return  mapToGuarantor(new Guarantor());
+// };
+
+export const updateGuarantor = async (id:number,guarantor: Guarantor): Promise<Guarantor> => {
+  let payload =  mapToUpdateGuarantorDto(guarantor);
+
+  const response = await fetch(
+    `${process.env.API_BASE_URL}/reg/${id}/guarantor`,
+    {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(mapToUpdateGuarantorDto(guarantor)),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update guarantor');
+  }
+
+  const updatedData = await response.json();
+  console.log(updatedData);
+  return updatedData as Guarantor;
+};
+
+
+export const generateVerifyToken = async (id:number) => {
+  const response = await fetch(`${process.env.API_BASE_URL}/reg/${id}/token/dob`);
+  const jsonData:any = (await response.json());
+  return jsonData;
+};
+
+export const verifyUserSession = async (
+  id: number,
+  dob:string
+): Promise<any> => {
+
+  console.log(id);
+  const response = await fetch(
+    `${process.env.API_BASE_URL}/reg/${id}/token/dob/verify`,
+    {
+      method: 'POST',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({"challenge": `${dob}`}),
+    },
+  );
+  const jsonData: any = await response.json();
+  console.log(jsonData);
+  return jsonData.token;
+};
+
+
+// Insurance 
+export const fetchInsuranceDetails = async (id: number): Promise<Insurance> => {
+  try {
+    // Static response
+    const response = {
+      ok: true,
+      json: async () => ({
+        message: 'Insurance details fetched successfully',
+        data: {
+          id: 1,
+          carrier: 'Cigna HMO/PPO',
+          subscriberId: '1234567890',
+          groupId: 'ABC123',
+          effectiveDate: '2022-01-01',
+          expirationDate: '2023-01-01',
+          // Add more properties as needed
+        },
+      }),
+    };
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw error;
+    }
+    const jsonData: any = await response.json();
+
+    console.log('Fetch Insurance Success', jsonData);
+
+    return jsonData.data;
+  } catch (error) {
+    console.log('Call logging api here:', error);
+    throw error;
+  }
+};
+
+export const updateInsuranceDetails = async (insurance: Insurance): Promise<Insurance> => {
+  try {
+    console.log('Calling Update Insurance Details');
+    console.log(JSON.stringify(insurance));
+
+    // Static response
+    const response = {
+      ok: true,
+      json: async () => ({
+        message: 'Insurance details updated successfully',
+        data: insurance,
+      }),
+    };
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw error;
+    }
+    const jsonData: any = await response.json();
+
+    console.log('Update Insurance Success', jsonData);
+
+    return jsonData.data;
+  } catch (error) {
+    console.log('Call logging api here:', error);
+    throw error;
+  }
 };
