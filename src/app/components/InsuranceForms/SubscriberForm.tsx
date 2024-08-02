@@ -110,7 +110,50 @@ const SubscriberForm = ({
     },
   });
   const [sameAsPatient, setSameAsPatient] = useState(false);
-
+ // const clearFormValues = () => {
+    //   const newValues = { ...initialValues };
+    //   newValues[`insuranceSubscriber${section}`] = values[`insuranceSubscriber${section}`];
+    //   setValues(newValues);
+    // };
+    // const handleInsuranceSubscriber = () => {
+    //   if (values[`insuranceSubscriber${section}`] === 'Patient') {
+    //     setTouched({}, false);
+    //     setErrors({});
+    
+    //     setFieldValue(`insuranceFirstName${section}`, patientDetails.firstName);
+    //     setFieldValue(`insuranceLastName${section}`, patientDetails.firstName);
+    //     setFieldValue(`insuranceDob${section}`, patientDetails.dateOfBirth);
+    //     setFieldValue(`insurancePhone${section}`, patientDetails.phoneNumber);
+    //     setFieldValue(`insuranceAddress${section}`, patientDetails.addressLine1);
+    //     setFieldValue(`insuranceAddress2_${section}`, patientDetails.addressLine2);
+    //     setFieldValue(`insuranceCity${section}`, patientDetails.city);
+    //     setFieldValue(`insuranceState${section}`, patientDetails.state);
+    //     setFieldValue(`insuranceZip${section}`, patientDetails.zipCode);
+    //     //set patient subscriber if patient sub filll data
+    //     handleErrors(errors); // Pass the current errors to the parent component
+    //   } 
+    //   else {
+    //     if(sameAsPatient){
+    //       setTouched({}, false);
+    //       setErrors({});
+    
+    //       //set patient subscriber if patient sub filll data
+    //       handleErrors(errors); 
+    //     }
+    //     clearFormValues();
+    //           handleErrors(errors); // Pass the current errors to the parent component
+    //     console.log(errors, "errors'");
+    //   }
+    // };
+    
+    // useEffect(() => {
+    //   handleInsuranceSubscriber();
+    // }, []); // Run once on mount
+    
+    // useEffect(() => {
+    //   handleInsuranceSubscriber();
+    // }, [errors, handleErrors, sameAsPatient, values[`insuranceSubscriber${section}`]]); // Run on subsequent changes
+  
   const {
     insuranceAddress1,
     insuranceAddress2,
