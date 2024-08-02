@@ -19,7 +19,6 @@ export default function Insurance() {
     setHasErrors(Object.keys(newErrors).length > 0);
   };
   const [hasErrors, setHasErrors] = useState(false);
-
   const updateValues = (newValues: any) => {
     setValues((prevValues) => ({ ...prevValues, ...newValues }));
   };
@@ -36,13 +35,14 @@ export default function Insurance() {
     setTriggerValidation(false);
     setTriggerSubmit(false);
   };
-  const { onHandleNext, onHandleBack, patientData, } =
+  const { onHandleNext, onHandleBack,patientData, setInsuranceData, insuranceData } =
     useFormState();
 
   const onHandleFormSubmit = async (data: any) => {
     switch (currentStep) {
       case 1:
         // Validation logic
+        console.log(patientData," patientdata in insurace")
 
         if (data.hasInsurance === "1") {
           setTriggerValidation(true);
@@ -148,8 +148,7 @@ export default function Insurance() {
         {currentStep === 2 && (
           <SubscriberForm
             section=""
-            patientData={patientData}
-
+            patientDetails={patientData}
             setCurrentStep={handleCurrentStep}
             currentStep={currentStep}
             onSubmit={updateValues}
@@ -177,7 +176,7 @@ export default function Insurance() {
         {currentStep === 4 && (
           <SubscriberForm
             section="2"
-            patientData={patientData}
+            patientDetails={patientData}
 
             setCurrentStep={handleCurrentStep}
             currentStep={currentStep}

@@ -6,7 +6,20 @@ import { checkPrice, updateInsuranceDetails } from '@/actions/api';
 import ImageUpload from '../Fields/ImageUpload';
 interface SubscriberFormProps {
   section: any;
-  patientData: any;
+  // patientData: any;
+  currentStep: any;
+  isSubmitting: boolean;
+  onSubmit: any;
+  triggerSubmit: boolean;
+  setTriggerSubmit: (triggerSubmit: boolean) => void;
+  setIsSubmitting: (isSubmitting: boolean) => void;
+  setCurrentStep: (currentStep: number) => void;
+  handleErrors: (errors: any) => void; // Add this prop
+}
+
+interface SubscriberFormProps {
+  section: any;
+  patientDetails: any;
   currentStep: any;
   isSubmitting: boolean;
   onSubmit: any;
@@ -18,7 +31,7 @@ interface SubscriberFormProps {
 }
 const SubscriberForm = ({
   section,
-  patientData,
+  patientDetails,
   currentStep,
   isSubmitting,
   onSubmit,
@@ -28,9 +41,10 @@ const SubscriberForm = ({
   setCurrentStep,
   handleErrors,
 }: SubscriberFormProps) => {
-  const { setInsuranceData, insuranceData, onHandleNext } =
-    useFormState();
+  const { setInsuranceData, insuranceData, onHandleNext } = useFormState();
+  // Use patientData directly from the FormContext
 
+  console.log(patientDetails, 'INIT');
   const initialValues = {
     [`insuranceFirstName${section}`]: insuranceData
       ? insuranceData[`insuranceFirstName${section}`]
@@ -106,18 +120,41 @@ const SubscriberForm = ({
   } = values;
   const handleSameAsPatientChange = (e: any) => {
     setSameAsPatient(e.target.checked);
-    console.log(patientData, 'patientData');
-  };
+    console.log(patientDetails, 'patientData');
 
-  useEffect(() => {
-    if (sameAsPatient) {
-      setFieldValue(`insuranceAddress${section}`, patientData.addressLine1);
-      setFieldValue(`insuranceAddress2_${section}`, patientData.addressLine2);
-      setFieldValue(`insuranceCity${section}`, patientData.city);
-      setFieldValue(`insuranceState${section}`, patientData.state);
-      setFieldValue(`insuranceZip${section}`, patientData.zipCode);
+    if (!e.target.checked) {
+      // Clear the fields when the checkbox is unchecked
+      setFieldValue(`insuranceAddress${section}`, '');
+      setFieldValue(`insuranceAddress2_${section}`, '');
+      setFieldValue(`insuranceCity${section}`, '');
+      setFieldValue(`insuranceState${section}`, '');
+      setFieldValue(`insuranceZip${section}`, '');
     }
-  }, [sameAsPatient]);
+  };
+    useEffect(() => {
+      if (sameAsPatient) {
+        // Populate the fields when the checkbox is checked
+        setFieldValue(`insuranceAddress${section}`, patientDetails.addressLine1);
+        setFieldValue(`insuranceAddress2_${section}`, patientDetails.addressLine2);
+        setFieldValue(`insuranceCity${section}`, patientDetails.city);
+        setFieldValue(`insuranceState${section}`, patientDetails.state);
+        setFieldValue(`insuranceZip${section}`, patientDetails.zipCode);
+    
+        // Clear errors for the fields
+        setErrors({ [`insuranceAddress${section}`]: undefined });
+        setErrors({ [`insuranceAddress2_${section}`]: undefined });
+        setErrors({ [`insuranceCity${section}`]: undefined });
+        setErrors({ [`insuranceState${section}`]: undefined });
+        setErrors({ [`insuranceZip${section}`]: undefined });
+      } else {
+        // Clear the fields when the checkbox is unchecked
+        setFieldValue(`insuranceAddress${section}`, '');
+        setFieldValue(`insuranceAddress2_${section}`, '');
+        setFieldValue(`insuranceCity${section}`, '');
+        setFieldValue(`insuranceState${section}`, '');
+        setFieldValue(`insuranceZip${section}`, '');
+      }
+    }, [sameAsPatient, patientDetails]);
 
   useEffect(() => {
     if (values[`insuranceSubscriber${section}`] === 'Patient') {
@@ -149,15 +186,15 @@ const SubscriberForm = ({
 
   const onHandleFormSubmit = async (data: TFormValues) => {
     setIsSubmitting(true);
-  
+
     try {
       const response = await updateInsuranceDetails(data);
       const updatedInsuranceData = response; // assuming the API returns the updated insurance data
-  
+
       setInsuranceData((prev: any) => ({ ...prev, ...data }));
       console.log(`subscriber test: ${JSON.stringify(data)}`);
       onSubmit(data);
-  
+
       if (currentStep < 4) {
         setCurrentStep(currentStep + 1);
         setTriggerSubmit(false);

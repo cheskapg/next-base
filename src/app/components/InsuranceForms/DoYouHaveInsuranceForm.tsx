@@ -149,7 +149,7 @@ const DoYouHaveInsuranceForm = ({
               className="flex gap-4"
             >
               <div
-                onClick={() => handleCheckboxChange("1")}
+                // onClick={() => handleCheckboxChange("1")}
                 className={`border-1 flex h-6 w-6 justify-center self-center rounded-lg border  ${values[`hasInsurance${section}`] === "1" ? "border-sky-700 " : "border-[#DBDDDE] "} `}
               >
                 <div
@@ -168,7 +168,7 @@ const DoYouHaveInsuranceForm = ({
               </div>
               <div className=" inline-flex flex-col items-start justify-center">
                 <label
-                  htmlFor="hasInsurance"
+                  
                   className="text-right  text-base font-normal text-[#2a2f31]"
                 >
                   Yes, I have.

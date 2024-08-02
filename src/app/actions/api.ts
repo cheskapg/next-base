@@ -61,12 +61,7 @@ export const fetchRegionSpecificDetails = async (region_id: number): Promise<Reg
 export const fetchPatientRegistrationById = async (id: number): Promise<Patient> => {
   // Static response
   const jsonData: any = {
-    data: {
-      patientId: id,
-      name: "John Doe",
-      age: 30,
-      gender: "Male",
-      // other static patient details
+    data: {      // other static patient details
     },
   };
   return mapToPatient(jsonData.data);

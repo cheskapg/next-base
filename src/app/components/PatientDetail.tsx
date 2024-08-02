@@ -54,19 +54,34 @@ export default function PatientDetail({
       },
     });
 
+  // const onHandleFormSubmit = async (data: any) => {
+  //   try {
+  //     data.patientId = patientId;
+  //     // const response = await updatePatientDetails(data, step);
+  //     const patient = await fetchPatientRegistrationById(patientId);
+  //     // setPatientData((prev: any) => ({
+  //     //   ...prev,
+  //     //   ...patient,
+  //     // }));
+
+  //     onHandleNext();
+  //   } catch (error) {
+  //     console.log(error);
+  //     alert("Oops! Something went wrong. Please try again");
+  //   }
+  // };
+
   const onHandleFormSubmit = async (data: any) => {
     try {
       data.patientId = patientId;
-      const patient = await fetchPatientRegistrationById(patientId);
       const response = await updatePatientDetails(data, step);
-      console.log(patient, "patient")
-      console.log(response, "response")
+      // const patient = await fetchPatientRegistrationById(patientId);
       setPatientData((prev: any) => ({
         ...prev,
         ...data,
       }));
-      console.log(patientData, "onHandleFormSubmit onHandleFormSubmit");
-      setPatientData(patientData)
+      console.log(patientData, "patientdetails")
+
       onHandleNext();
     } catch (error) {
       console.log(error);
