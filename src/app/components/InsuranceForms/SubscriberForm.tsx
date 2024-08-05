@@ -125,6 +125,11 @@ const SubscriberForm = ({
       setFieldValue(`insuranceZip${section}`, patientDetails.zipCode);
 
 
+        setTouched({ [`insuranceAddress${section}`]: false });
+        setTouched({ [`insuranceAddress2_${section}`]: false });
+        setTouched({ [`insuranceCity${section}`]: false });
+        setTouched({ [`insuranceState${section}`]: false });
+        setTouched({ [`insuranceZip${section}`]: false });
     } else {
       // Clear the fields when the checkbox is unchecked
       setFieldValue(`insuranceAddress${section}`, '');
