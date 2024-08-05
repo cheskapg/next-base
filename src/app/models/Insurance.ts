@@ -1,4 +1,4 @@
-import IInsurance from "@/interface/IInsurance";
+import IInsurance from "../interface/IInsurance";
 
 
 export default class Insurance implements IInsurance {

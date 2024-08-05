@@ -6,24 +6,12 @@ import { checkPrice, updateInsuranceDetails } from '@/actions/api';
 import ImageUpload from '../Fields/ImageUpload';
 interface SubscriberFormProps {
   section: any;
-  // patientData: any;
-  currentStep: any;
-  isSubmitting: boolean;
-  onSubmit: any;
-  triggerSubmit: boolean;
-  setTriggerSubmit: (triggerSubmit: boolean) => void;
-  setIsSubmitting: (isSubmitting: boolean) => void;
-  setCurrentStep: (currentStep: number) => void;
-  handleErrors: (errors: any) => void; // Add this prop
-}
-
-interface SubscriberFormProps {
-  section: any;
   patientDetails: any;
   currentStep: any;
   isSubmitting: boolean;
   onSubmit: any;
   triggerSubmit: boolean;
+  onInsuranceDataChange: any
   setTriggerSubmit: (triggerSubmit: boolean) => void;
   setIsSubmitting: (isSubmitting: boolean) => void;
   setCurrentStep: (currentStep: number) => void;
@@ -36,15 +24,16 @@ const SubscriberForm = ({
   isSubmitting,
   onSubmit,
   triggerSubmit,
+  onInsuranceDataChange: onInsuranceDataChange,
   setTriggerSubmit,
   setIsSubmitting,
   setCurrentStep,
   handleErrors,
 }: SubscriberFormProps) => {
-  const { setInsuranceData, insuranceData, onHandleNext } = useFormState();
-  // Use patientData directly from the FormContext
+  const { setInsuranceData, insuranceData, onHandleNext } =
+    useFormState();
 
-  console.log(patientDetails, 'INIT');
+
   const initialValues = {
     [`insuranceFirstName${section}`]: insuranceData
       ? insuranceData[`insuranceFirstName${section}`]
@@ -97,6 +86,7 @@ const SubscriberForm = ({
     setTouched,
     setErrors,
     setFieldValue,
+    resetForm,
     setValues,
   } = useFormik({
     initialValues,
@@ -110,57 +100,8 @@ const SubscriberForm = ({
     },
   });
   const [sameAsPatient, setSameAsPatient] = useState(false);
- // const clearFormValues = () => {
-    //   const newValues = { ...initialValues };
-    //   newValues[`insuranceSubscriber${section}`] = values[`insuranceSubscriber${section}`];
-    //   setValues(newValues);
-    // };
-    // const handleInsuranceSubscriber = () => {
-    //   if (values[`insuranceSubscriber${section}`] === 'Patient') {
-    //     setTouched({}, false);
-    //     setErrors({});
-    
-    //     setFieldValue(`insuranceFirstName${section}`, patientDetails.firstName);
-    //     setFieldValue(`insuranceLastName${section}`, patientDetails.firstName);
-    //     setFieldValue(`insuranceDob${section}`, patientDetails.dateOfBirth);
-    //     setFieldValue(`insurancePhone${section}`, patientDetails.phoneNumber);
-    //     setFieldValue(`insuranceAddress${section}`, patientDetails.addressLine1);
-    //     setFieldValue(`insuranceAddress2_${section}`, patientDetails.addressLine2);
-    //     setFieldValue(`insuranceCity${section}`, patientDetails.city);
-    //     setFieldValue(`insuranceState${section}`, patientDetails.state);
-    //     setFieldValue(`insuranceZip${section}`, patientDetails.zipCode);
-    //     //set patient subscriber if patient sub filll data
-    //     handleErrors(errors); // Pass the current errors to the parent component
-    //   } 
-    //   else {
-    //     if(sameAsPatient){
-    //       setTouched({}, false);
-    //       setErrors({});
-    
-    //       //set patient subscriber if patient sub filll data
-    //       handleErrors(errors); 
-    //     }
-    //     clearFormValues();
-    //           handleErrors(errors); // Pass the current errors to the parent component
-    //     console.log(errors, "errors'");
-    //   }
-    // };
-    
-    // useEffect(() => {
-    //   handleInsuranceSubscriber();
-    // }, []); // Run once on mount
-    
-    // useEffect(() => {
-    //   handleInsuranceSubscriber();
-    // }, [errors, handleErrors, sameAsPatient, values[`insuranceSubscriber${section}`]]); // Run on subsequent changes
-  
-  const {
-    insuranceAddress1,
-    insuranceAddress2,
-    insuranceCity,
-    insuranceState,
-    insuranceZip,
-  } = values;
+
+
   const handleSameAsPatientChange = (e: any) => {
     setSameAsPatient(e.target.checked);
     console.log(patientDetails, 'patientData');
@@ -174,43 +115,73 @@ const SubscriberForm = ({
       setFieldValue(`insuranceZip${section}`, '');
     }
   };
-    useEffect(() => {
-      if (sameAsPatient) {
-        // Populate the fields when the checkbox is checked
-        setFieldValue(`insuranceAddress${section}`, patientDetails.addressLine1);
-        setFieldValue(`insuranceAddress2_${section}`, patientDetails.addressLine2);
-        setFieldValue(`insuranceCity${section}`, patientDetails.city);
-        setFieldValue(`insuranceState${section}`, patientDetails.state);
-        setFieldValue(`insuranceZip${section}`, patientDetails.zipCode);
-    
-        // Clear errors for the fields
-        setErrors({ [`insuranceAddress${section}`]: undefined });
-        setErrors({ [`insuranceAddress2_${section}`]: undefined });
-        setErrors({ [`insuranceCity${section}`]: undefined });
-        setErrors({ [`insuranceState${section}`]: undefined });
-        setErrors({ [`insuranceZip${section}`]: undefined });
-      } else {
-        // Clear the fields when the checkbox is unchecked
-        setFieldValue(`insuranceAddress${section}`, '');
-        setFieldValue(`insuranceAddress2_${section}`, '');
-        setFieldValue(`insuranceCity${section}`, '');
-        setFieldValue(`insuranceState${section}`, '');
-        setFieldValue(`insuranceZip${section}`, '');
-      }
-    }, [sameAsPatient, patientDetails]);
-
   useEffect(() => {
+    if (sameAsPatient) {
+      // Populate the fields when the checkbox is checked
+      setFieldValue(`insuranceAddress${section}`, patientDetails.addressLine1);
+      setFieldValue(`insuranceAddress2_${section}`, patientDetails.addressLine2);
+      setFieldValue(`insuranceCity${section}`, patientDetails.city);
+      setFieldValue(`insuranceState${section}`, patientDetails.state);
+      setFieldValue(`insuranceZip${section}`, patientDetails.zipCode);
+
+
+    } else {
+      // Clear the fields when the checkbox is unchecked
+      setFieldValue(`insuranceAddress${section}`, '');
+      setFieldValue(`insuranceAddress2_${section}`, '');
+      setFieldValue(`insuranceCity${section}`, '');
+      setFieldValue(`insuranceState${section}`, '');
+      setFieldValue(`insuranceZip${section}`, '');
+    }
+  }, [sameAsPatient, patientDetails]);
+  //FORR DROP DOWN CHANGES
+  const resetFormValues = () => {
+    const newValues = { ...initialValues };
+    newValues[`insuranceSubscriber${section}`] = values[`insuranceSubscriber${section}`];
+    setValues(newValues);
+  };
+
+  const handleInsuranceSubscriber = () => {
     if (values[`insuranceSubscriber${section}`] === 'Patient') {
       setTouched({}, false);
       setErrors({});
-      // setValues(initialValues);
-      //set patient subscriber if patient sub filll data
+
+      setFieldValue(`insuranceFirstName${section}`, patientDetails.firstName);
+      setFieldValue(`insuranceLastName${section}`, patientDetails.firstName);
+      setFieldValue(`insuranceDob${section}`, patientDetails.dateOfBirth);
+      setFieldValue(`insurancePhone${section}`, patientDetails.phoneNumber);
+      setFieldValue(`insuranceAddress${section}`, patientDetails.addressLine1);
+      setFieldValue(`insuranceAddress2_${section}`, patientDetails.addressLine2);
+      setFieldValue(`insuranceCity${section}`, patientDetails.city);
+      setFieldValue(`insuranceState${section}`, patientDetails.state);
+      setFieldValue(`insuranceZip${section}`, patientDetails.zipCode);
       handleErrors(errors); // Pass the current errors to the parent component
     } else {
-      handleErrors(errors); // Pass the current errors to the parent component
-      console.log(errors, "errors'");
+      if (sameAsPatient) {
+        setTouched({}, false);
+        setErrors({});
+
+        handleErrors(errors);
+      } else {
+        handleErrors(errors); // Pass the current errors to the parent component
+        console.log(errors, "errors'");
+      }
     }
-  }, [errors, handleErrors, values[`insuranceSubscriber${section}`]]);
+  };
+
+  useEffect(() => {
+    handleInsuranceSubscriber();
+  }, []); // Run once on mount
+
+  useEffect(() => {
+    handleInsuranceSubscriber();
+  }, [errors, handleErrors, sameAsPatient]); // Run on subsequent changes
+
+  useEffect(() => {
+    if (values[`insuranceSubscriber${section}`] !== 'Patient' && !sameAsPatient) {
+      resetFormValues();
+    }
+  }, [values[`insuranceSubscriber${section}`]]); // Run when insuranceSubscriber changes
   const [errorUpload, setErrorUpload] = useState(false);
   const [frontInsuranceCard, setFrontInsuranceCard] = useState('');
   const [backInsuranceCard, setBackInsuranceCard] = useState('');
@@ -226,34 +197,42 @@ const SubscriberForm = ({
       console.error(error);
     }
   };
-
-  const onHandleFormSubmit = async (data: TFormValues) => {
+  const submit = async () => {
     setIsSubmitting(true);
 
-    try {
-      const response = await updateInsuranceDetails(data);
-      const updatedInsuranceData = response; // assuming the API returns the updated insurance data
+    // Simulate validation delay
+    setTimeout(async () => {
+      onHandleFormSubmit(values);
 
-      setInsuranceData((prev: any) => ({ ...prev, ...data }));
-      console.log(`subscriber test: ${JSON.stringify(data)}`);
-      onSubmit(data);
+      // Update parent state
+      console.log("onSubmit SUBFORMM formm insurance data:", values);
 
-      if (currentStep < 4) {
-        setCurrentStep(currentStep + 1);
-        setTriggerSubmit(false);
-        onHandleNext(); // navigate to the next step
-        console.log('handlenext');
-      } else {
-        console.log('handlenext');
-      }
-    } catch (error) {
-      console.log(error);
-      alert('Oops! Something went wrong. Please try again');
-    } finally {
-      setIsSubmitting(false);
+
+    }, 2000); // Simulated validation time
+    if (currentStep < 4) {
+      setCurrentStep(currentStep + 1);
       setTriggerSubmit(false);
+      onHandleNext(); // navigate to the next step
+    } else {
+      console.log('handlenext');
     }
+
   };
+
+  useEffect(() => {
+    if (triggerSubmit) {
+      submit();
+    }
+  }, [triggerSubmit]);
+
+  const onHandleFormSubmit = (data: any) => {
+    onInsuranceDataChange(data);
+    console.log("oninsurance subsc", onInsuranceDataChange)
+
+     setTriggerSubmit(false);
+    setIsSubmitting(false);
+  };
+ 
   useEffect(() => {
     if (triggerSubmit) {
       setIsSubmitting(true);
@@ -264,6 +243,7 @@ const SubscriberForm = ({
       setIsSubmitting(false);
     }
   }, [triggerSubmit]);
+
 
   type TFormValues = {
     insuranceCarrier: string;
@@ -309,15 +289,15 @@ const SubscriberForm = ({
       <form onSubmit={handleSubmit}>
         {/* //enable button for price checking test */}
         {/* <button
-          // id="submit"
-          type="button"
-          onClick={() => {
-            handleCheckPrice('30'); //
-          }}
-          className={` text-black h-10  w-full rounded-3xl border-2 border-slate-600  text-center font-semibold `}
-        >
-          <span className="flex items-center justify-center">check price</span>
-        </button> */}
+            // id="submit"
+            type="button"
+            onClick={() => {
+              handleCheckPrice('30'); //
+            }}
+            className={` text-black h-10  w-full rounded-3xl border-2 border-slate-600  text-center font-semibold `}
+          >
+            <span className="flex items-center justify-center">check price</span>
+          </button> */}
         <div className="mt-4 inline-flex  flex-col items-start justify-center gap-2.5 rounded bg-[#ebf9f1] p-3">
           <div className="inline-flex items-center justify-start gap-1">
             <div className="flex h-5 w-5 items-center justify-center rounded-[500px] p-0.5">
@@ -403,16 +383,15 @@ const SubscriberForm = ({
               name={`insuranceSubscriber${section}`}
               value={values[`insuranceSubscriber${section}`]}
               onChange={handleChange}
-              className={`w-full rounded-lg border border-poise-2 px-4 py-2 pt-6  ${
-                errors[`insuranceSubscriber${section}`]
-                  ? 'border---red-500'
-                  : 'border-poise-2'
-              }  `}
+              className={`w-full rounded-lg border border-poise-2 px-4 py-2 pt-6  ${errors[`insuranceSubscriber${section}`]
+                ? 'border---red-500'
+                : 'border-poise-2'
+                }  `}
             >
-              <option disabled defaultValue="">
+              <option disabled value="">
                 Select an option
               </option>
-              <option value="Patient">Patient</option>
+              <option defaultValue="Patient">Patient</option>
               <option value="Spouse">Spouse</option>
               <option value="Mother">Mother</option>
               <option value="Father">Father</option>
@@ -439,11 +418,10 @@ const SubscriberForm = ({
                 value={values[`insuranceFirstName${section}`] || ''}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                className={`border ${
-                  errors[`insuranceFirstName${section}`]
-                    ? 'border-red-500'
-                    : 'border-poise-2'
-                }  w-full rounded-lg px-4 py-2 pt-6 `}
+                className={`border ${errors[`insuranceFirstName${section}`]
+                  ? 'border-red-500'
+                  : 'border-poise-2'
+                  }  w-full rounded-lg px-4 py-2 pt-6 `}
               />
 
               <label
@@ -468,11 +446,10 @@ const SubscriberForm = ({
                 name={`insuranceLastName${section}`}
                 onBlur={handleBlur}
                 value={values[`insuranceLastName${section}`] || ''}
-                className={`${
-                  errors[`insuranceLastName${section}`]
-                    ? 'border-red-500'
-                    : 'border-poise-2'
-                }  w-full rounded-lg border px-4 py-2 pt-6`}
+                className={`${errors[`insuranceLastName${section}`]
+                  ? 'border-red-500'
+                  : 'border-poise-2'
+                  }  w-full rounded-lg border px-4 py-2 pt-6`}
               />
 
               <label
@@ -496,11 +473,10 @@ const SubscriberForm = ({
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values[`insuranceDob${section}`] || ''}
-                className={`${
-                  errors[`insuranceDob${section}`]
-                    ? 'border-red-500'
-                    : 'border-poise-2'
-                } w-full rounded-lg border  py-2 pl-4 pt-6 text-black-4`}
+                className={`${errors[`insuranceDob${section}`]
+                  ? 'border-red-500'
+                  : 'border-poise-2'
+                  } w-full rounded-lg border  py-2 pl-4 pt-6 text-black-4`}
                 placeholder="mm/dd/yyyy"
               ></input>
               <label
@@ -529,11 +505,10 @@ const SubscriberForm = ({
                   onBlur={handleBlur}
                   value={values[`insurancePhone${section}`] || ''}
                   placeholder="(555) 555-5555"
-                  className={`${
-                    errors[`insurancePhone${section}`]
-                      ? 'border-red-500'
-                      : 'border-poise-2'
-                  }  w-full rounded-lg border px-4 py-2 pt-6`}
+                  className={`${errors[`insurancePhone${section}`]
+                    ? 'border-red-500'
+                    : 'border-poise-2'
+                    }  w-full rounded-lg border px-4 py-2 pt-6`}
                 ></input>
                 <label className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4">
                   Phone Number{' '}
@@ -572,11 +547,10 @@ const SubscriberForm = ({
                 onBlur={handleBlur}
                 value={values[`insuranceAddress${section}`] || ''}
                 placeholder="999 High Garden"
-                className={` ${
-                  errors[`insuranceAddress${section}`]
-                    ? 'border-red-500'
-                    : 'border-poise-2'
-                }  w-full rounded-lg border  px-4 py-2 pt-6`}
+                className={` ${errors[`insuranceAddress${section}`]
+                  ? 'border-red-500'
+                  : 'border-poise-2'
+                  }  w-full rounded-lg border  px-4 py-2 pt-6`}
               />
               <label
                 htmlFor="address"
@@ -617,11 +591,10 @@ const SubscriberForm = ({
                 onBlur={handleBlur}
                 value={values[`insuranceCity${section}`] || ''}
                 placeholder="Winterfell"
-                className={`${
-                  errors[`insuranceCity${section}`]
-                    ? 'border-red-500'
-                    : 'border-poise-2'
-                } w-full rounded-lg border border-poise-2 px-4 py-2 pt-6`}
+                className={`${errors[`insuranceCity${section}`]
+                  ? 'border-red-500'
+                  : 'border-poise-2'
+                  } w-full rounded-lg border border-poise-2 px-4 py-2 pt-6`}
               />
               <label
                 htmlFor="city"
@@ -640,11 +613,10 @@ const SubscriberForm = ({
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values[`insuranceState${section}`] || ''}
-                  className={`border  text-black-4 ${
-                    errors[`insuranceState${section}`]
-                      ? 'border-red-500'
-                      : 'border-poise-2'
-                  } w-full rounded-lg px-4 py-2 pt-6`}
+                  className={`border  text-black-4 ${errors[`insuranceState${section}`]
+                    ? 'border-red-500'
+                    : 'border-poise-2'
+                    } w-full rounded-lg px-4 py-2 pt-6`}
                 >
                   <option disabled value={''}>
                     Choose State
@@ -666,11 +638,10 @@ const SubscriberForm = ({
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values[`insuranceZip${section}`] || ''}
-                  className={` border ${
-                    errors[`insuranceZip${section}`]
-                      ? 'border-red-500'
-                      : 'border-poise-2'
-                  }   w-full rounded-lg border-poise-2 px-4 py-2 pt-6`}
+                  className={` border ${errors[`insuranceZip${section}`]
+                    ? 'border-red-500'
+                    : 'border-poise-2'
+                    }   w-full rounded-lg border-poise-2 px-4 py-2 pt-6`}
                 ></input>
                 <label className="absolute left-0 top-0 ml-8 mt-2 text-xs text-black-4">
                   Zip / Postal Code
@@ -688,11 +659,6 @@ const SubscriberForm = ({
                 both sides to upload.
               </div>
 
-              {currentStep !== 2 && (
-                <div>
-                  <p>Current step is not 2, it's {currentStep}</p>
-                </div>
-              )}
               {/* Insurance Front Card */}
 
               <div className="relative mt-4">
