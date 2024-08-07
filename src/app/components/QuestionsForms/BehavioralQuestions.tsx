@@ -33,6 +33,7 @@ const BehavorialQuestions = () => {
         },
       ],
     },
+
     {
       id: 'question3',
       label:
@@ -52,21 +53,18 @@ const BehavorialQuestions = () => {
       ],
     },
   ];
-  const {  behavioralQuestionsData,  } = useFormState();
+  const { behavioralQuestionsData } = useFormState();
 
   //with each options as true or false just incase it is needed instead of cocatednated string
-  const initialValues: any = questions.reduce(
-    (values: any, question: any) => {
-      values[question.id] = behavioralQuestionsData[question.id] || ''; // Use data from context
-      question.options.forEach((option: any) => {
-        if (option.component !== 'Checkbox') {
-          values[option.id] = behavioralQuestionsData[option.id] || '';
-        }
-      });
-      return values;
-    },
-    {} as BehavioralQuestions,
-  );
+  const initialValues: any = questions.reduce((values: any, question: any) => {
+    values[question.id] = behavioralQuestionsData[question.id] || ''; // Use data from context
+    question.options.forEach((option: any) => {
+      if (option.component !== 'Checkbox') {
+        values[option.id] = behavioralQuestionsData[option.id] || '';
+      }
+    });
+    return values;
+  }, {} as BehavioralQuestions);
 
   //   Explicitly define initial values for each question
 
@@ -123,65 +121,72 @@ const BehavorialQuestions = () => {
   });
   return (
     <>
-      <form onSubmit={handleSubmit} className="">
-        <div>
-          {questions.map((question) => (
-            <div key={question.id} className="flex flex-col">
-              <div className="relative mt-4 items-center">
-                <h2 className="mb-2 text-lg ">{question.label}</h2>
-                {question.options.map((option) => (
-                  <div key={option.id} className="mb-3 flex">
-                    <div className="align-center flex">
-                      {option.component === 'Checkbox' && (
-                        <div
-                          className={`mr-5 flex h-5 w-5 justify-center self-center rounded-md border-[#DBDDDE]`}
-                        >
-                          <input
-                            type="checkbox"
-                            name={option.id}
-                            // onChange={values.handleChange}
-                            value={values[option.id]}
-                            onChange={(e) =>
-                              handleCheckboxChange(e, question.id)
-                            }
-                            disabled={
-                              values[question.id].includes('N/A') &&
-                              option.id !== 'N/A'
-                            }
-                            checked={values[question.id].includes(option.id)}
-                            className={`peer-not align-center h-5 w-5  rounded-md border border-sky-700 bg-sky-700`}
-                          />
+      <div className={`flex flex-1 flex-col p-6`}>
+        <div className="text-xl">
+          Behavioral Health Questions
+          <form onSubmit={handleSubmit} className="">
+            <div>
+              {questions.map((question) => (
+                <div key={question.id} className="flex flex-col">
+                  <div className="relative mt-4 items-center">
+                    <h2 className="mb-2 text-lg ">{question.label}</h2>
+                    {question.options.map((option) => (
+                      <div key={option.id} className="mb-3 flex">
+                        <div className="align-center flex">
+                          {option.component === 'Checkbox' && (
+                            <div
+                              className={`mr-5 flex h-5 w-5 justify-center self-center rounded-md border-[#DBDDDE]`}
+                            >
+                              <input
+                                type="checkbox"
+                                name={option.id}
+                                // onChange={values.handleChange}
+                                value={values[option.id]}
+                                onChange={(e) =>
+                                  handleCheckboxChange(e, question.id)
+                                }
+                                disabled={
+                                  values[question.id].includes('N/A') &&
+                                  option.id !== 'N/A'
+                                }
+                                checked={values[question.id].includes(
+                                  option.id,
+                                )}
+                                className={`peer-not align-center h-5 w-5  rounded-md border border-sky-700 bg-sky-700`}
+                              />
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <div className="options w-full">
-                      <label htmlFor={option.id}>{option.label}</label>
-                      {option.component === 'Textbox' && (
-                        <div className=" flex grow justify-center self-center rounded-md border border-red-500">
-                          <textarea
-                            id={option.id}
-                            name={option.id}
-                            onChange={handleChange}
-                            value={values[option.id]}
-                            className=" w-full grow"
-                            placeholder="Enter any additional medical problems"
-                          ></textarea>
+                        <div className="options w-full">
+                          <label htmlFor={option.id}>{option.label}</label>
+                          {option.component === 'Textbox' && (
+                            <div className=" flex grow justify-center self-center rounded-md border border-red-500">
+                              <textarea
+                                id={option.id}
+                                name={option.id}
+                                onChange={handleChange}
+                                value={values[option.id]}
+                                className=" w-full grow"
+                                placeholder="Enter any additional medical problems"
+                              ></textarea>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          ))}
+            <button
+              type="submit"
+              className="mt-4 rounded bg-blue-500 p-2 text-white"
+            >
+              Submit
+            </button>
+          </form>
         </div>
-        <button
-          type="submit"
-          className="mt-4 rounded bg-blue-500 p-2 text-white"
-        >
-          Submit
-        </button>
-      </form>
+      </div>
     </>
   );
 };

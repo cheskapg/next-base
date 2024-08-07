@@ -16,7 +16,7 @@ import GlobalDropdowns from "../interface/GlobalDropdown";
 import IdleModal from "./IdleModal";
 import Guarantor from "./Guarantor";
 import Consent from "./Consent";
-import Questions from "./Questions";
+import BehavioralQuestions from "./QuestionsForms/BehavioralQuestions";
 export default function PageHandler({
   patientNumber,
   patient,
@@ -39,8 +39,9 @@ export default function PageHandler({
     //   patient={patient}
     //   patientId={patientNumber}
     // />,
-    <Questions  key={"Questions"}/>,
-
+    // <Questions  key={"Questions"}/>,
+    //
+    <BehavioralQuestions/>,
     <Insurance key={"Insurance"} />,
     <Guarantor
       key={"Guarantor"}
