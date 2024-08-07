@@ -16,6 +16,7 @@ import GlobalDropdowns from "../interface/GlobalDropdown";
 import IdleModal from "./IdleModal";
 import Guarantor from "./Guarantor";
 import Consent from "./Consent";
+import Questions from "./Questions";
 export default function PageHandler({
   patientNumber,
   patient,
@@ -33,11 +34,13 @@ export default function PageHandler({
 }) {
   const { step } = useFormState();
   const steps = [
-    <PatientDetail
-      key={"PatientDetail"}
-      patient={patient}
-      patientId={patientNumber}
-    />,
+    // <PatientDetail
+    //   key={"PatientDetail"}
+    //   patient={patient}
+    //   patientId={patientNumber}
+    // />,
+    <Questions  key={"Questions"}/>,
+
     <Insurance key={"Insurance"} />,
     <Guarantor
       key={"Guarantor"}

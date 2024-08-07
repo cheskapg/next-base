@@ -25,7 +25,7 @@ export default function Demographics({
     setPatientData,
     patientData,
     step,
-    patientId,
+    // patientId,
   } = useFormState();
 
   //console.log(patientData);
