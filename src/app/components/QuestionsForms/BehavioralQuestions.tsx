@@ -36,10 +36,9 @@ useFormik({
       console.log('Form values:', values);
     },
   });
-
   return (
     <>
-      <form onSubmit={values.handleSubmit} className="">
+      <form onSubmit={handleSubmit} className="">
         <div>
           {questions.map((question) => (
             <div key={question.id} className="flex flex-col">
@@ -54,8 +53,8 @@ useFormik({
                             type="checkbox"
                             name={option.id}
                             onChange={values.handleChange}
-                            // checked={values[option.id]}
-                            className={`peer-not align-center h-5 w-5 rounded-md border border-sky-700 `}
+                            value ={values[option.id]}
+                            className={`peer-not align-center h-5 w-5  rounded-md border border-sky-700 bg-sky-700`}
                           />
                         </div>
                       )}
