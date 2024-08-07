@@ -5,11 +5,12 @@ import {
   createContext,
   useContext,
   useState,
-} from "react";
-import Insurance from "../models/Insurance";
-import Guarantor from "../models/Guarantor";
-import Patient from "../models/Patient";
-import { calculateAge } from "../utils/helper";
+} from 'react';
+import Insurance from '../models/Insurance';
+import Guarantor from '../models/Guarantor';
+import Patient from '../models/Patient';
+import { calculateAge } from '../utils/helper';
+import BehavioralQuestions from '@/models/BehavioralQuestions';
 
 interface IFormContext {
   patientData: any;
@@ -22,6 +23,8 @@ interface IFormContext {
   steppedBack: boolean;
   guarantorData: any;
   setGuarantorData: Dispatch<SetStateAction<any>>;
+  behavioralQuestionsData: any;
+  setBehavioralQuestionsData: Dispatch<SetStateAction<any>>;
   setSteppedBack: Dispatch<SetStateAction<any>>;
 }
 
@@ -29,6 +32,8 @@ const FormContext = createContext<IFormContext>({
   patientData: new Patient(),
   insuranceData: new Insurance(),
   setInsuranceData: () => {},
+  behavioralQuestionsData: new BehavioralQuestions(),
+  setBehavioralQuestionsData: () => {},
   onHandleBack: () => {},
   onHandleNext: () => {},
   setPatientData: () => {},
@@ -46,6 +51,9 @@ interface IProps {
 export function FormProvider({ children }: IProps) {
   const [patientData, setPatientData] = useState(new Patient());
   const [insuranceData, setInsuranceData] = useState(new Insurance());
+  const [behavioralQuestionsData, setBehavioralQuestionsData] = useState(
+    new BehavioralQuestions(),
+  );
   const [step, setStep] = useState(1);
   const [steppedBack, setSteppedBack] = useState(false);
   const [guarantorData, setGuarantorData] = useState(new Guarantor());
@@ -55,7 +63,7 @@ export function FormProvider({ children }: IProps) {
     if (age >= 18 && step == 2) {
       setStep((prev) => prev + 2);
     } else setStep((prev) => prev + 1);
-          console.log(patientData,'FORM PATIENTDATA');
+    console.log(patientData, 'FORM PATIENTDATA');
 
     //if (!steppedBack) setSteppedBack(false);
   }
@@ -79,6 +87,8 @@ export function FormProvider({ children }: IProps) {
         setInsuranceData,
         onHandleBack,
         onHandleNext,
+        behavioralQuestionsData,
+        setBehavioralQuestionsData,
         step,
         steppedBack,
         guarantorData,

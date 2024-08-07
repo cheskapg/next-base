@@ -1,5 +1,7 @@
 import React from 'react';
 import { useFormik } from 'formik';
+import { useFormState } from '../FormContext';
+import BehavioralQuestions from '@/models/BehavioralQuestions';
 
 const BehavorialQuestions = () => {
   const questions = [
@@ -50,34 +52,23 @@ const BehavorialQuestions = () => {
       ],
     },
   ];
-//with each options as true or false just incase it is needed instead of cocatednated string
-//   const initialValues = questions.reduce((values: any, question: any) => {
-//     values[question.id] = ''; // Initialize each question with an empty string
-//     question.options.forEach(
-//       (option: { component: string; id: string | number }) => {
-//         if (option.component !== 'Checkbox') {
-//           values[option.id] = '';
-//         }
-//       },
-//     );
-//     return values;
-//   }, {});
+  const {  behavioralQuestionsData,  } = useFormState();
 
-  // Explicitly define initial values for each question
-  const initialValues = {
-    question1: '',  // Concatenated string of selected checkboxes
-    question2: '',  // Textbox value
-    question3: '',  // Concatenated string of selected checkboxes
-    question4: '',  // Concatenated string of selected checkboxes
-    question5: '',  // Concatenated string of selected checkboxes
-    question6: '',  // Concatenated string of selected checkboxes
-    question7: '',  // Concatenated string of selected checkboxes
-    question8: '',  // Concatenated string of selected checkboxes
-    question9: '',  // Concatenated string of selected checkboxes
-    question10: '',  // Concatenated string of selected checkboxes
-   
-  };
+  //with each options as true or false just incase it is needed instead of cocatednated string
+  const initialValues: any = questions.reduce(
+    (values: any, question: any) => {
+      values[question.id] = behavioralQuestionsData[question.id] || ''; // Use data from context
+      question.options.forEach((option: any) => {
+        if (option.component !== 'Checkbox') {
+          values[option.id] = behavioralQuestionsData[option.id] || '';
+        }
+      });
+      return values;
+    },
+    {} as BehavioralQuestions,
+  );
 
+  //   Explicitly define initial values for each question
 
   const handleCheckboxChange = (
     e: { target: { name: any; checked: any } },
@@ -153,8 +144,10 @@ const BehavorialQuestions = () => {
                             onChange={(e) =>
                               handleCheckboxChange(e, question.id)
                             }
-                            disabled={values[question.id].includes('N/A') && option.id !== 'N/A'}
-
+                            disabled={
+                              values[question.id].includes('N/A') &&
+                              option.id !== 'N/A'
+                            }
                             checked={values[question.id].includes(option.id)}
                             className={`peer-not align-center h-5 w-5  rounded-md border border-sky-700 bg-sky-700`}
                           />
