@@ -21,7 +21,6 @@ const BehavorialQuestions = () => {
         { id: 'Other', label: 'Other', component: 'Checkbox' },
 
         { id: 'N/A', label: 'None', component: 'Checkbox' },
-
       ],
     },
     {
@@ -32,6 +31,7 @@ const BehavorialQuestions = () => {
         {
           id: 'otherMedicalConditions',
           label: 'Other Medical Conditions',
+      
           component: 'Textbox',
         },
       ],
@@ -73,27 +73,40 @@ const BehavorialQuestions = () => {
 
   const handleCheckboxChange = (
     e: { target: { name: any; checked: any } },
-    questionId: string,
+    questionId: string
   ) => {
     const { name, checked } = e.target;
     let selectedOptions = values[questionId].split(',').filter(Boolean);
-
+  
     if (checked) {
       if (name === 'N/A') {
         selectedOptions = ['N/A'];
       } else {
         selectedOptions = selectedOptions.filter(
-          (option: string) => option !== 'N/A',
+          (option: string) => option !== 'N/A'
         );
         selectedOptions.push(name);
       }
     } else {
       selectedOptions = selectedOptions.filter(
-        (option: any) => option !== name,
+        (option: any) => option !== name
       );
     }
-    setFieldValue(questionId, selectedOptions.join(','));
-
+  
+    // Check if 'Other' is selected and include its details
+    if (selectedOptions.includes('Other')) {
+      const otherDetails = values[`otherDetails-${questionId}`];
+      if (otherDetails) {
+        selectedOptions = selectedOptions.filter((option: string) => option !== 'Other');
+        selectedOptions.push(`Other: ${otherDetails}`);
+      }
+    }
+  
+    // Format the concatenated string
+    const formattedOptions = selectedOptions.join(', ');
+  
+    setFieldValue(questionId, formattedOptions);
+  
     // Clear other checkboxes if 'N/A' is selected
     if (name === 'N/A' && checked) {
       questions.forEach((question) => {
@@ -107,7 +120,7 @@ const BehavorialQuestions = () => {
       });
     }
   };
-
+  
   const {
     values,
     errors,
@@ -181,33 +194,39 @@ const BehavorialQuestions = () => {
                                   checked={values[question.id].includes(
                                     option.id,
                                   )}
-                                  className={`peer-not align-center h-5 w-5  rounded-md border border-sky-700 bg-sky-700`}
+                                  className={`peer-not align-center h-5 w-5  rounded-md border`}
                                 />
                               </div>
                             )}
                           </div>
-                          <div className="options w-full">
-                            <label htmlFor={option.id}>{option.label}</label>
-                            {[question.id].includes('Other') && (
-                              <div className=" flex grow justify-center self-center rounded-md border border-red-500">
-                                <textarea
-                                  id={option.id}
-                                  name={option.id}
+                          <div
+                            className={`options ${option.id === 'Other' && values[question.id]?.includes('Other') ? 'items-center flex flex-row' : 'flex flex-col'} w-full`}
+                          >
+                            <label className="flex align-center " htmlFor={option.id}>{option.label}</label>
+
+                            {option.id === 'Other' &&
+                              values[question.id]?.includes('Other') && (
+                                <div className="ml-3 flex items-center">
+                                <input
+                                  type="text"
+                                  id={`otherDetails-${question.id}`}
+                                  name={`otherDetails-${question.id}`}
                                   onChange={handleChange}
-                                  value={values[option.id]}
-                                  className=" w-full grow"
-                                  placeholder="Enter any additional medical problems"
-                                ></textarea>
+                                  value={values[`otherDetails-${question.id}`] || ''}
+                                  className="rounded-md border p-2"
+                                  placeholder="Enter additional details"
+                                />
                               </div>
-                            )}
+                              )}
+
                             {option.component === 'Textbox' && (
-                              <div className=" flex grow justify-center self-center rounded-md border border-red-500">
+                              <div className="mt-2 flex w-full grow rounded-md border border-red-500">
                                 <textarea
                                   id={option.id}
                                   name={option.id}
                                   onChange={handleChange}
                                   value={values[option.id]}
-                                  className=" w-full grow"
+                                  className="w-full grow"
                                   placeholder="Enter any additional medical problems"
                                 ></textarea>
                               </div>
