@@ -5,60 +5,112 @@ const BehavorialQuestions = () => {
   const questions = [
     {
       id: 'question1',
-      label: 'Please Select any mental health illnesses that you have been diagnosed with:',
+      label:
+        'Please Select any mental health illnesses that you have been diagnosed with:',
       options: [
-        { id: 'anxiety', label: 'Anxiety', component: "Checkbox" },
-        { id: 'depression', label: 'Depression', component: "Checkbox" },
-        { id: 'personality-disorder', label: 'Personality Disorder', component: "Checkbox" },
-        { id: 'ptsd', label: 'PTSD', component: "Checkbox" },
+        { id: 'anxiety', label: 'Anxiety', component: 'Checkbox' },
+        { id: 'depression', label: 'Depression', component: 'Checkbox' },
+        {
+          id: 'personality-disorder',
+          label: 'Personality Disorder',
+          component: 'Checkbox',
+        },
+        { id: 'ptsd', label: 'PTSD', component: 'Checkbox' },
+        { id: 'N/A', label: 'None', component: 'Checkbox' },
       ],
     },
     {
       id: 'question2',
-      label: 'Please list any other medical problems you have been diagnosed with:',
+      label:
+        'Please list any other medical problems you have been diagnosed with:',
       options: [
-        { id: 'otherMedicalConditions', label: 'Other Medical Conditions', component: "Textbox" },
+        {
+          id: 'otherMedicalConditions',
+          label: 'Other Medical Conditions',
+          component: 'Textbox',
+        },
       ],
     },
     {
-        id: 'question3',
-        label: 'Please select if your immediate family members have been diagnosed with either of the following:',
-        options: [
-            { id: 'mentalHealthDisorder', label: 'Mental Health Disorder', component: "Checkbox" },
-            { id: 'drugOrAlcoholAbuse', label: 'Drug or Alcohol Abuse', component: "Checkbox" },
-            { id: 'N/A', label: 'Not Applicable',component: "Checkbox"  }
-        ],
-      },
-      
+      id: 'question3',
+      label:
+        'Please select if your immediate family members have been diagnosed with either of the following:',
+      options: [
+        {
+          id: 'mentalHealthDisorder',
+          label: 'Mental Health Disorder',
+          component: 'Checkbox',
+        },
+        {
+          id: 'drugOrAlcoholAbuse',
+          label: 'Drug or Alcohol Abuse',
+          component: 'Checkbox',
+        },
+        { id: 'N/A', label: 'Not Applicable', component: 'Checkbox' },
+      ],
+    },
   ];
 
-  const initialValues = questions.reduce((values : any, question: any) => {
+  const initialValues = questions.reduce((values: any, question: any) => {
     values[question.id] = ''; // Initialize each question with an empty string
-    question.options.forEach((option: { component: string; id: string | number; }) => {
-      if (option.component !== 'Checkbox') {
-        values[option.id] = '';
-      }
-    });
+    question.options.forEach(
+      (option: { component: string; id: string | number }) => {
+        if (option.component !== 'Checkbox') {
+          values[option.id] = '';
+        }
+      },
+    );
     return values;
   }, {});
 
-  const handleCheckboxChange = (e: { target: { name: any; checked: any; }; }, questionId: string) => {
+  const handleCheckboxChange = (
+    e: { target: { name: any; checked: any } },
+    questionId: string,
+  ) => {
     const { name, checked } = e.target;
-    let selectedOptions =values[questionId].split(',').filter(Boolean);
+    let selectedOptions = values[questionId].split(',').filter(Boolean);
 
     if (checked) {
-      selectedOptions.push(name);
+      if (name === 'N/A') {
+        selectedOptions = ['N/A'];
+      } else {
+        selectedOptions = selectedOptions.filter(
+          (option: string) => option !== 'N/A',
+        );
+        selectedOptions.push(name);
+      }
     } else {
-      selectedOptions = selectedOptions.filter((option: any) => option !== name);
+      selectedOptions = selectedOptions.filter(
+        (option: any) => option !== name,
+      );
     }
-
     setFieldValue(questionId, selectedOptions.join(','));
+
+    // Clear other checkboxes if 'N/A' is selected
+    if (name === 'N/A' && checked) {
+      questions.forEach((question) => {
+        if (question.id === questionId) {
+          question.options.forEach((option) => {
+            if (option.id !== 'N/A') {
+              setFieldValue(option.id, false);
+            }
+          });
+        }
+      });
+    }
   };
 
-  const { values, errors, setFieldValue, handleSubmit, handleChange, isValid, setSubmitting } =
-useFormik({
+  const {
+    values,
+    errors,
+    setFieldValue,
+    handleSubmit,
+    handleChange,
+    isValid,
+    setSubmitting,
+  } = useFormik({
     initialValues: initialValues,
-    onSubmit: values => {
+    onSubmit: (values) => {
       console.log('Form values:', values);
     },
   });
@@ -73,14 +125,20 @@ useFormik({
                 {question.options.map((option) => (
                   <div key={option.id} className="mb-3 flex">
                     <div className="align-center flex">
-                      {option.component === "Checkbox" && (
-                        <div className={`mr-5 flex h-5 w-5 justify-center self-center rounded-md border-[#DBDDDE]`}>
+                      {option.component === 'Checkbox' && (
+                        <div
+                          className={`mr-5 flex h-5 w-5 justify-center self-center rounded-md border-[#DBDDDE]`}
+                        >
                           <input
                             type="checkbox"
                             name={option.id}
                             // onChange={values.handleChange}
-                            value ={values[option.id]}
-                            onChange={(e) => handleCheckboxChange(e, question.id)}
+                            value={values[option.id]}
+                            onChange={(e) =>
+                              handleCheckboxChange(e, question.id)
+                            }
+                            disabled={values[question.id].includes('N/A') && option.id !== 'N/A'}
+
                             checked={values[question.id].includes(option.id)}
                             className={`peer-not align-center h-5 w-5  rounded-md border border-sky-700 bg-sky-700`}
                           />
@@ -89,8 +147,8 @@ useFormik({
                     </div>
                     <div className="options w-full">
                       <label htmlFor={option.id}>{option.label}</label>
-                      {option.component === "Textbox" && (
-                        <div className=" flex justify-center self-center border rounded-md grow border-red-500">
+                      {option.component === 'Textbox' && (
+                        <div className=" flex grow justify-center self-center rounded-md border border-red-500">
                           <textarea
                             id={option.id}
                             name={option.id}
@@ -108,7 +166,12 @@ useFormik({
             </div>
           ))}
         </div>
-        <button type="submit" className="mt-4 p-2 bg-blue-500 text-white rounded">Submit</button>
+        <button
+          type="submit"
+          className="mt-4 rounded bg-blue-500 p-2 text-white"
+        >
+          Submit
+        </button>
       </form>
     </>
   );
