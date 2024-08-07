@@ -50,18 +50,24 @@ const BehavorialQuestions = () => {
       ],
     },
   ];
+//with each options as true or false just incase it is needed instead of cocatednated string
+//   const initialValues = questions.reduce((values: any, question: any) => {
+//     values[question.id] = ''; // Initialize each question with an empty string
+//     question.options.forEach(
+//       (option: { component: string; id: string | number }) => {
+//         if (option.component !== 'Checkbox') {
+//           values[option.id] = '';
+//         }
+//       },
+//     );
+//     return values;
+//   }, {});
 
-  const initialValues = questions.reduce((values: any, question: any) => {
+const initialValues = questions.reduce((values, question) => {
     values[question.id] = ''; // Initialize each question with an empty string
-    question.options.forEach(
-      (option: { component: string; id: string | number }) => {
-        if (option.component !== 'Checkbox') {
-          values[option.id] = '';
-        }
-      },
-    );
     return values;
   }, {});
+
 
   const handleCheckboxChange = (
     e: { target: { name: any; checked: any } },
