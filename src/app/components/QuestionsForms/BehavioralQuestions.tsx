@@ -188,6 +188,18 @@ const BehavorialQuestions = () => {
                           </div>
                           <div className="options w-full">
                             <label htmlFor={option.id}>{option.label}</label>
+                            {[question.id].includes('Other') && (
+                              <div className=" flex grow justify-center self-center rounded-md border border-red-500">
+                                <textarea
+                                  id={option.id}
+                                  name={option.id}
+                                  onChange={handleChange}
+                                  value={values[option.id]}
+                                  className=" w-full grow"
+                                  placeholder="Enter any additional medical problems"
+                                ></textarea>
+                              </div>
+                            )}
                             {option.component === 'Textbox' && (
                               <div className=" flex grow justify-center self-center rounded-md border border-red-500">
                                 <textarea
