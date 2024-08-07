@@ -10,6 +10,7 @@ interface DoYouHaveInsuranceProps {
   onSubmit: any;
   section: any;
   isValidInsurance: boolean;
+  onInsuranceDataChange:any
   isValidating: any; // Make statusUpdate optional
   setIsValidInsurance: (isValidInsurance: boolean) => void;
   setIsValidating: (isValidating: boolean) => void;
@@ -23,6 +24,7 @@ const DoYouHaveInsuranceForm = ({
   section,
   isValidInsurance,
   setIsValidInsurance,
+  onInsuranceDataChange,
   isValidating,
   setIsValidating,
   onSubmit,
@@ -69,7 +71,7 @@ const DoYouHaveInsuranceForm = ({
   useEffect(() => {
     if (values[`hasInsurance${section}`] === "1") {
       handleErrors(errors);
-          console.log(errors, "errors'");
+          console.log(errors, "errors");
 
     } else {
       setTouched({}, false);
@@ -100,10 +102,8 @@ const DoYouHaveInsuranceForm = ({
     // Simulate validation delay
     setTimeout(async () => {
       if (await validateSubscriberId(values[`subscriberId${section}`])) {
-        onSubmit((prev: any) => ({ ...prev, ...values }));
         onHandleFormSubmit(values);
 
-        // Update parent state
         console.log("onSubmit insurance data:", values);
 
         setIsValidInsurance(true);
@@ -125,17 +125,12 @@ const DoYouHaveInsuranceForm = ({
     }
   }, [triggerValidation]);
 
-  const onHandleFormSubmit = async (data: any) => {
-    try {
-      const response = await updateInsuranceDetails(data);
-      setInsuranceData((prev: any) => ({ ...prev, ...data }));
-  
-      setValidationStatus("");
-    } catch (error) {
-      console.log(error);
-      alert("Oops! Something went wrong. Please try again");
-    }
-  }
+  const onHandleFormSubmit = (data: any) => {
+    setValidationStatus("");
+    onInsuranceDataChange(data);
+    console.log("oninsurance do u", onInsuranceDataChange)
+
+  };
 
   return (
     <>
@@ -149,7 +144,7 @@ const DoYouHaveInsuranceForm = ({
               className="flex gap-4"
             >
               <div
-                // onClick={() => handleCheckboxChange("1")}
+                onClick={() => handleCheckboxChange("1")}
                 className={`border-1 flex h-6 w-6 justify-center self-center rounded-lg border  ${values[`hasInsurance${section}`] === "1" ? "border-sky-700 " : "border-[#DBDDDE] "} `}
               >
                 <div
@@ -168,7 +163,6 @@ const DoYouHaveInsuranceForm = ({
               </div>
               <div className=" inline-flex flex-col items-start justify-center">
                 <label
-                  
                   className="text-right  text-base font-normal text-[#2a2f31]"
                 >
                   Yes, I have.

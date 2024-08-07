@@ -19,14 +19,8 @@ export default function Demographics({
   region: RegionSpecificDetails;
   globalDropdowns: GlobalDropdowns;
 }) {
-  const {
-    onHandleNext,
-    onHandleBack,
-    setPatientData,
-    patientData,
-    step,
-    // patientId,
-  } = useFormState();
+  const { onHandleNext, onHandleBack, setPatientData, patientData, step } =
+    useFormState();
 
   //console.log(patientData);
   const { values, errors, handleSubmit, handleChange, isValid, touched } =
@@ -122,7 +116,7 @@ export default function Demographics({
       const patient = await fetchPatientRegistrationById(
         patientData.registrationId
       );
-      console.log(patient);
+      //console.log(patient);
       setPatientData((prev: any) => ({
         ...prev,
         ...patient,
@@ -133,12 +127,12 @@ export default function Demographics({
 
   console.log(errors);
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="pt-6 px-6 ">
+    <form onSubmit={handleSubmit} className="flex flex-col flex-1">
+      <div className="pt-6 px-6 flex flex-col">
         <div className="text-xl">Demographics</div>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 flex flex-1 flex-col">
         {/* Patients Gender  */}
         <div className=" mt-4 relative items-center">
           <select
@@ -148,7 +142,7 @@ export default function Demographics({
             defaultValue={values.patientGender}
             className={`border ${errors.patientGender && touched.patientGender ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
           >
-            {/* <option value="">-- Select an Option --</option>
+            <option value="">-- Select an Option --</option>
             {region.genders
               .filter((x) => x.label != "Unknown")
               .map((gender) => (
@@ -159,7 +153,7 @@ export default function Demographics({
                 >
                   {gender.label}
                 </option>
-              ))} */}
+              ))}
           </select>
           <label
             htmlFor="patientGender"
@@ -342,7 +336,7 @@ export default function Demographics({
             className={`border ${errors.patientMaritalStatus && touched.patientMaritalStatus ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
           >
             <option value="">-- Select an Option --</option>
-            {/* {globalDropdowns.maritalStatuses.map((maritalStatus) => (
+            {globalDropdowns.maritalStatuses.map((maritalStatus) => (
               <option
                 className={`${maritalStatus ? "" : "hidden"}`}
                 value={maritalStatus}
@@ -350,7 +344,7 @@ export default function Demographics({
               >
                 {maritalStatus}
               </option>
-            ))} */}
+            ))}
           </select>
           <label
             htmlFor="patientMaritalStatus"
@@ -399,7 +393,7 @@ export default function Demographics({
       </div>
 
       {/* Action */}
-      <div className=" p-6 flex-1 h-full flex items-end gap-4">
+      <div className=" p-6 flex items-end gap-4">
         <div className="w-2/6 ">
           <button
             id="back"

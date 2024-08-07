@@ -35,14 +35,14 @@ export default function Insurance() {
     setTriggerValidation(false);
     setTriggerSubmit(false);
   };
-  const { onHandleNext, onHandleBack,patientData, setInsuranceData, insuranceData } =
+  const { onHandleNext, onHandleBack, patientData, setInsuranceData, insuranceData } =
     useFormState();
 
   const onHandleFormSubmit = async (data: any) => {
     switch (currentStep) {
       case 1:
         // Validation logic
-        console.log(patientData," patientdata in insurace")
+        console.log(patientData, " patientdata in insurace")
 
         if (data.hasInsurance === "1") {
           setTriggerValidation(true);
@@ -55,41 +55,64 @@ export default function Insurance() {
           }, 3000);
         } else {
           //no insurance
+          setInsuranceData((prev: any) => ({ ...prev, ...data }));
           onHandleNext();
         }
         break;
 
       case 2:
         setTriggerSubmit(true);
+        setInsuranceData((prev: any) => ({ ...prev, ...values }));
 
+       
         break;
       case 3:
         if (data.hasInsurance2 === "1") {
           setTriggerValidation(true);
           setTimeout(() => {
             if (isValidInsurance) {
+              setInsuranceData((prev: any) => ({ ...prev, ...values }));
+
               setCurrentStep(currentStep + 1);
               resetState();
             }
           }, 3000);
         } else {
           //no insurance
+          setInsuranceData((prev: any) => ({ ...prev, ...values }));
+
           onHandleNext();
         }
         break;
       case 4:
         setTriggerSubmit(true);
-        //simulate api call await submit then proceed to next page
-        setTimeout(async () => {
+        try {
+          // const response = await updateInsuranceDetails(data);
+          // const updatedInsuranceData = response; // assuming the API returns the updated insurance data
+          setInsuranceData((prev: any) => ({ ...prev, ...values }));
           onHandleNext();
-        }, 2000); // Simulated validation time
-
+        } catch (error) {
+          console.log(error);
+          alert('Oops! Something went wrong. Please try again');
+        }
         break;
 
       default:
         break;
     }
   };
+  const handleInsuranceDataChange = (data:any) => {
+    setInsuranceData((prev:any) => ({ ...prev, ...data }));
+  };
+  useEffect(() => {
+    const handleInsuranceDataChange = (data:any) => {
+      setInsuranceData(data);
+    };
+
+    // Call the handleInsuranceDataChange function when the component mounts
+    handleInsuranceDataChange({ /* initial insurance data */ });
+  }, [setInsuranceData]);
+
 
   useEffect(() => {
     if (isValidInsurance) {
@@ -107,12 +130,23 @@ export default function Insurance() {
       onHandleBack();
     }
   };
+  
   interface FormValues {
     hasInsurance?: string;
     subscriberId?: string;
     // Add other fields as needed
     hasInsurance2?: string;
     subscriberId2?: string;
+    
+
+    insuranceCarrier?: string;
+
+    insuranceFirstName?: string;
+    insuranceLastName?: string;
+    insuranceDob?: string;
+    insurancePhone?: string;
+
+
   }
 
   return (
@@ -135,6 +169,8 @@ export default function Insurance() {
           <DoYouHaveInsuranceForm
             section=""
             isValidInsurance={isValidInsurance}
+            onInsuranceDataChange={handleInsuranceDataChange}
+
             setIsValidInsurance={setIsValidInsurance} // Pass
             isValidating={isValidating}
             handleErrors={handleErrors}
@@ -149,6 +185,8 @@ export default function Insurance() {
           <SubscriberForm
             section=""
             patientDetails={patientData}
+            
+            onInsuranceDataChange={handleInsuranceDataChange}
             setCurrentStep={handleCurrentStep}
             currentStep={currentStep}
             onSubmit={updateValues}
@@ -163,6 +201,8 @@ export default function Insurance() {
           <DoYouHaveInsuranceForm
             section="2"
             isValidInsurance={isValidInsurance}
+            onInsuranceDataChange={handleInsuranceDataChange}
+
             setIsValidInsurance={setIsValidInsurance} // Pass
             isValidating={isValidating}
             setIsValidating={setIsValidating} // Pass
@@ -177,6 +217,7 @@ export default function Insurance() {
           <SubscriberForm
             section="2"
             patientDetails={patientData}
+            onInsuranceDataChange={handleInsuranceDataChange}
 
             setCurrentStep={handleCurrentStep}
             currentStep={currentStep}
@@ -205,17 +246,17 @@ export default function Insurance() {
             </button>
           </div>
           {values[`hasInsurance`] === "0" ||
-          values[`hasInsurance`] === "1" ||
-          values[`hasInsurance2`] === "0" ||
-          values[`hasInsurance2`] === "1" ? (
+            values[`hasInsurance`] === "1" ||
+            values[`hasInsurance2`] === "0" ||
+            values[`hasInsurance2`] === "1" ? (
             <div className="w-4/6">
               <button
                 disabled={
                   isValidating ||
-                  isValidInsurance ||
-                  IsSubmitting ||
-                  (hasErrors && values.hasInsurance2 === "1") ||
-                  (hasErrors && values.hasInsurance === "1")
+                    isValidInsurance ||
+                    IsSubmitting ||
+                    (hasErrors && values.hasInsurance2 === "1") ||
+                    (hasErrors && values.hasInsurance === "1")
                     ? true
                     : false
                 }
