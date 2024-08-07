@@ -20,16 +20,42 @@ const BehavorialQuestions = () => {
         { id: 'otherMedicalConditions', label: 'Other Medical Conditions', component: "Textbox" },
       ],
     },
+    {
+        id: 'question3',
+        label: 'Please select if your immediate family members have been diagnosed with either of the following:',
+        options: [
+            { id: 'mentalHealthDisorder', label: 'Mental Health Disorder', component: "Checkbox" },
+            { id: 'drugOrAlcoholAbuse', label: 'Drug or Alcohol Abuse', component: "Checkbox" },
+            { id: 'N/A', label: 'Not Applicable',component: "Checkbox"  }
+        ],
+      },
+      
   ];
 
   const initialValues = questions.reduce((values : any, question: any) => {
-    question.options.forEach((option: { id: string | number; component: string; })=> {
-      values[option.id] = option.component === "Checkbox" ? false : "";
+    values[question.id] = ''; // Initialize each question with an empty string
+    question.options.forEach((option: { component: string; id: string | number; }) => {
+      if (option.component !== 'Checkbox') {
+        values[option.id] = '';
+      }
     });
     return values;
   }, {});
 
-  const { values, errors, handleSubmit, handleChange, isValid, setSubmitting } =
+  const handleCheckboxChange = (e: { target: { name: any; checked: any; }; }, questionId: string) => {
+    const { name, checked } = e.target;
+    let selectedOptions =values[questionId].split(',').filter(Boolean);
+
+    if (checked) {
+      selectedOptions.push(name);
+    } else {
+      selectedOptions = selectedOptions.filter((option: any) => option !== name);
+    }
+
+    setFieldValue(questionId, selectedOptions.join(','));
+  };
+
+  const { values, errors, setFieldValue, handleSubmit, handleChange, isValid, setSubmitting } =
 useFormik({
     initialValues: initialValues,
     onSubmit: values => {
@@ -43,7 +69,7 @@ useFormik({
           {questions.map((question) => (
             <div key={question.id} className="flex flex-col">
               <div className="relative mt-4 items-center">
-                <h2 className="mb-2 text-lg">{question.label}</h2>
+                <h2 className="mb-2 text-lg ">{question.label}</h2>
                 {question.options.map((option) => (
                   <div key={option.id} className="mb-3 flex">
                     <div className="align-center flex">
@@ -52,23 +78,25 @@ useFormik({
                           <input
                             type="checkbox"
                             name={option.id}
-                            onChange={values.handleChange}
+                            // onChange={values.handleChange}
                             value ={values[option.id]}
+                            onChange={(e) => handleCheckboxChange(e, question.id)}
+                            checked={values[question.id].includes(option.id)}
                             className={`peer-not align-center h-5 w-5  rounded-md border border-sky-700 bg-sky-700`}
                           />
                         </div>
                       )}
                     </div>
-                    <div className="options">
+                    <div className="options w-full">
                       <label htmlFor={option.id}>{option.label}</label>
                       {option.component === "Textbox" && (
-                        <div className="mr-5 flex justify-center self-center border rounded-md border-red-500">
+                        <div className=" flex justify-center self-center border rounded-md grow border-red-500">
                           <textarea
                             id={option.id}
                             name={option.id}
                             onChange={handleChange}
                             value={values[option.id]}
-                            className=""
+                            className=" w-full grow"
                             placeholder="Enter any additional medical problems"
                           ></textarea>
                         </div>
