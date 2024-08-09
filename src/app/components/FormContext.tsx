@@ -4,13 +4,16 @@ import {
   SetStateAction,
   createContext,
   useContext,
+  useEffect,
   useState,
-} from 'react';
-import Insurance from '../models/Insurance';
-import Guarantor from '../models/Guarantor';
-import Patient from '../models/Patient';
-import { calculateAge } from '../utils/helper';
-import BehavioralQuestions from '@/models/BehavioralQuestions';
+} from "react";
+import Insurance from "../models/Insurance";
+import Guarantor from "../models/Guarantor";
+import Patient from "../models/Patient";
+import { calculateAge } from "../utils/helper";
+import { fetchGuarantorRegistrationById } from "../actions/api";
+import BehavioralQuestions from "../models/BehavioralQuestions";
+import ClinicalQuestions from "../models/ClinicalQuestions";
 
 interface IFormContext {
   patientData: any;
@@ -22,9 +25,11 @@ interface IFormContext {
   step: number;
   steppedBack: boolean;
   guarantorData: any;
-  setGuarantorData: Dispatch<SetStateAction<any>>;
   behavioralQuestionsData: any;
+  clinicalQuestionsData: any;
   setBehavioralQuestionsData: Dispatch<SetStateAction<any>>;
+  setClinicalQuestionsData: Dispatch<SetStateAction<any>>;
+  setGuarantorData: Dispatch<SetStateAction<any>>;
   setSteppedBack: Dispatch<SetStateAction<any>>;
 }
 
@@ -34,6 +39,8 @@ const FormContext = createContext<IFormContext>({
   setInsuranceData: () => {},
   behavioralQuestionsData: new BehavioralQuestions(),
   setBehavioralQuestionsData: () => {},
+  setClinicalQuestionsData: () => {},
+  clinicalQuestionsData: new ClinicalQuestions(),
   onHandleBack: () => {},
   onHandleNext: () => {},
   setPatientData: () => {},
@@ -51,10 +58,13 @@ interface IProps {
 export function FormProvider({ children }: IProps) {
   const [patientData, setPatientData] = useState(new Patient());
   const [insuranceData, setInsuranceData] = useState(new Insurance());
+  const [step, setStep] = useState(1);
   const [behavioralQuestionsData, setBehavioralQuestionsData] = useState(
     new BehavioralQuestions(),
   );
-  const [step, setStep] = useState(1);
+  const [clinicalQuestionsData, setClinicalQuestionsData] = useState(
+    new ClinicalQuestions(),
+  );
   const [steppedBack, setSteppedBack] = useState(false);
   const [guarantorData, setGuarantorData] = useState(new Guarantor());
 
@@ -63,19 +73,20 @@ export function FormProvider({ children }: IProps) {
     if (age >= 18 && step == 2) {
       setStep((prev) => prev + 2);
     } else setStep((prev) => prev + 1);
-    console.log(patientData, 'FORM PATIENTDATA');
 
-    //if (!steppedBack) setSteppedBack(false);
+    if (steppedBack) setSteppedBack(true);
   }
 
   function onHandleBack() {
     const age = calculateAge(patientData.dateOfBirth);
     if (age >= 18 && step == 4) {
       setStep((prev) => prev - 2);
-    } else setStep((prev) => prev - 1);
+    } else {
+      setStep((prev) => prev - 1);
+    }
 
     //setSteppedBack(true);
-    console.log(patientData);
+    //console.log(patientData);
   }
 
   return (
@@ -89,6 +100,8 @@ export function FormProvider({ children }: IProps) {
         onHandleNext,
         behavioralQuestionsData,
         setBehavioralQuestionsData,
+        clinicalQuestionsData,
+        setClinicalQuestionsData,
         step,
         steppedBack,
         guarantorData,

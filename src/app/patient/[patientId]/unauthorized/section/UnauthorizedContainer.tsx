@@ -2,11 +2,7 @@
 
 import Navbar from "@/app/components/Navbar";
 
-export default async function UnauthorizedContainer({
-  region,
-}: {
-  region: any;
-}) {
+export default function UnauthorizedContainer({ region }: { region: any }) {
   return (
     <>
       <div className="border border-neutral-200">
@@ -18,7 +14,7 @@ export default async function UnauthorizedContainer({
           You are not authorized to view this registration.
         </div>
         <div className="text-black pt-3 text-center text-base font-normal">
-          Don&apos;t worry well take care of you when you arrive.
+          Don&apos;t worry, we&apos;ll take care of you when you arrive.
         </div>
         <div className="w-full flex pt-6 items-center justify-center">
           <button

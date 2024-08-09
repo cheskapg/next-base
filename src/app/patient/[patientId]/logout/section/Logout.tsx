@@ -1,10 +1,16 @@
 "use client";
 
-import Navbar from "../../../../components/Navbar";
+import Navbar from "@/app/components/Navbar";
+import { logout } from "@/app/utils/lib";
 import { useEffect } from "react";
 
-export default async function Logout({ region }: { region: any }) {
+export default function Logout({ region }: { region: any }) {
   let pending = false;
+
+  const endSession = async () => {
+    await logout();
+  };
+
   useEffect(() => {
     function beforeUnload(e: BeforeUnloadEvent) {
       if (!pending) return;
@@ -18,6 +24,9 @@ export default async function Logout({ region }: { region: any }) {
     };
   }, [pending]);
 
+  useEffect(() => {
+    endSession();
+  }, []);
   return (
     <>
       <div className="border border-neutral-200">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import GlobalDropdowns from "../interface/GlobalDropdown";
+import GlobalDropdowns from "../interface/GlobalDropdowns";
 import RegionSpecificDetails from "../interface/RegionSpecificDetails";
 
 export default function Consent({

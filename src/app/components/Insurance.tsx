@@ -1,10 +1,15 @@
-import React, { use, useEffect, useState } from 'react';
-import { useFormik } from 'formik';
-import { FormProvider, useFormState } from './FormContext';
-import DoYouHaveInsuranceForm from './InsuranceForms/DoYouHaveInsuranceForm';
-import SubscriberForm from './InsuranceForms/SubscriberForm';
-import { validateSubscriberId } from '../actions/api';
-import { on } from 'events';
+/* eslint-disable @next/next/no-img-element */
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Link from "@/node_modules/next/link";
+import { updateInsuranceDetails, validateSubscriberId } from "../actions/api"; // Adjust the path as necessary
+import { useFormik } from "formik";
+import DoYouHaveInsuranceForm from "./InsuranceForms/DoYouHaveInsuranceForm";
+import SubscriberForm from "./InsuranceForms/SubscriberForm";
+import { FormProvider, useFormState } from "./FormContext";
+import ImageUpload from "./Fields/ImageUpload";
+import { patientSchema } from "../schemas/patient";
 export default function Insurance() {
   const [currentStep, setCurrentStep] = useState(1);
   const [values, setValues] = useState<FormValues>({});
@@ -267,8 +272,10 @@ export default function Insurance() {
                   e.preventDefault();
                   onHandleFormSubmit(values);
                 }}
-                className={`w-full rounded-3xl bg-spruce-4 py-2 text-center font-semibold text-white`}
-              >
+                className={`${(
+                  (currentStep === 1 && values.hasInsurance === "1" && hasErrors) || 
+                  (currentStep === 3 && values.hasInsurance2 === "1" && hasErrors)
+                ) ? "pointer-events-none opacity-50" : ""} bg-spruce-4 w-full rounded-3xl py-2 text-center font-semibold text-white`}              >
                 {isValidating ? (
                   <span className="flex items-center justify-center">
                     <svg

@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-key */
 "use client";
 import { FormProvider } from "./FormContext";
 import PageHandler from "./PageHandler";
@@ -14,12 +13,14 @@ export default function FormContainer({
   region,
   globalDropdowns,
   center,
+  totalFlow,
 }: {
   patientNumber: number;
   patient: Patient;
   region: RegionSpecificDetails;
   globalDropdowns: GlobalDropdowns;
   center: any;
+  totalFlow: number;
 }) {
   //console.log("Form final:" + JSON.stringify(patientData));
   return (
@@ -30,6 +31,7 @@ export default function FormContainer({
         region={region}
         globalDropdowns={globalDropdowns}
         center={center}
+        totalFlow={totalFlow}
       ></PageHandler>
     </FormProvider>
   );

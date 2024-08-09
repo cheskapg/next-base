@@ -1,52 +1,30 @@
-/* eslint-disable import/extensions */
-import IPatient from "@/interface/IPatient";
+import IPatient from "../interface/IPatient";
 import Patient from "../models/Patient";
 import { removeNonNumericChars } from "../utils/helper";
 
+
 export class UpdatePatientDto {
-    // eslint-disable-next-line @typescript-eslint/lines-between-class-members
     patientId: number;
-
     registrationId: number;
-
     firstName: string;
-
     lastName: string;
-
     dateOfBirth: string;
-
     sex:string;
-
     phoneNumber: string | null;
-
     email: string | null;
-
     addressLine1: string | null;
-
     addressLine2: string | null;
-
     city: string | null;
-
     state: string | null;
-
     zipCode: string | null;
-
     sexAtBirth: string | null;
-
     preferredPronouns: string | null;
-
     genderIdentity: string | null;
-
     suffix: string | null;
-
     maritalStatus: string | null;
-
     raceId: number | null;
-
     ethnicityId: number | null;
-
     languageId: number | null;
-
     personId: number| null;
   
     constructor(patientData?: IPatient | Patient) {
@@ -58,7 +36,7 @@ export class UpdatePatientDto {
       this.lastName = patientData?.lastName || '';
       this.dateOfBirth = patientData?.dateOfBirth || '';
       
-      // strip "-" from phone numbers for clean db data
+      //strip "-" from phone numbers for clean db data
       this.phoneNumber = removeNonNumericChars(patientData?.phoneNumber) || null;
   
       this.email = patientData?.email || null;
@@ -67,7 +45,7 @@ export class UpdatePatientDto {
       this.city = patientData?.city || null;
       this.state = patientData?.state || null;
   
-      // convert to string since "number" input type has interger value
+      //convert to string since "number" input type has interger value
       this.zipCode = patientData?.zipCode?.toString() || null;
       this.sexAtBirth = patientData?.sexAtBirth || null;
       this.preferredPronouns = patientData?.preferredPronouns || null;
@@ -76,13 +54,13 @@ export class UpdatePatientDto {
       this.maritalStatus = patientData?.maritalStatus || null;
   
   
-      // convert to integers for API since select components treat values as strings
-      this.raceId = parseInt(patientData?.race?.toString() ?? '', 10) || null;
-      // convert to integers for API since select components treat values as strings
+      //convert to integers for API since select components treat values as strings
+      this.raceId = parseInt(patientData?.race?.toString() ?? '') || null;
+      //convert to integers for API since select components treat values as strings
       this.ethnicityId =
-        parseInt(patientData?.ethnicity?.toString() ?? '', 10) || null;
-      // convert to integers for API since select components treat values as strings
+        parseInt(patientData?.ethnicity?.toString() ?? '') || null;
+      //convert to integers for API since select components treat values as strings
       this.languageId =
-        parseInt(patientData?.language?.toString() ?? '', 10) || null;
+        parseInt(patientData?.language?.toString() ?? '') || null;
     }
   }

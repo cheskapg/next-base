@@ -1,63 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import { FormProvider, useFormState } from '../FormContext';
-import BehavioralQuestions from '@/app/models/BehavioralQuestions';
-import { fetchClinicalQuestions } from '@/app/actions/api';
+
 import { transform } from 'next/dist/build/swc';
+import ClinicalQuestions from '@/models/ClinicalQuestions';
+import { fetchClinicalQuestions, updateClinicalQuestions } from '@/actions/api';
 
-const BehavorialQuestions = () => {
-    //   const questions = [
-    //     {
-    //       id: 'question1',
-    //       label:
-    //         'Please Select any mental health illnesses that you have been diagnosed with:',
-    //       options: [
-    //         { id: 'anxiety', label: 'Anxiety', component: 'Checkbox' },
-    //         { id: 'depression', label: 'Depression', component: 'Checkbox' },
-    //         {
-    //           id: 'personality-disorder',
-    //           label: 'Personality Disorder',
-    //           component: 'Checkbox',
-    //         },
-    //         { id: 'ptsd', label: 'PTSD', component: 'Checkbox' },
-    //         { id: 'Other', label: 'Other', component: 'Checkbox' },
-
-    //         { id: 'N/A', label: 'None', component: 'Checkbox' },
-    //       ],
-    //     },
-    //     {
-    //       id: 'question2',
-    //       label:
-    //         'Please list any other medical problems you have been diagnosed with:',
-    //       options: [
-    //         {
-    //           id: 'otherMedicalConditions',
-    //           label: 'Other Medical Conditions',
-    //           component: 'Textbox',
-    //         },
-    //       ],
-    //     },
-    //     {
-    //       id: 'question3',
-    //       label:
-    //         'Please select if your immediate family members have been diagnosed with either of the following:',
-    //       options: [
-    //         {
-    //           id: 'mentalHealthDisorder',
-    //           label: 'Mental Health Disorder',
-    //           component: 'Checkbox',
-    //         },
-    //         {
-    //           id: 'drugOrAlcoholAbuse',
-    //           label: 'Drug or Alcohol Abuse',
-    //           component: 'Checkbox',
-    //         },
-    //         { id: 'N/A', label: 'Not Applicable', component: 'Checkbox' },
-    //       ],
-    //       //add more questions here 
-    //     },
-    //   ];
-    const [questionsData, setQuestionsData] = useState([]);
+const ClinicalQuestionsPage = () => {
+  // for static api
+  type ClinicalQuestion = {
+    id: number;
+    region_id: number;
+    section: string;
+    question: string;
+    subtext: string | null;
+    options: string | null;
+    input_type: string;
+    visit_reason: string | null;
+    conditional_id: number | null;
+    conditional_value: string | null;
+    minimum_age: number | null;
+    is_required: boolean;
+    form_display: boolean;
+    high_risk_answer: string | null;
+    high_risk_answer_status: string | null;
+  };
+  
+  const [questionsData, setQuestionsData] = useState<ClinicalQuestion[]>([]);
     const updateFieldValue = (
         setFieldValue : any,
         values : any,
@@ -76,17 +45,8 @@ const BehavorialQuestions = () => {
         });
       };
       
-    const { behavioralQuestionsData, } = useFormState();
-    //   const initialValues: any = questionsData.reduce((values: any, question: any) => {
-    //     values[question.id] = behavioralQuestionsData[question.id] || ''; // Use data from context
-    //     if (question.input_type === 'checkbox' && question.options) {
-    //       question.options.split(',').forEach((option: any) => {
-    //         values[option] = behavioralQuestionsData[option] || false;
-    //       });
-    //     }
-    //     return values;
-    //   }, {} as BehavioralQuestions);
-
+    const { clinicalQuestionsData, setClinicalQuestionsData, patientData, onHandleNext} = useFormState();
+   
     const initialValues: any = questionsData.reduce((values: any, question: any) => {
         values[question.id] = {
             questionId: question.id,
@@ -95,16 +55,7 @@ const BehavorialQuestions = () => {
             type: question.input_type,
             questionType: question.input_type,
         };
-        // concatenate strings for checkbox as answer instead of initializing it
-        //   if (question.input_type === 'checkbox' && question.options) {
-        //     // Initialize options for checkbox questions
-        //     question.options.split(',').forEach((option: any) => {
-        //       values[option] = false; // Default to false for checkbox options
-        //     });
-        //   }
-
-
-        return values;
+             return values;
     }, {});
 
     //   Explicitly define initial values for each question
@@ -143,7 +94,8 @@ const BehavorialQuestions = () => {
           'radio' // or pass a specific questionType if needed
         );
       };
-      const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>, questionId: number) => {
+      const handleTextChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, questionId: number) => {
         const newValue = e.target.value;
         
         updateFieldValue(
@@ -157,7 +109,7 @@ const BehavorialQuestions = () => {
         );
       };
       type TransformedValues = {
-        [key: string]: BehavioralQuestions;
+        [key: string]: ClinicalQuestions;
       };
       const transformValues = (values: { [key: string]: any }): TransformedValues => {
         const transformed: TransformedValues = {};
@@ -176,18 +128,88 @@ const BehavorialQuestions = () => {
       
         return transformed;
       };
+      const mockPatientData = {
+        id: 2780618,
+      };
+      
+      const mockClinicalQuestion = {
+        questionId: 1,
+        answer: 'High Blood Pressure',
+        personId: mockPatientData.id, // Make sure the personId is set correctly
+        type: 'checkbox',
+        questionType: 'checkbox',
+      };
+      const onHandleFormSubmit = async (values: any) => {
+        try {
+          for (const key of Object.keys(values)) {
+            const updatedValue = {
+              ...values[key],
+              personId: patientData.personId, // Ensure the correct patient ID is assigned
+            };
+            console.log(updatedValue, "value on handle psalm");
+            console.log(patientData.patientId, "patient id psalm");
+      
+            // Call the mock function
+            await updateClinicalQuestions(patientData.patientId, updatedValue);
+          }
+      
+          console.log("All clinical questions updated successfully");
+      
+        //   // Mock function for setClinicalQuestionsData
+        //   const setClinicalQuestionsData = (data: any) => {
+        //     console.log('Clinical questions data updated:', data);
+        //   };
+      
+        //   // Mock function for onHandleNext
+        //   const onHandleNext = () => {
+        //     console.log('Proceeding to the next step');
+        //   };
+      
+          setClinicalQuestionsData((prev: any) => ({
+            ...prev,
+            ...values,
+          }));
+      
+          onHandleNext();
+        } catch (error) {
+          console.log(error);
+          alert("Oops! Something went wrong. Please try again.");
+        }
+      };
+      
+      const onHandleFCormSubmit = async (values: any) => {
+        try {
+          for (const key of Object.keys(values)) {
+            const updatedValue = {
+              ...values[key],
+              personId: patientData.personId, // Ensure the correct patient ID is assigned
+            };
+            console.log(updatedValue,"value on handle psalm")
+            //   personId: patientData.patientId, // Ensure the correct patient ID is assigned
+              console.log(patientData, "patient id psalm")
+            await updateClinicalQuestions(patientData.patientId, updatedValue);
+          }
+      
+          setClinicalQuestionsData((prev: any) => ({
+            ...prev,
+            ...values,
+          }));
+          console.log("All clinical questions updated successfully");
+      
+          onHandleNext();
+        } catch (error) {
+          console.log(error);
+          alert("Oops! Something went wrong. Please try again.");
+        }
+      };
+      
       
     useEffect(() => {
         const fetchQuestions = async () => {
             const questions = await fetchClinicalQuestions(1000); // Example region ID
             setQuestionsData(questions || []);
-
             console.log(questions, "questionesz");
-
         };
-
-        // Execute the fetch operation
-
         fetchQuestions();
     }, []);
     const {
@@ -205,33 +227,35 @@ const BehavorialQuestions = () => {
             
             const formattedValues = transformValues(values);
             console.log('Formatted Values:', formattedValues);
+            onHandleFormSubmit(values)
         },
     });
     return (
         <FormProvider>
             <>
                 <div className="flex flex-col p-6 ">
-                    <h1 className="text-lg font-normal mb-4">Behavioral Health Questions</h1>
+                    <h1 className="text-lg font-normal mb-4">Clinical Health Questions</h1>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {questionsData.map((question: any) => (
                             <div key={question.id} className="question container">
-                                <h2 className="text-base font-medium  mb-2">{question.question}</h2>
+                                <h2 className="text-base font-medium  mb-4">{question.question}</h2>
                                 {question.input_type === 'checkbox' && question.options && (
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 ">
                                         {question.options.split(',').map((option: any) => (
                                             <div key={option} className="flex items-center">
+                                                <div className='mb-4'>
                                                 <input
                                                     type="checkbox"
                                                     id={option}
                                                     name={option}
-                                                    //   checked={}
                                                     checked={values[question.id]?.answer.split(',').includes(option) || false}
-
+                                                    
                                                     onChange={(e) => handleCheckboxChange(e, question.id)}
-                                                    className="mr-2 h-5 w-5 rounded border-gray-300"
-                                                />
+                                                    className="mr-2 h-5 w-5  rounded border-gray-300"
+                                                    />
                                                 <label htmlFor={option} className="text-base font-normal text-[#2a2f31]">{option}</label>
                                             </div>
+                                                    </div>
                                         ))}
                                     </div>
                                 )}
@@ -255,26 +279,36 @@ const BehavorialQuestions = () => {
                                 )}
                                 {question.input_type === 'text' && (
                                     <div className="mt-2">
-                                        <input
-                                            type="text"
+                                         <textarea
+                               id={question.id}
+                               name={question.id}
+                               onChange={(e) => handleTextChange(e, question.id)}
+                               value={values[question.id]?.answer || ''} // Accessing answer from Formik state
+                               placeholder={question.subtext || 'Enter information'}
+                               className="block w-full  text-base border rounded-md"
+                                ></textarea>
+                                        {/* <input
+                                            type="textarea"
                                             id={question.id}
                                             name={question.id}
                                             onChange={(e) => handleTextChange(e, question.id)}
                                             value={values[question.id]?.answer || ''} // Accessing answer from Formik state
                                             placeholder={question.subtext || ''}
-                                            className="w-full p-2 border rounded-md"
-                                        />
+                                            className="block w-full  text-base border rounded-md"
+                                        /> */}
                                     </div>
                                 )}
                                 {question.input_type === 'textarea' && (
-                                    <div className="mt-2">
+                                    <div className="mt-2 h-full">
                                         <textarea
                                             id={question.id}
                                             name={question.id}
                                             value={values[question.id]?.answer || ''} // Accessing answer from Formik state
                                             onChange={handleChange}
+                                            rows={3}
                                             placeholder={question.subtext || ''}
-                                            className="w-full p-2 border rounded-md"
+                                            className="w-full h-10 
+                                            p-2 border rounded-md"
                                         ></textarea>
                                     </div>
                                 )}
@@ -297,4 +331,4 @@ const BehavorialQuestions = () => {
     );
 };
 
-export default BehavorialQuestions;
+export default ClinicalQuestionsPage;

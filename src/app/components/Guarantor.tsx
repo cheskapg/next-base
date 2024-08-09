@@ -2,19 +2,16 @@
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import {
-//   fetchGuarantorRegistrationById,
+  fetchGuarantorRegistrationById,
   fetchPatientRegistrationById,
   updateGuarantor,
 } from "../actions/api";
-import GlobalDropdowns from "../interface/GlobalDropdown";
-import IGuarantor from "../interface/IGuarantor";
-import GuarantorModel from "../models/Guarantor";
+import GlobalDropdowns from "../interface/GlobalDropdowns";
 import RegionSpecificDetails from "../interface/RegionSpecificDetails";
 import { formatPhoneNumber } from "../utils/helper";
 import { useFormState } from "./FormContext";
 import { states } from "../constants/constants";
 import { guarantorSchema } from "../schemas/guarantor";
-import { on } from "events";
 import { json } from "stream/consumers";
 
 export default function Guarantor({
@@ -30,33 +27,56 @@ export default function Guarantor({
     patientData,
     setGuarantorData,
     guarantorData,
+    insuranceData,
+    steppedBack,
+    setSteppedBack,
   } = useFormState();
+
+  const initialGuarantor = {
+    guarantorRelationship: "",
+    sameAsSubscriberDetails: "",
+    firstName: "",
+    lastName: "",
+    sex: "",
+    dateOfBirth: "",
+    phoneNumber: "",
+    sameAsPatientChkBox: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "",
+  };
+
+  const [guarantor, setGuarantor] = useState(initialGuarantor);
 
   const {
     values,
+    setFieldValue,
     errors,
     handleSubmit,
     handleChange,
     isValid,
     touched,
-    setFieldValue,
     setSubmitting,
+    handleBlur,
   } = useFormik({
     initialValues: {
-      guarantorRelationship: guarantorData.guarantorRelationship || "",
+      guarantorRelationship: guarantor?.guarantorRelationship || "",
       sameAsSubscriberDetails: "",
-      firstName: guarantorData.firstName || "",
-      lastName: guarantorData.lastName || "",
-      sex: guarantorData.sex || "",
-      dateOfBirth: guarantorData.dateOfBirth || "",
-      phoneNumber: guarantorData.phoneNumber || "",
+      firstName: guarantor?.firstName || "",
+      lastName: guarantor?.lastName || "",
+      sex: guarantor?.sex || "",
+      dateOfBirth: guarantor?.dateOfBirth || "",
+      phoneNumber: guarantor?.phoneNumber || "",
       sameAsPatientChkBox: "",
-      addressLine1: guarantorData.addressLine1 || "",
-      addressLine2: guarantorData.addressLine2 || "",
-      city: guarantorData.city || "",
-      state: guarantorData.state || "",
-      zipCode: guarantorData.zipCode || "",
-      country: guarantorData.state != "" ? "1" : "",
+      addressLine1: guarantor?.addressLine1 || "",
+      addressLine2: guarantor?.addressLine2 || "",
+      city: guarantor?.city || "",
+      state: guarantor?.state || "",
+      zipCode: guarantor?.zipCode || "",
+      country: guarantor?.state ? "1" : "",
     },
     enableReinitialize: true,
     validationSchema: guarantorSchema,
@@ -65,47 +85,105 @@ export default function Guarantor({
       onHandleFormSubmit(values);
     },
   });
+  const [sameAsPatient, setSameAsPatient] = useState(false);
+
+  const handleSameAsPatientChange = (e: any) => {
+    setSameAsPatient(e.target.checked);
+    fetchGuarantor();
+    if (!e.target.checked) {
+      // Clear the fields when the checkbox is unchecked
+      setFieldValue(`sameAsPatientChkBox`, "");
+      setFieldValue(`insuranceAddress`, "");
+      setFieldValue(`insuranceAddress2_`, "");
+      setFieldValue(`insuranceCity`, "");
+      setFieldValue(`insuranceState`, "");
+      setFieldValue(`insuranceZip`, "");
+    }
+  };
+  useEffect(() => {
+    if (sameAsPatient) {
+      // Populate the fields when the checkbox is checked
+      setFieldValue(`sameAsPatientChkBox`, "on");
+
+      setFieldValue(`addressLine1`, patientData.addressLine1);
+      setFieldValue(`city`, patientData.city);
+      setFieldValue(`state`, patientData.state);
+      setFieldValue(`zipCode`, patientData.zipCode);
+    } else {
+      // Clear the fields when the checkbox is unchecked
+      setFieldValue(`addressLine1`, "");
+      setFieldValue(`city`, "");
+      setFieldValue(`state`, "");
+      setFieldValue(`zipCode`, "");
+    }
+  }, [sameAsPatient]);
+  const [sameAsSubscriber, setSameAsSubscriber] = useState(false);
+
+  const handleSameAsSubscriberChange = (e: any) => {
+    setSameAsSubscriber(e.target.checked);
+
+    if (!e.target.checked) {
+      // Clear the fields when the checkbox is unchecked
+
+      setFieldValue(`sameAsSubscriberDetails`, "");
+      setFieldValue(`firstName`, "");
+      setFieldValue(`lastName`, "");
+      setFieldValue(`dateOfBirth`, "");
+      setFieldValue(`phoneNumber`, "");
+    }
+  };
+  useEffect(() => {
+    if (sameAsSubscriber) {
+      // Populate the fields when the checkbox is checked
+      setFieldValue(`sameAsSubscriberDetails`, "on");
+      setFieldValue(`firstName`, insuranceData.insuranceFirstName);
+      setFieldValue(`lastName`, insuranceData.insuranceLastName);
+      setFieldValue(`dateOfBirth`, insuranceData.insuranceDob);
+      setFieldValue(`phoneNumber`, insuranceData.insurancePhone);
+    } else {
+      // Clear the fields when the checkbox is unchecked
+      setFieldValue(`firstName`, "");
+      setFieldValue(`lastName`, "");
+      setFieldValue(`dateOfBirth`, "");
+      setFieldValue(`phoneNumber`, "");
+    }
+  }, [sameAsSubscriber, insuranceData]);
 
   const onHandleFormSubmit = async (data: any) => {
     try {
       const response = await updateGuarantor(patientData.registrationId, data);
-      console.log(JSON.stringify(response));
-    //   fetchGuarantor();
+      fetchGuarantor();
+
       onHandleNext();
     } catch (error) {
       console.log(error);
       alert("Oops! Something went wrong. Please try again");
     }
   };
-
-//   const fetchGuarantor = async () => {
-//     console.log(patientData.registrationId);
-//     const response = await fetchGuarantorRegistrationById(
-//       patientData.registrationId
-//     );
-//     //console.log("Guarantor" + response);
-//     setGuarantorData((prev: any) => ({
-//       ...prev,
-//       ...response,
-//     }));
-//   };
-
   useEffect(() => {
-    // fetchGuarantor();
+    fetchGuarantor();
   }, []);
 
   useEffect(() => {
-    if (values.sameAsPatientChkBox == "on") {
-      setFieldValue("addressLine1", patientData.addressLine1);
-      setFieldValue("addressLine2", patientData.addressLine2);
-      setFieldValue("city", patientData.city);
-      setFieldValue("state", patientData.state);
-      setFieldValue("zipCode", patientData.zipCode);
+    if (steppedBack) {
+      fetchGuarantor();
+      setSteppedBack(false);
     }
-  }, [values.sameAsPatientChkBox, setFieldValue, patientData, guarantorData]);
+  }, [steppedBack]);
 
-  console.log(errors);
-
+  const fetchGuarantor = async () => {
+    const response = await fetchGuarantorRegistrationById(
+      patientData.patientId
+    );
+    setGuarantorData((prev: any) => ({
+      ...prev,
+      ...response,
+    }));
+    setGuarantor((prev: any) => ({
+      ...prev,
+      ...response,
+    }));
+  };
   return (
     <form className="flex flex-1 flex-col" onSubmit={handleSubmit}>
       <div className="pt-6 px-6 flex flex-col">
@@ -117,18 +195,19 @@ export default function Guarantor({
           <select
             id="guarantorRelationship"
             name="guarantorRelationship"
-            defaultValue={values.guarantorRelationship}
+            value={values.guarantorRelationship}
             onChange={handleChange}
+            onBlur={handleBlur}
             className={`border ${errors.guarantorRelationship && touched.guarantorRelationship ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
           >
             <option value="">-- Select an Option --</option>
-            {/* {region.relations
+            {region.relations
               .filter((x) => x.guarantor_display && x.display != "Patient")
               .map((relation) => (
                 <option value={relation.value} key={relation.display}>
                   {relation.display}
                 </option>
-              ))} */}
+              ))}
           </select>
           <label
             htmlFor="guarantorRelationship"
@@ -151,9 +230,7 @@ export default function Guarantor({
                 id="sameAsSubscriberDetails"
                 type="checkbox"
                 checked={values.sameAsSubscriberDetails == "on"}
-                onChange={(e) => {
-                  handleChange(e);
-                }}
+                onChange={handleSameAsSubscriberChange}
                 className="rounded-md border-hidden p-0.5"
               ></input>
             </div>
@@ -170,6 +247,7 @@ export default function Guarantor({
             placeholder=""
             value={values.firstName}
             onChange={handleChange}
+            onBlur={handleBlur}
             name="firstName"
             className={`border ${errors.firstName && touched.firstName ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
           />
@@ -193,6 +271,7 @@ export default function Guarantor({
             placeholder=""
             value={values.lastName}
             onChange={handleChange}
+            onBlur={handleBlur}
             name="lastName"
             className={`border ${errors.lastName && touched.lastName ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
           />
@@ -216,18 +295,19 @@ export default function Guarantor({
             <select
               name="sex"
               id="sex"
-              defaultValue={values.sex}
+              value={values.sex}
               onChange={handleChange}
+              onBlur={handleBlur}
               className={`border ${errors.sex && touched.sex ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
             >
               <option value="" disabled defaultValue={""}></option>
-              {/* {region.genders
+              {region.genders
                 .filter((x) => x.label != "Unknown")
                 .map((gender) => (
                   <option value={gender.value} key={gender.id}>
                     {gender.label}
                   </option>
-                ))} */}
+                ))}
             </select>
             <label
               htmlFor="sex"
@@ -248,11 +328,12 @@ export default function Guarantor({
                 name="dateOfBirth"
                 value={values.dateOfBirth}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 className={`border ${touched.dateOfBirth && errors.dateOfBirth ? "border-zest-6" : "border-poise-2"}   w-full  py-2 pt-6 rounded-lg appearance-none`}
                 placeholder="mm/dd/yyyy"
               ></input>
               <label
-                htmlFor="dateOfBirthLbl"
+                htmlFor="dateOfBirth"
                 className={`absolute top-0 left-0  text-xs mt-2 ml-7 ${touched.dateOfBirth && errors.dateOfBirth ? "text-zest-6" : "text-black-4"}`}
               >
                 Date of Birth{" "}
@@ -280,6 +361,7 @@ export default function Guarantor({
                 name="phoneNumber"
                 value={formatPhoneNumber(values.phoneNumber)}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder=""
                 className={`${touched.phoneNumber && errors.phoneNumber ? "border-zest-6" : "border-poise-2"} w-full px-4 pt-6 py-2 rounded-lg`}
               ></input>
@@ -304,10 +386,9 @@ export default function Guarantor({
               <input
                 id="sameAsPatientChkBox"
                 type="checkbox"
+                value={values.sameAsPatientChkBox}
                 checked={values.sameAsPatientChkBox == "on"}
-                onChange={(e) => {
-                  handleChange(e);
-                }}
+                onChange={handleSameAsPatientChange}
                 className="rounded-md border-hidden p-0.5"
               ></input>
             </div>
@@ -320,10 +401,11 @@ export default function Guarantor({
           <select
             id="country"
             name="country"
-            defaultValue={values.country}
+            value={values.country}
             onChange={(e) => {
               handleChange(e);
             }}
+            onBlur={handleBlur}
             className={`border ${errors.country && touched.country ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
           >
             <option value="">-- Select an Option --</option>
@@ -350,6 +432,7 @@ export default function Guarantor({
             name="addressLine1"
             value={values.addressLine1}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder=""
             className={`border ${errors.addressLine1 && touched.addressLine1 ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
           />
@@ -373,6 +456,7 @@ export default function Guarantor({
             name="addressLine2"
             value={values.addressLine}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder=""
             className={`border ${errors.addressLine2 && touched.addressLine2 ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
           />
@@ -398,6 +482,7 @@ export default function Guarantor({
               values.country == 1 || values.country === "" ? false : true
             }
             onChange={handleChange}
+            onBlur={handleBlur}
             value={values.city}
             className={`border ${errors.city && touched.city ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
           />
@@ -418,8 +503,9 @@ export default function Guarantor({
             <select
               name="state"
               id="state"
-              defaultValue={values.state}
+              value={values.state}
               onChange={handleChange}
+              onBlur={handleBlur}
               disabled={
                 values.country == 1 || values.country === "" ? false : true
               }
@@ -453,6 +539,7 @@ export default function Guarantor({
                 values.country == 1 || values.country === "" ? false : true
               }
               onChange={handleChange}
+              onBlur={handleBlur}
               className={`border ${errors.zipCode && touched.zipCode ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
             ></input>
             <label

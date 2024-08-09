@@ -1,5 +1,8 @@
 import * as yup from 'yup';
 
+const phoneRegExp =
+  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+
 export const doYouHaveInsuranceSchema = yup.object().shape({
   insuranceCarrier: yup.string().required("*Required field"),
   subscriberId: yup.string().required('*Required field'),
@@ -27,7 +30,11 @@ export const subscriberSchema = yup.object().shape({
   .min(new Date(1960, 1, 1), "Invalid Date of birth")
   .max(new Date(), "Date of birth cannot be in the future")
   .required("Required field"),
-  insurancePhone: yup.string().required('*Required field'),
+  insurancePhone: yup
+  .string()
+  .max(12, "Not a valid phone number")
+  .matches(phoneRegExp, "Phone number is not valid")
+  .required("Required field"),
   insuranceAddress: yup.string().required('*Required field'),
   insuranceAddress2_: yup.string(),
   insuranceCity: yup.string().required('*Required field'),
@@ -54,7 +61,11 @@ export const subscriberSchema2 = yup.object().shape({
   .min(new Date(1960, 1, 1), "Invalid Date of birth")
   .max(new Date(), "Date of birth cannot be in the future")
   .required("Required field"),
-  insurancePhone2: yup.string().required('*Required field'),
+  insurancePhone2: yup
+  .string()
+  .max(12, "Not a valid phone number")
+  .matches(phoneRegExp, "Phone number is not valid")
+  .required("Required field"),
   insuranceAddress2_2: yup.string(),
   insuranceAddress2: yup.string().required('*Required field'),
   insuranceCity2: yup.string().required('*Required field'),

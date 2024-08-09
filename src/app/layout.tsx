@@ -1,33 +1,22 @@
-import '@/styles/globals.css';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import Providers from './Providers';
-import Head from 'next/head';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'NextJS Base',
-  description: 'NextJS base setup',
+  title: "GoHealth Patient Portal",
+  description: "GoHealth Patient Portal",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="en" className={inter.variable}>
-    
-      <body>
-      <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-        <Providers>{children}</Providers>
-      </body>
+    <html lang="en">
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }

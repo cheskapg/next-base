@@ -1,6 +1,3 @@
-/* eslint-disable react/no-unknown-property */
-/* eslint-disable react/jsx-key */
-
 "use client";
 
 import Navbar from "./Navbar";
@@ -12,11 +9,14 @@ import { useFormState } from "./FormContext";
 import Identification from "./Indentification";
 import Demographics from "./Demographics";
 import Physician from "./Physicians";
-import GlobalDropdowns from "../interface/GlobalDropdown";
+import GlobalDropdowns from "../interface/GlobalDropdowns";
 import IdleModal from "./IdleModal";
 import Guarantor from "./Guarantor";
 import Consent from "./Consent";
 import BehavioralQuestions from "./QuestionsForms/BehavioralQuestions";
+import ClinicalQuestions from "../models/ClinicalQuestions";
+import ClinicalQuestionsPage from "./QuestionsForms/ClinicalQuestions";
+
 export default function PageHandler({
   patientNumber,
   patient,
@@ -34,14 +34,13 @@ export default function PageHandler({
 }) {
   const { step } = useFormState();
   const steps = [
-    // <PatientDetail
-    //   key={"PatientDetail"}
-    //   patient={patient}
-    //   patientId={patientNumber}
-    // />,
-    // <Questions  key={"Questions"}/>,
-    //
-    <BehavioralQuestions/>,
+    // <BehavioralQuestions key={"BehavioralQuestions"}/>,
+    <PatientDetail
+    key={"PatientDetail"}
+    patient={patient}
+    patientId={patientNumber}
+    />,
+    <ClinicalQuestionsPage key={"ClinicalQuestionsPage"}/>,
     <Insurance key={"Insurance"} />,
     <Guarantor
       key={"Guarantor"}
@@ -64,7 +63,7 @@ export default function PageHandler({
 
   return (
     <>
-      <Navbar region={region} />
+      {/* <Navbar region={region} /> */}
       <ProgressBar total={totalFlow} value={step} />
       {/* <Facility
         region={region}

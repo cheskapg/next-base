@@ -37,7 +37,7 @@ export default async function Home({
   //console.log("PatientData:" + JSON.stringify(patientData));
   //console.log("RegionData:" + JSON.stringify(region));
   return (
-    <main className="h-screen">
+    <main className="flex flex-col h-screen">
       <ValidatePatient
         center={center}
         region={region}

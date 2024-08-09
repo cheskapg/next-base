@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useFormik } from 'formik';
-import { useFormState } from '../FormContext';
-import { subscriberSchema, subscriberSchema2 } from '@/schemas/insurance';
-import { checkPrice, updateInsuranceDetails } from '@/actions/api';
-import ImageUpload from '../Fields/ImageUpload';
+import React, { useEffect, useState } from "react";
+import { useFormik } from "formik";
+import { useFormState } from "../FormContext";
+import { subscriberSchema, subscriberSchema2 } from "../../schemas/insurance";
+import { checkPrice, updateInsuranceDetails } from "../../actions/api";
+import ImageUpload from "../Fields/ImageUpload";
+import { formatPhoneNumber } from"../../utils/helper"
+// import { formatPhoneNumber } from "@/app/utils/helper";
+
 interface SubscriberFormProps {
   section: any;
   patientDetails: any;
@@ -227,7 +230,6 @@ const SubscriberForm = ({
 
   const onHandleFormSubmit = (data: any) => {
     onInsuranceDataChange(data);
-    console.log("oninsurance subsc", onInsuranceDataChange)
 
      setTriggerSubmit(false);
     setIsSubmitting(false);
@@ -503,7 +505,7 @@ const SubscriberForm = ({
                   name={`insurancePhone${section}`}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  value={values[`insurancePhone${section}`] || ''}
+                  value={formatPhoneNumber(values[`insurancePhone${section}`]) || ''}
                   placeholder="(555) 555-5555"
                   className={`${errors[`insurancePhone${section}`]
                     ? 'border-red-500'

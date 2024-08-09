@@ -1,7 +1,7 @@
 import { useFormik } from "formik";
 import { useFormState } from "./FormContext";
 import RegionSpecificDetails from "../interface/RegionSpecificDetails";
-import GlobalDropdowns from "../interface/GlobalDropdown";
+import GlobalDropdowns from "../interface/GlobalDropdowns";
 import { demographic } from "../schemas/demographic";
 import { UpdatePatientDto } from "../dto/UpdatePatientDto";
 import { mapFromPatient, mapToUpdatePatientDto } from "../utils/mapper";

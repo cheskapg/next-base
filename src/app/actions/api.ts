@@ -11,6 +11,183 @@ import RegionSpecificDetails from "@/interface/RegionSpecificDetails";// import 
 import IGuarantor from "@/interface/IGuarantor";
 import Guarantor from "@/models/Guarantor";
 import Insurance from "@/models/Insurance";
+import ClinicalQuestions from "@/models/ClinicalQuestions";
+const clinicalQuestions = [
+  {
+    id: 1,
+    region_id: 1000,
+    section: "GoHealth Quality",
+    question: "Please check the respective boxes if you have been diagnosed with any of the following:",
+    subtext: null,
+    options: "High Blood Pressure,High Cholesterol,Diabetes,Cancer,Kidney Disease,Asthma/COPD,Congestive Heart Failure,Heart Attack,Anxiety,Depression,Other",
+    input_type: "checkbox",
+    visit_reason: null,
+    conditional_id: null,
+    conditional_value: null,
+    minimum_age: null,
+    is_required: false,
+    form_display: true,
+    high_risk_answer: null,
+    high_risk_answer_status: null,
+  },
+  {
+    id: 2,
+    region_id: 1000,
+    section: "GoHealth Quality",
+    question: "Please list any other medical problems you have been diagnosed with:",
+    subtext: null,
+    options: null,
+    input_type: "text",
+    visit_reason: null,
+    conditional_id: 1,
+    conditional_value: "OTHER",
+    minimum_age: null,
+    is_required: false,
+    form_display: true,
+    high_risk_answer: null,
+    high_risk_answer_status: null,
+  },
+  {
+    id: 3,
+    region_id: 1000,
+    section: "GoHealth Quality",
+    question: "Please check the respective boxes if any of your first-degree relatives (ex: siblings, parents, children) have been diagnosed with these illnesses:",
+    subtext: null,
+    options: "Diabetes,Heart Disease,Cancer,HTN,Stroke,Mental Illness,Other",
+    input_type: "checkbox",
+    visit_reason: null,
+    conditional_id: null,
+    conditional_value: null,
+    minimum_age: null,
+    is_required: false,
+    form_display: true,
+    high_risk_answer: null,
+    high_risk_answer_status: null,
+  },
+  {
+    id: 4,
+    region_id: 1000,
+    section: "GoHealth Quality",
+    question: "Please list any other medical problems your first-degree relatives have been diagnosed with:",
+    subtext: null,
+    options: null,
+    input_type: "text",
+    visit_reason: null,
+    conditional_id: 3,
+    conditional_value: "OTHER",
+    minimum_age: null,
+    is_required: false,
+    form_display: true,
+    high_risk_answer: null,
+    high_risk_answer_status: null,
+  },
+  {
+    id: 5,
+    region_id: 1000,
+    section: "GoHealth Quality",
+    question: "Have you received a flu shot since September 2020?",
+    subtext: null,
+    options: "Yes,No",
+    input_type: "radio",
+    visit_reason: null,
+    conditional_id: null,
+    conditional_value: null,
+    minimum_age: null,
+    is_required: false,
+    form_display: true,
+    high_risk_answer: null,
+    high_risk_answer_status: null,
+  },
+  {
+    id: 6,
+    region_id: 1000,
+    section: "GoHealth Quality",
+    question: "The CDC recommends the flu shot as one of the best ways to keep you and your family safe from this dangerous virus. Would you like a flu shot during your visit?",
+    subtext: null,
+    options: "Yes,No",
+    input_type: "radio",
+    visit_reason: null,
+    conditional_id: 5,
+    conditional_value: "No",
+    minimum_age: null,
+    is_required: false,
+    form_display: true,
+    high_risk_answer: null,
+    high_risk_answer_status: null,
+  },
+  {
+    id: 7,
+    region_id: 1000,
+    section: "Tobacco",
+    question: "Do you smoke cigarettes?",
+    subtext: null,
+    options: "Yes,No, but I was a former smoker,I was never a smoker",
+    input_type: "dropdown",
+    visit_reason: null,
+    conditional_id: null,
+    conditional_value: null,
+    minimum_age: null,
+    is_required: false,
+    form_display: true,
+    high_risk_answer: null,
+    high_risk_answer_status: null,
+  },
+  {
+    id: 8,
+    region_id: 1000,
+    section: "GoHealth Quality",
+    question: "Have you returned from Guinea or Democratic Republic of Congo within the past month?",
+    subtext: null,
+    options: "Yes,No",
+    input_type: "radio",
+    visit_reason: null,
+    conditional_id: null,
+    conditional_value: null,
+    minimum_age: null,
+    is_required: false,
+    form_display: true,
+    high_risk_answer: null,
+    high_risk_answer_status: null,
+  },
+  {
+    id: 9,
+    region_id: 1000,
+    section: "GoHealth Quality",
+    question: "Do you currently have fever and/or severe headache, fatigue, muscle pain, vomiting, diarrhea, abdominal pain, rash or unexplained bleeding?",
+    subtext: null,
+    options: "Yes,No",
+    input_type: "radio",
+    visit_reason: null,
+    conditional_id: 8,
+    conditional_value: "Yes",
+    minimum_age: null,
+    is_required: false,
+    form_display: true,
+    high_risk_answer: "Yes",
+    high_risk_answer_status: null,
+  },
+  {
+    id: 10,
+    region_id: 1000,
+    section: "COVID Related",
+    question: "Is your visit COVID-19 related?",
+    subtext: null,
+    options: "Yes,No",
+    input_type: "radio",
+    visit_reason: null,
+    conditional_id: null,
+    conditional_value: null,
+    minimum_age: null,
+    is_required: false,
+    form_display: true,
+    high_risk_answer: null,
+    high_risk_answer_status: null,
+  },
+  // Add more questions here if needed...
+];
+
+export default clinicalQuestions;
+
 export const updatePatientDetails = async (patient: any, step: number): Promise<any> => {
   try {
     console.log('Calling Map Patient Details');
@@ -289,5 +466,49 @@ export const updateInsuranceDetails = async (insurance: Insurance): Promise<Insu
   } catch (error) {
     console.log('Call logging api here:', error);
     throw error;
+  }
+};
+
+
+// API function to update clinical questions data
+export const updateClinicalQuestions = async (
+  registrationId: number, 
+  clinicalQuestionsData: ClinicalQuestions[]
+): Promise<ClinicalQuestions[]> => {
+  try {
+    const response = await fetch(
+      `${process.env.API_BASE_URL}/reg/${registrationId}/clinicalAnswers`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(clinicalQuestionsData), // Sending the data as JSON array
+      }
+    );
+
+    if (!response.ok) {
+      console.log(response);
+      throw new Error('Failed to update clinical questions data');
+    }
+
+    const updatedData = await response.json();
+    return updatedData as ClinicalQuestions[];
+  } catch (error) {
+    console.error('Error updating clinical questions:', error);
+    throw error;
+  }
+};
+
+export const fetchClinicalQuestions = async (  region: number,
+) => {
+  try {
+    // const response = await fetch(`${process.env.API_BASE_URL}/locations/regions/${region}/clinicalQuestions` ); // Replace with your API endpoint
+    // const jsonData: any = await response.json();
+    return clinicalQuestions;
+
+    // return jsonData.data;
+  } catch (error) {
+    console.error('Error fetching questions:', error);
   }
 };

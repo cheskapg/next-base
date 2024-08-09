@@ -1,7 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/node_modules/next/link";
 import { useFormState } from "./FormContext";
 import { useFormik } from "formik";
 import { loadUploadedImage } from "../utils/helper";
@@ -66,12 +65,12 @@ export default function Identification() {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <div className="pt-6 px-6 ">
+      <form className="flex flex-1 flex-col" onSubmit={handleSubmit}>
+        <div className="pt-6 px-6 flex flex-col ">
           <div className="text-xl">Identification</div>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 flex flex-1 flex-col">
           <div className=" text-black text-base font-medium ">
             Upload the patient&apos;s photo ID
           </div>
@@ -108,7 +107,7 @@ export default function Identification() {
         </div>
 
         {/* Action */}
-        <div className=" p-6 h-full flex items-end gap-4">
+        <div className=" p-6 flex items-end gap-4">
           <div className="w-2/6 ">
             <button
               id="back"

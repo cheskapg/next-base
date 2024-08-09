@@ -54,7 +54,7 @@ export default function Navbar({ region }: { region: RegionSpecificDetails }) {
         </button>
       </div>
       <div>
-        {/* <img src={region.region.site_logo_color} className="h-11" alt="" /> */}
+        <img src={region.region.site_logo_color} className="h-11" alt="" />
       </div>
       <div>
         <button className="hidden" onClick={onClosePage}>

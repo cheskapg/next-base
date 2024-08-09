@@ -1,26 +1,6 @@
-// "use client"
-// import Insurance from "./components/Insurance";
-// import Physician from "./components/Physicians";
-
-// export default function Home() {
-//   return (
-//     <main>
-
-//      <section className="xl:padding-1 wide:padding-r padding-b">
-//        <Insurance/>
-
-//      <Physician/>
- 
-   
-//      </section>
-//    </main>
-//   );
-// }
-import Head from "next/head";
 export default function Home() {
   return (
     <main className="h-screen">
-      
       <div className="flex h-screen items-center justify-center">
         <div className="w-[500px] rounded-lg bg-white p-16 shadow">
           <h1 className="text-2xl font-semibold text-gray-600">
@@ -31,7 +11,7 @@ export default function Home() {
             This is a test environment for GoReg 2.0 patient registration flow.
           </p>
           <a
-            href="/patient/2771037?hash=873aea3850aaea236c02dea4e5b52949f78812ac"
+            href="/patient/2780618?hash=873aea3850aaea236c02dea4e5b52949f78812ac"
             aria-label="navigate to patients page"
             className="group mt-8 inline-flex rounded-full bg-gradient-to-r from-orange-300 to-orange-500 px-4 py-2 font-semibold text-white hover:bg-gradient-to-r hover:from-orange-500 hover:to-orange-300"
           >

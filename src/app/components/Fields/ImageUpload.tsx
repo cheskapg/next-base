@@ -8,7 +8,7 @@ export default function ImageUpload({
   error,
   value,
   setValue,
-  setError, 
+  setError,
 }: {
   id: string;
   name: string;

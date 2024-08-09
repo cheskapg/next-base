@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { useFormik } from 'formik';
-import { useFormState } from '../FormContext';
+import React, { useEffect, useState } from "react";
+import { useFormik } from "formik";
+import { useFormState } from "../FormContext";
 import {
   doYouHaveInsuranceSchema,
   doYouHaveInsuranceSchema2,
-} from '@/schemas/insurance';
-import { updateInsuranceDetails, validateSubscriberId } from '../../actions/api';
+} from "../../schemas/insurance";
+import { validateSubscriberId } from "../../actions/api";
 interface DoYouHaveInsuranceProps {
   onSubmit: any;
   section: any;
@@ -15,7 +15,7 @@ interface DoYouHaveInsuranceProps {
   setIsValidInsurance: (isValidInsurance: boolean) => void;
   setIsValidating: (isValidating: boolean) => void;
   handleErrors: (errors: any) => void; // Add this prop
-
+  
   setTriggerValidation: (triggerValidation: boolean) => void;
   hasInsurance: any;
   triggerValidation: any;
