@@ -141,17 +141,16 @@ const ClinicalQuestionsPage = () => {
       };
       const onHandleFormSubmit = async (values: any) => {
         try {
-          for (const key of Object.keys(values)) {
-            const updatedValue = {
-              ...values[key],
-              personId: patientData.personId, // Ensure the correct patient ID is assigned
-            };
-            console.log(updatedValue, "value on handle psalm");
+           const clinicalAnswers = Object.keys(values).map((key) => ({
+      ...values[key],
+      personId: patientData.personId, // Ensure the correct patient ID is assigned
+    }));
+            console.log(clinicalAnswers, "value on handle psalm");
             console.log(patientData.patientId, "patient id psalm");
       
             // Call the mock function
-            await updateClinicalQuestions(patientData.patientId, updatedValue);
-          }
+            await updateClinicalQuestions(patientData.patientId, clinicalAnswers);
+          
       
           console.log("All clinical questions updated successfully");
       
