@@ -1,14 +1,14 @@
 "use client";
 
-import Navbar from "@/app/components/Navbar";
-import { logout } from "@/app/utils/lib";
+// import Navbar from "@/app/components/Navbar";
+// import { logout } from "@/app/utils/lib";
 import { useEffect } from "react";
 
 export default function Logout({ region }: { region: any }) {
   let pending = false;
 
   const endSession = async () => {
-    await logout();
+    // await logout();
   };
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function Logout({ region }: { region: any }) {
   return (
     <>
       <div className="border border-neutral-200">
-        <Navbar region={region} />
+        {/* <Navbar region={region} /> */}
       </div>
 
       <div className="h-full items-center w-full py-52 px-10">

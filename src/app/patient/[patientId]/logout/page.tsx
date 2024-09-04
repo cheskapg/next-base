@@ -6,11 +6,12 @@ import {
   fetchPatientRegistrationById,
   fetchRegionSpecificDetails,
   fetchSuffixList,
-} from "@/app/actions/api";
-import GlobalDropdowns from "@/app/interface/GlobalDropdowns";
-import { logout } from "@/app/utils/lib";
+} from "../../actions/api";
+// import GlobalDropdowns from "../"
+// import { logout } from "@/app/utils/lib";
 import Logout from "./section/Logout";
 import UnauthorizedContainer from "./section/Logout";
+import GlobalDropdowns from "@/interface/GlobalDropdown";
 
 export default async function Home({
   params,

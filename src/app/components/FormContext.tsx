@@ -11,7 +11,7 @@ import Insurance from "../models/Insurance";
 import Guarantor from "../models/Guarantor";
 import Patient from "../models/Patient";
 import { calculateAge } from "../utils/helper";
-import { fetchGuarantorRegistrationById } from "../actions/api";
+// import { fetchGuarantorRegistrationById } from "../actions/api";
 import BehavioralQuestions from "../models/BehavioralQuestions";
 import ClinicalQuestions from "../models/ClinicalQuestions";
 

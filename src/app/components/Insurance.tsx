@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "@/node_modules/next/link";
+// import Link from "@/node_modules/next/link";
 import { updateInsuranceDetails, validateSubscriberId } from "../actions/api"; // Adjust the path as necessary
 import { useFormik } from "formik";
 import DoYouHaveInsuranceForm from "./InsuranceForms/DoYouHaveInsuranceForm";
