@@ -15,11 +15,16 @@ export default function Consent({
   const [agreed, setAgreed] = useState(false);
   const [signature, setSignature] = useState("");
   const [isClicked, setIsClicked] = useState<boolean>(false);
+  const [isSignatureEmpty, setIsSignatureEmpty] = useState<boolean>(true);
 
+  // Callback function to update isSignatureEmpty in the parent
+  const handleSignatureEmptyChange = (isEmpty: boolean) => {
+    setIsSignatureEmpty(isEmpty);
+  };
   const handleDivClick = () => {
-      setIsClicked(true);
-      // Optionally reset isClicked state after checking
-      setTimeout(() => setIsClicked(false), 0); // Reset state immediately for next click
+    setIsClicked(true);
+    // Optionally reset isClicked state after checking
+    setTimeout(() => setIsClicked(false), 0); // Reset state immediately for next click
   };
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
@@ -66,9 +71,10 @@ export default function Consent({
             </label>
           </div>
           <div className="border border-[#DBDDDE] rounded-lg"
-          onClick={handleDivClick}>
+            onClick={handleDivClick}>
             {/* <SignaturePad canvasProps={{}} redrawOnResize={true}  /> */}
-            <SignaturePadComponent isClicked={isClicked} setIsClicked={setIsClicked} />
+            <SignaturePadComponent onSignatureEmptyChange={handleSignatureEmptyChange} // Pass the callback
+              isClicked={isClicked} setIsClicked={setIsClicked} />
 
           </div>
           <div className="flex justify-between mt-4">
@@ -113,8 +119,8 @@ export default function Consent({
             <button
               onClick={() => alert("Registration Completed")}
               className={`py-2 px-4 rounded ${signature
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-300 text-gray-600"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-300 text-gray-600"
                 }`}
               disabled={!signature}
             >

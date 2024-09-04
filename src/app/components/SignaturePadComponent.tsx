@@ -2,18 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import SignaturePad from "react-signature-pad-wrapper";
 // import styles from './styles.module.css';
 interface SignaturePadComponentProps {
- 
     isClicked: boolean;
-    setIsClicked?: (isClicked: boolean) => void;
+    setIsClicked: (isClicked: boolean) => void;
+    onSignatureEmptyChange: (isEmpty: boolean) => void; // New prop for callback
+}
 
-  }
-const SignaturePadComponent = ({isClicked, setIsClicked}:SignaturePadComponentProps) => {
+const SignaturePadComponent = ({ isClicked, setIsClicked, onSignatureEmptyChange }: SignaturePadComponentProps) => {
     const [trimmedDataURL, setTrimmedDataURL] = useState<string | null>(null);
     const [isSignatureEmpty, setIsSignatureEmpty] = useState<Boolean | null>(null);
     const [isCleared, setIsCleared] = useState<Boolean | null>(null);
-
-
-
     // Explicitly typing the ref
     const sigPadRef = useRef<SignaturePad>(null);
 
