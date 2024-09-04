@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import { FormProvider, useFormState } from '../FormContext';
-import BehavioralQuestions from '@/app/models/BehavioralQuestions';
-import { fetchClinicalQuestions } from '@/app/actions/api';
+// import BehavioralQuestions from '@/app/models/BehavioralQuestions';
+// import { fetchClinicalQuestions } from '@/app/actions/api';
 import { transform } from 'next/dist/build/swc';
 
 const BehavorialQuestions = () => {
@@ -157,7 +157,7 @@ const BehavorialQuestions = () => {
         );
       };
       type TransformedValues = {
-        [key: string]: BehavioralQuestions;
+        // [key: string]: BehavioralQuestions;
       };
       const transformValues = (values: { [key: string]: any }): TransformedValues => {
         const transformed: TransformedValues = {};
@@ -165,13 +165,13 @@ const BehavorialQuestions = () => {
         Object.keys(values).forEach((questionId) => {
           const { answer, personId, type, questionType } = values[questionId];
           
-          transformed[questionId] = {
-            answer: answer || '', // Default to an empty string if not provided
-            personId: personId || 0, // Default to 0 if not provided
-            questionId: Number(questionId), // Ensure it's a number
-            questionType: questionType || '', // Default to an empty string if not provided
-            type: type || '' // Default to an empty string if not provided
-          };
+        //   transformed[questionId] = {
+        //     answer: answer || '', // Default to an empty string if not provided
+        //     personId: personId || 0, // Default to 0 if not provided
+        //     questionId: Number(questionId), // Ensure it's a number
+        //     questionType: questionType || '', // Default to an empty string if not provided
+        //     type: type || '' // Default to an empty string if not provided
+        //   };
         });
       
         return transformed;
@@ -179,10 +179,10 @@ const BehavorialQuestions = () => {
       
     useEffect(() => {
         const fetchQuestions = async () => {
-            const questions = await fetchClinicalQuestions(1000); // Example region ID
-            setQuestionsData(questions || []);
+            // const questions = await fetchClinicalQuestions(1000); // Example region ID
+            // setQuestionsData(questions || []);
 
-            console.log(questions, "questionesz");
+            // console.log(questions, "questionesz");
 
         };
 

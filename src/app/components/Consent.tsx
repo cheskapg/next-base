@@ -1,6 +1,8 @@
 import { useState } from "react";
 import GlobalDropdowns from "../interface/GlobalDropdowns";
 import RegionSpecificDetails from "../interface/RegionSpecificDetails";
+import SignaturePad from "react-signature-pad-wrapper";
+import SignaturePadComponent from "./SignaturePadComponent";
 
 export default function Consent({
   region,
@@ -12,7 +14,13 @@ export default function Consent({
   const [step, setStep] = useState(1);
   const [agreed, setAgreed] = useState(false);
   const [signature, setSignature] = useState("");
+  const [isClicked, setIsClicked] = useState<boolean>(false);
 
+  const handleDivClick = () => {
+      setIsClicked(true);
+      // Optionally reset isClicked state after checking
+      setTimeout(() => setIsClicked(false), 0); // Reset state immediately for next click
+  };
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
   return (
@@ -38,10 +46,12 @@ export default function Consent({
       )}
       {step === 2 && (
         <div>
-          <h2 className="text-lg font-bold mb-2">Medical Consent</h2>
+          <h2 className="text-lg mb-2">Sign Consent</h2>
           <p className="text-gray-700 mb-4">
-            You agree to be treated by Mercy-GoHealth Urgent Care...
-          </p>
+            By signing below, you also acknowledge you have been
+            provided with a copy of the Notice of Privacy Practices,
+            you promise that all information you have given is correct and that you
+            are the patient or otherwise legally authorized to execute and accept this document on the patient's behalf, and assume financial responsibility for the patient by signing this form.          </p>
           {/* Add more content here as needed */}
           <div className="flex items-center">
             <input
@@ -55,6 +65,12 @@ export default function Consent({
               I agree to the Conditions of Registration
             </label>
           </div>
+          <div className="border border-[#DBDDDE] rounded-lg"
+          onClick={handleDivClick}>
+            {/* <SignaturePad canvasProps={{}} redrawOnResize={true}  /> */}
+            <SignaturePadComponent isClicked={isClicked} setIsClicked={setIsClicked} />
+
+          </div>
           <div className="flex justify-between mt-4">
             <button
               onClick={prevStep}
@@ -64,9 +80,8 @@ export default function Consent({
             </button>
             <button
               onClick={nextStep}
-              className={`py-2 px-4 rounded ${
-                agreed ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-600"
-              }`}
+              className={`py-2 px-4 rounded ${agreed ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-600"
+                }`}
               disabled={!agreed}
             >
               Sign Consent
@@ -74,6 +89,7 @@ export default function Consent({
           </div>
         </div>
       )}
+      {/* // with guarantor  */}
       {step === 3 && (
         <div>
           <h2 className="text-lg font-bold mb-2">Sign Consent</h2>
@@ -96,11 +112,10 @@ export default function Consent({
             </button>
             <button
               onClick={() => alert("Registration Completed")}
-              className={`py-2 px-4 rounded ${
-                signature
+              className={`py-2 px-4 rounded ${signature
                   ? "bg-blue-500 text-white"
                   : "bg-gray-300 text-gray-600"
-              }`}
+                }`}
               disabled={!signature}
             >
               Complete Registration

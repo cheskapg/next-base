@@ -35,6 +35,11 @@ export default function PageHandler({
   const { step } = useFormState();
   const steps = [
     // <BehavioralQuestions key={"BehavioralQuestions"}/>,
+    <Consent
+    key={"Consen"}
+    region={region}
+    globalDropdowns={globalDropdowns}
+  />,
     <PatientDetail
     key={"PatientDetail"}
     patient={patient}
