@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import GlobalDropdowns from '../interface/GlobalDropdowns';
 import RegionSpecificDetails from '../interface/RegionSpecificDetails';
 import SignaturePadComponent from './SignaturePadComponent';
+import { useFormState } from './FormContext';
+import { calculateAge } from '../utils/helper'
 
 export default function Consent({
   region,
@@ -14,19 +16,19 @@ export default function Consent({
   const [agreed, setAgreed] = useState(false);
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-
+  const { patientData, onHandleBack, onHandleNext } =
+    useFormState();
   const [signature, setSignature] = useState('');
   //signature
   const [isSigned, setIsSigned] = useState<boolean>(false);
-  const [isSignatureEmpty, setIsSignatureEmpty] = useState<boolean>(true);
   const [clearClicked, setClearClicked] = useState<boolean>(false);
+  const [submitClicked, setSubmitClicked] = useState<boolean>(false);
   const [signatureDataURL, setSignatureDataURL] = useState<string | null>(null);
   const [signatureBlob, setSignatureBlob] = useState<Blob | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null); // New state to store the image URL
 
   const handleSignatureEmptyChange = (isEmpty: boolean) => {
-    setIsSignatureEmpty(isEmpty);
-    setIsSigned(!isEmpty); // Update isSigned based on isEmpty
+    setIsSigned(!isEmpty); // This automatically handles whether the signature is signed
   };
 
   const handleSignatureChange = () => {
@@ -35,91 +37,94 @@ export default function Consent({
 
   const clearSignaturePad = () => {
     setClearClicked(true); // Trigger the clearing of the canvas
+    setSubmitClicked(false);
+    setUploadedImageUrl('');
   };
+  const age = calculateAge('1990-02-02'); // test age 
+  // const age = calculateAge(patientData.dateOfBirth);
 
-  const handleDataURLChange = (dataURL: string | null) => {
+
+
+  //for api v2
+  const handleDataURLChange = async (dataURL: string | null) => {
     console.log('Data URL:', dataURL);
     setSignatureDataURL(dataURL);
+
+    if (dataURL) {
+      try {
+        const response = await fetch(dataURL);
+        const blob = await response.blob();
+        setSignatureBlob(blob);
+        convertBlobToUrl(blob); // For displaying the uploaded signature
+
+        // Proceed with further actions, e.g., uploading the Blob
+        // await uploadSignature(blob); // Uncomment and implement this function
+        // go to next page
+        onHandleNext();
+        // Reset submitClicked after processing
+        setSubmitClicked(false);
+      } catch (error) {
+        console.error('Error converting data URL to Blob:', error);
+      }
+    }
   };
 
-  // const handleCompleteRegistration = () => {
-  //   if (signatureDataURL) {
-  //     // Convert data URL to Blob
-  //     fetch(signatureDataURL)
-  //       .then((res) => res.blob())
-  //       .then((blob) => {
-  //         // Handle the Blob (e.g., upload or save)
-  //         console.log('Blob:', blob);
-  //       })
-  //       .catch((err) => {
-  //         console.error('Error converting data URL to Blob:', err);
-  //       });
-  //   }
-  //   // Proceed with registration or other actions
-  // };
-
   // Reset clearClicked state to false after clearing
+
+  //for api call to upload signature 
+  const uploadSignature = async (image: Blob) => {
+    try {
+      const response = await fetch(`${process.env.API_BASE_URL}/files/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer YOUR_TOKEN`, // Replace YOUR_TOKEN with the actual token
+          'Content-Type': 'application/octet-stream'
+        },
+        body: image,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Upload successful:', data);
+        setUploadedImageUrl(data.url); // Assuming the response contains the URL
+
+
+      } else {
+        console.log('Upload failed:', response);
+      }
+    } catch (error) {
+      console.error('Error uploading signature:', error);
+    }
+  };
+
+  // for testing 
+  const convertBlobToUrl = (blob: Blob) => {
+    const url = URL.createObjectURL(blob);
+    setUploadedImageUrl(url);
+    // setSubmitClicked(false);
+
+  };
+
+  const handleCompleteRegistration = () => {
+    if (isSigned) {
+      setSubmitClicked(true); // Notify child to trim the signature
+    } else {
+      alert('Signature is required');
+    }
+  };
+
+
   useEffect(() => {
     if (clearClicked) {
       setClearClicked(false);
     }
   }, [clearClicked]);
-//for api call to upload signature 
-    // const uploadSignature = async (image: Blob) => {
-    //     try {
-    //         const response = await fetch(`${process.env.API_BASE_URL}/files/upload`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Authorization': `Bearer YOUR_TOKEN`, // Replace YOUR_TOKEN with the actual token
-    //                 'Content-Type': 'application/octet-stream'
-    //             },
-    //             body: image,
-    //         });
-
-    //         if (response.ok) {
-    //             const data = await response.json();
-    //             console.log('Upload successful:', data);
-    //             setUploadedImageUrl(data.url); // Assuming the response contains the URL
-    //         } else {
-    //             console.log('Upload failed:', response);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error uploading signature:', error);
-    //     }
-    // };
-
-    // const handleCompleteRegistration = () => {
-    //     if (signatureBlob) {
-    //         uploadSignature(signatureBlob);
-    //     } else {
-    //         alert('Signature is required');
-    //     }
-    // };
-
-
-    // for testing 
-    const convertBlobToUrl = (blob: Blob) => {
-      const url = URL.createObjectURL(blob);
-      setUploadedImageUrl(url);
-  };
-
-  const handleCompleteRegistration = () => {
-      if (signatureBlob) {
-          convertBlobToUrl(signatureBlob);
-      } else {
-          alert('Signature is required');
-      }
-  };
 
 
 
 
 
 
-
-
-
-  
   const handleCheckboxChange = (
     e: React.ChangeEvent<HTMLInputElement>,
   ): void => {
@@ -142,8 +147,24 @@ export default function Consent({
     } as React.ChangeEvent<HTMLInputElement>);
   };
 
-  const nextStep = () => setStep(step + 1);
-  const prevStep = () => setStep(step - 1);
+  const nextStep = () => {
+
+    setStep(step + 1);
+    if (age >= 18 && step == 1) {
+      setStep(2); // self
+    } else setStep(3); // guarantor
+  }
+  const prevStep = () => {
+    if (age >= 18 && step == 2) {
+      setStep(1); // self
+    }
+    if (age <= 18 && step == 3) {
+      setStep(1); // guarantor
+    }
+    if (step == 1) {
+      onHandleBack();
+    }
+  }
   return (
     <div className="flex flex-1 flex-col ">
       {step === 1 && (
@@ -312,7 +333,7 @@ export default function Consent({
             <div className="w-2/6 ">
               <button
                 id="back"
-                // onClick={onHandleBack}
+                onClick={prevStep}
                 className={` text-black h-10 w-full rounded-3xl border-2 border-slate-600 py-2 text-center  `}
               >
                 Back
@@ -324,11 +345,10 @@ export default function Consent({
                 id="submit"
                 type="submit"
                 onClick={nextStep}
-                className={`w-full rounded-3xl bg-spruce-4 py-2 text-center text-white ${
-                  selectedOptions.includes('Yes')
-                    ? ''
-                    : 'cursor-not-allowed opacity-50'
-                }`}
+                className={`w-full rounded-3xl bg-spruce-4 py-2 text-center text-white ${selectedOptions.includes('Yes')
+                  ? ''
+                  : 'cursor-not-allowed opacity-50'
+                  }`}
                 disabled={!selectedOptions.includes('Yes')}
               >
                 Sign Consent
@@ -345,7 +365,7 @@ export default function Consent({
               <div>
                 <span className="text-black text-sm font-normal">
                   By signing below, you also acknowledge you have been provided
-                  with a copy of the
+                  with a copy of the {" "}
                 </span>
                 <span className="text-sm font-bold text-[#04a7e0] ">
                   Notice of Privacy Practices
@@ -361,29 +381,51 @@ export default function Consent({
               </div>
             </div>
             <div
-              className="rounded-lg border border-[#DBDDDE]"
+              className="rounded-lg border border-[#DBDDDE] mt-4 relative "
               onMouseDown={handleSignatureChange}
               onTouchStart={handleSignatureChange}
               onClick={handleSignatureChange}
+
             >
+              {!isSigned && (
+                <div className="absolute text-xs text-black-4 ml-4 mt-2">
+                  Please sign here
+                </div>
+              )}
               <SignaturePadComponent
-                onSignatureEmptyChange={handleSignatureEmptyChange}
-                isSigned={isSigned}
-                setIsSigned={setIsSigned}
+                onSignatureEmptyChange={handleSignatureEmptyChange} // callback from child that canvas is empty
+                submitClicked={submitClicked}
+                isSigned={isSigned} // updates the status of the canvas
                 clearClicked={clearClicked}
                 onDataURLChange={handleDataURLChange}
               />
             </div>
-            <div className="flex justify-end">
-              <button id="clear" onClick={clearSignaturePad} className="">
-                Clear Signature
-              </button>
-            </div>
+            {isSigned && (
+              <div className="flex justify-end">
+                <button id="clear" onClick={clearSignaturePad} className="text-xs text-black-4">
+                  Clear Signature
+                </button>
+              </div>
+            )}
+            {uploadedImageUrl && (
+              <div>
+                <div className="mt-4 flex ">
+                  <h2 className="text-lg font-bold ">Uploaded Signature - for DEV viewing</h2>
+                </div>
+                <div className='flex justify-center'>
+                  <img src={uploadedImageUrl} alt="Uploaded Signature" style={{ maxWidth: '50%' }} />
+                </div>
+              </div>
+            )}
+
+
           </div>
+
           <div className="flex items-end gap-4 p-4">
             <div className="w-2/6">
               <button
                 id="back"
+                onClick={prevStep}
                 className="text-black h-10 w-full rounded-3xl border-2 border-slate-600 py-2 text-center"
               >
                 Back
@@ -394,16 +436,15 @@ export default function Consent({
                 id="submit"
                 type="submit"
                 onClick={handleCompleteRegistration}
-                className={`w-full rounded-3xl bg-spruce-4 py-2 text-center text-white ${
-                  !isSigned ? 'cursor-not-allowed opacity-50' : ''
-                }`}
+                className={`w-full rounded-3xl bg-spruce-4 py-2 text-center text-white ${!isSigned ? 'cursor-not-allowed opacity-50' : ''
+                  }`}
                 disabled={!isSigned}
               >
                 Complete Registration
               </button>
             </div>
           </div>
-          <div className="mt-4 flex justify-between">
+          {/* <div className="mt-4 flex justify-between">
             <button
               onClick={prevStep}
               className="rounded bg-gray-500 px-4 py-2 text-white"
@@ -421,47 +462,180 @@ export default function Consent({
             >
               Sign Consent
             </button>
-          </div>
-          {uploadedImageUrl && (
-                <div className="mt-4">
-                    <h2 className="text-lg font-bold">Uploaded Signature</h2>
-                    <img src={uploadedImageUrl} alt="Uploaded Signature" style={{ maxWidth: '100%' }} />
-                </div>
-            )}
+          </div> */}
+
         </div>
       )}
       {step === 3 && (
         <div>
-          <h2 className="mb-2 text-lg font-bold">Sign Consent</h2>
-          <p className="mb-4 text-gray-700">
-            By signing below, you also acknowledge you have been provided a
-            copy...
-          </p>
-          <textarea
-            value={signature}
-            onChange={(e) => setSignature(e.target.value)}
-            placeholder="Please sign here"
-            className="w-full rounded border p-2"
-          />
-          <div className="mt-4 flex justify-between">
-            <button
-              onClick={prevStep}
-              className="rounded bg-gray-500 px-4 py-2 text-white"
+          <div className="px-6 pt-6 ">
+            <h1 className="mb-4 text-lg font-normal">Sign Consent</h1>
+            <div className="text-black text-sm">
+              <div>
+                <span className="text-black text-sm font-normal">
+                  By signing below, you also acknowledge you have been provided
+                  with a copy of the {" "}
+                </span>
+                <span className="text-sm font-bold text-[#04a7e0] ">
+                  Notice of Privacy Practices
+                </span>
+                <span className="text-black text-sm font-normal ">
+                  , you promise that all information you have given is correct
+                  and that you
+                  <br />
+                  are the patient or otherwise legally authorized to execute and
+                  accept this document on the patient's behalf, and assume
+                  financial responsibility for the patient by signing this form.
+                </span>
+              </div>
+            </div>
+            <div className="relative mt-4 items-center">
+              <select
+                id="insuranceSubscriber"
+                // name={`insuranceSubscriber${section}`}
+                // value={values[`insuranceSubscriber${section}`]}
+                // onChange={handleChange}
+                className={`w-full rounded-lg border border-poise-2 px-4 py-2 pt-6 ]
+                ? 'border---red-500'
+                : 'border-poise-2'
+                }  `}
+              >
+                <option value="">
+                  Select an option
+                </option>
+                <option value="Spouse">Spouse</option>
+                <option value="Mother">Mother</option>
+                <option value="Father">Father</option>
+                <option value="Guardian">Guardian</option>
+                <option value="Guardian">Relative</option>
+              </select>
+
+              <label
+                htmlFor="insuranceSubscriber"
+                className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
+              >
+                Relationship to the Patient
+              </label>
+              {/* First Name */}
+              <div className="relative mt-4 items-center">
+                <input
+                  // id={`insuranceFirstName${section}`}
+                  placeholder="John"
+                  // name={`insuranceFirstName${section}`}
+                  // value={values[`insuranceFirstName${section}`] || ''}
+                  // onChange={handleChange}
+                  // onBlur={handleBlur}
+                  className={`border ]
+                  ? 'border-red-500'
+                  : 'border-poise-2'
+                  }  w-full rounded-lg px-4 py-2 pt-6 `}
+                />
+
+                <label
+                  htmlFor="firstName"
+                  className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
+                >
+                  Patient&apos;s Legal First Name{' '}
+                  <span className={`text-xs font-normal text-zest-6 `}>*</span>
+                </label>
+                <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                  {/* {errors[`insuranceFirstName${section}`] as string} */}
+                </span>
+              </div>
+              {/* Last Name */}
+              <div
+                className={` ? 'text-status-red-text' : 'text-black-4 '} relative mt-4 items-center`}
+              >
+                <input
+                  // id={`insuranceLastName${section}`}
+                  placeholder="Doe"
+                  // onChange={handleChange}
+                  // name={`insuranceLastName${section}`}
+                  // onBlur={handleBlur}
+                  // value={values[`insuranceLastName${section}`] || ''}
+                  className={`
+                  ? 'border-red-500'
+                  : 'border-poise-2'
+                  }  w-full rounded-lg border px-4 py-2 pt-6`}
+                />
+
+                <label
+                  htmlFor="lastName"
+                  className="absolute left-0 top-0 ml-4 mt-2 text-xs text-black-4"
+                >
+                  Patient&apos;s Legal Last Name
+                </label>
+                <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                  {/* {errors[`insuranceLastName${section}`] as string} */}
+                </span>
+              </div>
+            </div>
+            <div
+              className="rounded-lg border border-[#DBDDDE] mt-4 "
+              onMouseDown={handleSignatureChange}
+              onTouchStart={handleSignatureChange}
+              onClick={handleSignatureChange}
+
             >
-              Back
-            </button>
-            <button
-              onClick={() => alert('Registration Completed')}
-              className={`rounded px-4 py-2 ${
-                signature
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-300 text-gray-600'
-              }`}
-              disabled={!signature}
-            >
-              Complete Registration
-            </button>
+              {!isSigned && (
+                <div className="absolute text-xs text-black-4 ml-4 mt-2">
+                  Please sign here
+                </div>
+              )}
+              <SignaturePadComponent
+                onSignatureEmptyChange={handleSignatureEmptyChange} // callback from child that canvas is empty
+                submitClicked={submitClicked}
+                isSigned={isSigned} // updates the status of the canvas
+                clearClicked={clearClicked}
+                onDataURLChange={handleDataURLChange}
+              />
+            </div>
+            {isSigned && (
+              <div className="flex justify-end">
+                <button id="clear" onClick={clearSignaturePad} className="text-xs text-black-4">
+                  Clear Signature
+                </button>
+              </div>
+            )}
+            {/* {uploadedImageUrl && (
+              <div>
+                <div className="mt-4 flex ">
+                  <h2 className="text-lg font-bold ">Uploaded Signature - for DEV viewing</h2>
+                </div>
+                <div className='flex justify-center'>
+                  <img src={uploadedImageUrl} alt="Uploaded Signature" style={{ maxWidth: '50%' }} />
+                </div>
+              </div>
+            )} */}
+
+
           </div>
+
+          <div className="flex items-end gap-4 p-4">
+            <div className="w-2/6">
+              <button
+                id="back"
+                onClick={prevStep}
+                className="text-black h-10 w-full rounded-3xl border-2 border-slate-600 py-2 text-center"
+              >
+                Back
+              </button>
+            </div>
+            <div className="w-4/6">
+              <button
+                id="submit"
+                type="submit"
+                onClick={handleCompleteRegistration}
+                className={`w-full rounded-3xl bg-spruce-4 py-2 text-center text-white ${!isSigned ? 'cursor-not-allowed opacity-50' : ''
+                  }`}
+                disabled={!isSigned}
+              >
+                Complete Registration
+              </button>
+            </div>
+          </div>
+
+
         </div>
       )}
     </div>

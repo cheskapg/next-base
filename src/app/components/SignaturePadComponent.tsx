@@ -2,76 +2,82 @@ import React, { useEffect, useState } from 'react';
 import SignaturePad from 'react-signature-pad-wrapper';
 
 interface SignaturePadComponentProps {
-  isSigned: boolean;
-  setIsSigned: (isClicked: boolean) => void;
-  onSignatureEmptyChange: (isEmpty: boolean) => void;
-  clearClicked: boolean; // New prop to control clearing
-  onDataURLChange: (dataURL: string | null) => void; // New prop to handle data URL change
+    isSigned: boolean;
+    onSignatureEmptyChange: (isEmpty: boolean) => void;
+    clearClicked: boolean;
+    submitClicked: boolean;
+    onDataURLChange: (dataURL: string | null) => void;
 }
 
 const SignaturePadComponent = ({
-  isSigned: isClicked,
-  setIsSigned: setIsClicked,
-  onSignatureEmptyChange,
-  clearClicked,
-  onDataURLChange, // Add this prop
+    isSigned,
+    onSignatureEmptyChange,
+    clearClicked,
+    onDataURLChange, // Add this prop
+    submitClicked,
 }: SignaturePadComponentProps) => {
-  const [trimmedDataURL, setTrimmedDataURL] = useState<string | null>(null);
-  const [isSignatureEmpty, setIsSignatureEmpty] = useState<boolean>(true);
+    const [trimmedDataURL, setTrimmedDataURL] = useState<string | null>(null);
+    const [isSignatureEmpty, setIsSignatureEmpty] = useState<boolean>(true);
 
-  const sigPadRef = React.useRef<SignaturePad>(null);
+    const sigPadRef = React.useRef<SignaturePad>(null);
 
-  useEffect(() => {
-    if (clearClicked) {
-      sigPadRef.current?.clear();
-      setTrimmedDataURL(null);
-      setIsSignatureEmpty(true);
-      setIsClicked(false); // Update isSigned to false in parent
-      onSignatureEmptyChange(true); // Notify parent that signature pad is empty
-      onDataURLChange(null); // Notify parent that data URL is null
-    }
-  }, [clearClicked]);
+    useEffect(() => {
+        if (clearClicked) {
+            sigPadRef.current?.clear();
+            setTrimmedDataURL(null);
+            setIsSignatureEmpty(true);
+            onSignatureEmptyChange(true); // Notify parent that signature pad is empty
+            onDataURLChange(null); // Notify parent that data URL is null
+            sigPadRef.current?.on(); // turns the signature pad on again
 
-  const trim = () => {
-    if (isSignatureEmpty) {
-      alert('No signature');
-    } else {
-      const dataUrl = sigPadRef.current?.toDataURL('image/png');
-      if (dataUrl) {
-        setTrimmedDataURL(dataUrl);
-        onDataURLChange(dataUrl); // Pass data URL to parent
-      }
-    }
-  };
+        }
+    }, [clearClicked]);
 
-  const checkIfSignatureEmpty = () => {
-    if (sigPadRef.current?.isEmpty()) {
-      setIsSignatureEmpty(true);
-      onSignatureEmptyChange(true);
-      setIsClicked(false); // Notify parent that signature pad is empty
-    } else {
-      setIsSignatureEmpty(false);
-      onSignatureEmptyChange(false);
-      setIsClicked(true); // Notify parent that signature pad is not empty
-    }
-  };
+    // Handle trimming the signature when `submitClicked` is true
+    useEffect(() => {
+        if (submitClicked) {
+            sigPadRef.current?.off(); // disable changes in the canvas
+            trim();
+        }
+    }, [submitClicked]);
 
-  useEffect(() => {
-    checkIfSignatureEmpty();
-  }, [trimmedDataURL, isClicked]);
+    const trim = () => {
+        if (isSignatureEmpty) {
+            alert('No signature');
+        } else {
+            const dataUrl = sigPadRef.current?.toDataURL('image/png');
+            if (dataUrl) {
+                setTrimmedDataURL(dataUrl);
+                onDataURLChange(dataUrl); // Send data URL back to parent
+            }
+        }
+    };
+    const checkIfSignatureEmpty = () => {
+        if (sigPadRef.current?.isEmpty()) {
+            setIsSignatureEmpty(true);
+            onSignatureEmptyChange(true); //  // Notify parent that signature pad is empty updates the call back to the parent
 
-  return (
-    <div>
-      <div>
-        <SignaturePad ref={sigPadRef} />
-      </div>
-      <div>
-        <button onClick={trim}>Trim</button>
-      </div>
-      {trimmedDataURL && <img src={trimmedDataURL} alt="signature" />}
-      <div>{isSignatureEmpty ? 'Canvas is empty' : 'Canvas is not empty'}</div>
-    </div>
-  );
+        } else {
+            setIsSignatureEmpty(false);
+            onSignatureEmptyChange(false); //Notify parent that signature pad is not empty
+
+        }
+    };
+
+    useEffect(() => {
+        checkIfSignatureEmpty();
+    }, [trimmedDataURL, isSigned]); // is signed is from parent that uses div to monitor clicks etc
+
+    return (
+        // <div>
+        <div>
+            <SignaturePad ref={sigPadRef} redrawOnResize={true} />
+        </div>
+
+        //   {/* {trimmedDataURL && <img src={trimmedDataURL} alt="signature" />}
+        //   <div>{isSignatureEmpty ? 'Canvas is empty' : 'SIGNED'}</div> */}
+        // </div>
+    );
 };
 
 export default SignaturePadComponent;

@@ -75,7 +75,9 @@ const BehavorialQuestions = () => {
           questionType,
         });
       };
-      
+
+      const { patientData, onHandleBack, onHandleNext } =
+      useFormState();
     const { behavioralQuestionsData, } = useFormState();
     //   const initialValues: any = questionsData.reduce((values: any, question: any) => {
     //     values[question.id] = behavioralQuestionsData[question.id] || ''; // Use data from context
@@ -285,6 +287,7 @@ const BehavorialQuestions = () => {
                         ))}
                         <button
                             type="submit"
+                            onClick={onHandleNext}
                             disabled={!isValid}
                             className="mt-4 rounded bg-blue-500 p-2 text-white font-bold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >

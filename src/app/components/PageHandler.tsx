@@ -13,6 +13,7 @@ import GlobalDropdowns from "../interface/GlobalDropdowns";
 import IdleModal from "./IdleModal";
 import Guarantor from "./Guarantor";
 import Consent from "./Consent";
+import Confirmation from "./Confirmation";
 import BehavioralQuestions from "./QuestionsForms/BehavioralQuestions";
 import ClinicalQuestions from "../models/ClinicalQuestions";
 import ClinicalQuestionsPage from "./QuestionsForms/ClinicalQuestions";
@@ -34,12 +35,16 @@ export default function PageHandler({
 }) {
   const { step } = useFormState();
   const steps = [
-    // <BehavioralQuestions key={"BehavioralQuestions"}/>,
+    <Confirmation key={"Confirmation"}/>,
+
+    <BehavioralQuestions key={"BehavioralQuestions"}/>,
     <Consent
-    key={"Consen"}
+    key={"Consent"}
     region={region}
     globalDropdowns={globalDropdowns}
   />,
+  <Confirmation key={"Confirmation"}/>,
+
     <PatientDetail
     key={"PatientDetail"}
     patient={patient}
