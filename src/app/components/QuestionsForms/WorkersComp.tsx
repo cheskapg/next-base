@@ -7,9 +7,9 @@ import {
   updateServiceAnswers,
 } from "../../actions/api";
 import test from "node:test";
-import { createValidationSchema } from "@/app/schemas/questions/questionsValidator";
+import { createValidationSchema, generateQuestionsValidationSchema } from "@/app/schemas/questions/questionsValidator";
 import { formatPhoneNumber } from "@/app/utils/helper";
-const BehavioralQuestions = () => {
+const WorkersCompQuestions = () => {
   const {
     serviceQuestionsData,
     setServiceAnswersData,
@@ -20,20 +20,22 @@ const BehavioralQuestions = () => {
     onHandleBack,
     onHandleNext,
   } = useFormState();
-  const behavioralKey = process.env.NEXT_PUBLIC_BEHAVIORAL_KEY;
-  const therapistKey = process.env.NEXT_PUBLIC_THERAPIST_KEY; // ADD CONDITIONS HERE IN FILTERING THE QUESTIONS
+  const workersCompKey = process.env.NEXT_PUBLIC_WORKERSCOMP_KEY;
+
+  // ADD CONDITIONS HERE IN FILTERING THE QUESTIONS
   const serviceQuestionsArray = Array.isArray(serviceQuestionsData)
     ? serviceQuestionsData.filter(
       (question) =>
-        question.service_line_id === behavioralKey && question.service_line_id === therapistKey && question.form_display === true
+        question.service_line_id === workersCompKey && question.form_display === true
     )
     : Object.values(serviceQuestionsData).filter(
       (question: any) =>
-        question.service_line_id === behavioralKey && question.service_line_id === therapistKey && question.form_display === true
+        question.service_line_id === workersCompKey && question.form_display === true
     );
+
   console.log(
     serviceQuestionsArray,
-    "Filtered service BEHAVIORAL  - 3 questions with form_display true"
+    "Filtered service WORKERS  - 2 questions with form_display true"
   );
 
   const findQuestionById = (questionId: number) => {
@@ -50,7 +52,7 @@ const BehavioralQuestions = () => {
     // Update form state
     setFieldValue(`${questionId}`, {
       question_id: questionId,
-      type: "dropdown",
+      type: "checkbox",
       person_id: patientData.personId,
       serviceLineId: question.service_line_id,
       answer: newValue,
@@ -61,7 +63,7 @@ const BehavioralQuestions = () => {
       ...prevServiceAnswers,
       [questionId]: {
         questionId: questionId,
-        type: "dropdown",
+        type: "checkbox",
         personId: patientData.personId,
         serviceLineId: question.service_line_id,
         answer: newValue,
@@ -205,7 +207,7 @@ const BehavioralQuestions = () => {
 
   //TURN OBJECTS / answers TO ARRAY
   const formattedData = Object.values(serviceAnswersData)
-    .filter((item: any) => item.service_line_id === behavioralKey && item.service_line_id === therapistKey ) // Only include behavioral questions
+    .filter((item: any) => item.service_line_id === workersCompKey) // Only include workersComp questions
     .map((item: any) => ({
       questionId: item.question_id,
       answer: item.answer,
@@ -267,7 +269,7 @@ const BehavioralQuestions = () => {
     );
 
     const formattedData = Object.values(response)
-      .filter((item: any) => item.service_line_id === behavioralKey && item.service_line_id === therapistKey) // Only include behavioralHealth questions
+      .filter((item: any) => item.service_line_id === workersCompKey) // Only include workerscomp questions
       .map((item: any) => ({
         questionId: item.question_id,
         answer: item.answer,
@@ -334,7 +336,6 @@ const BehavioralQuestions = () => {
                     <span className={`text-xs font-normal text-zest-6 `}>*</span>
                   )}
                 </h2>
-
                 {question.input_type === "checkbox" && question.options && (
                   <div className="space-y-2">
                     {question.options.split(",").map((option: any) => (
@@ -547,4 +548,4 @@ const BehavioralQuestions = () => {
   );
 };
 
-export default BehavioralQuestions;
+export default WorkersCompQuestions;
