@@ -6,33 +6,57 @@ import {
   doYouHaveInsuranceSchema2,
 } from "../../schemas/insurance";
 import { validateSubscriberId } from "../../actions/api";
+
 interface DoYouHaveInsuranceProps {
   onSubmit: any;
-  section: any;
-  isValidInsurance: boolean;
-  onInsuranceDataChange:any
+  section: "" | "2"; // Restrict section to these two values
+  isValidInsurance: boolean; // triggers page change
+  onInsuranceDataChange: any;
+  rteData: any;
+  setRteData: (rteData: any) => void;
+  validateResult: boolean; //disabled buttons and shows result
+  validationStatus: string; //shows result
   isValidating: any; // Make statusUpdate optional
+  setValidateResult: (validateResult: boolean) => void;
+  setValidationStatus: (validationStatus: string) => void;
   setIsValidInsurance: (isValidInsurance: boolean) => void;
   setIsValidating: (isValidating: boolean) => void;
   handleErrors: (errors: any) => void; // Add this prop
-  
+
   setTriggerValidation: (triggerValidation: boolean) => void;
   hasInsurance: any;
   triggerValidation: any;
+  carriers: any;
+  registrationId: number;
 }
 const DoYouHaveInsuranceForm = ({
   section,
   isValidInsurance,
-  setIsValidInsurance,
+  setIsValidInsurance: setIsValidInsurance1,
+  setValidateResult,
   onInsuranceDataChange,
+  setRteData,
+  rteData,
+  validateResult,
   isValidating,
+  validationStatus,
   setIsValidating,
+  setValidationStatus,
   onSubmit,
   triggerValidation,
-  setTriggerValidation,
+  setTriggerValidation: setTriggerValidation1,
   handleErrors,
+  carriers,
+  registrationId,
 }: DoYouHaveInsuranceProps) => {
-  const { setInsuranceData, insuranceData } = useFormState();
+  const { setInsuranceData, insuranceData, patientData,
+    // validationStatus,
+
+    // validateResult1,
+
+    validationStatus2,
+    validateResult2,
+  } = useFormState();
 
   const {
     values,
@@ -66,21 +90,29 @@ const DoYouHaveInsuranceForm = ({
       onHandleFormSubmit(values);
     },
   });
-
-
+  useEffect(() => {
+    if (section) {
+      resetValidationState1();
+      // setValidationStatus(prev => ({ ...prev, [section]: "" }));
+      // Reset other fields as necessary
+    }
+  }, [section]);
   useEffect(() => {
     if (values[`hasInsurance${section}`] === "1") {
       handleErrors(errors);
-          console.log(errors, "errors");
-
+      console.log(errors, "errors");
     } else {
       setTouched({}, false);
       setErrors({});
       handleErrors(errors); // Pass the current errors to the parent component
     }
   }, [errors, handleErrors, values[`hasInsurance${section}`]]);
+  const sequence = section === "" ? "1" : section === "2" ? "2" : "1"; // Defaults to 1 if section is not "2"
 
-  const [validationStatus, setValidationStatus] = useState("");
+
+  // const [rteData1, setRteData1] = useState<any>();
+
+  // const [validateResult, setValidateResult] = useState(false);
 
   const handleCheckboxChange = (value: any) => {
     setValidationStatus("");
@@ -94,42 +126,96 @@ const DoYouHaveInsuranceForm = ({
     });
   };
 
+
+  const resetValidationState1 = () => {
+    setIsValidating(false);
+    setTriggerValidation1(false);
+    // setValidateResult(false);
+    setIsValidInsurance1(false);
+
+  };
   const validate = async () => {
     setIsValidating(true);
     setValidationStatus("validating");
-    console.log(isValidInsurance, " Validating");
+    try {
+      const { success, data } = await validateSubscriberId(
+        registrationId,
+        values[`subscriberId${section}`],
+        values[`insuranceCarrier${section}`],
+        sequence
 
-    // Simulate validation delay
-    setTimeout(async () => {
-      if (await validateSubscriberId(values[`subscriberId${section}`])) {
-        onHandleFormSubmit(values);
+      );
+      setValidationStatus("done");
 
-        console.log("onSubmit insurance data:", values);
+      setIsValidating(false);
+      console.log(success, "Result from validateSubscriberId");
+      console.log(data, "Returned Data from validateSubscriberId");
 
-        setIsValidInsurance(true);
-        setValidationStatus("done");
+      // Set the validation status based on success
+      if (success) {
+        setValidateResult(true); // valid
+
+        // Simulate delay for showing the valid status
+        setTimeout(() => {
+          // setValidateResult(false); // reset disabled
+
+          setIsValidInsurance1(true); // Set isValidInsurance to true after 3 seconds
+          // setRteData1(data);
+
+          setInsuranceData((prev: any) => ({ ...prev, ...values })); // pass data to insurance
+          setRteData(data)
+
+          // Proceed with form submission 
+          console.log("Form submitted with insurance data do you:", values);
+          onHandleFormSubmit(values);
+
+        }, 3000); // Delay of 3 seconds
+
       } else {
-        setTriggerValidation(false);
+        console.log("Validation failed, resetting trigger.");
+
         setValidationStatus("done");
+        resetValidationState1();
+
       }
 
-      // Reset state after validation
+      // In case of not  success, the final state updates happen in the timeout
+      if (!success) {
+        resetValidationState1();
+      }
+
+    } catch (error) {
+      console.error("Error during validation:", error);
+      setValidationStatus("error");
       setIsValidating(false);
-      setTriggerValidation(false);
-    }, 2000); // Simulated validation time
+      setTriggerValidation1(false);
+      return false; // Return false in case of an error
+    }
   };
+  useEffect(() => {
+    if (rteData) {
+
+      console.log(rteData.valid, "rte valid")
+
+    }
+  }, [rteData]);
 
   useEffect(() => {
     if (triggerValidation) {
       validate();
+
     }
   }, [triggerValidation]);
-
+  console.log("validation status", validationStatus)
+  console.log("validation result", validateResult)
   const onHandleFormSubmit = (data: any) => {
-    setValidationStatus("");
-    onInsuranceDataChange(data);
-    console.log("oninsurance do u", onInsuranceDataChange)
 
+    console.log("after validation status", validationStatus)
+    console.log("after validation result", validateResult)
+    console.log("doyouhave", data)
+
+    onInsuranceDataChange(data);
+    //  setInsuranceData((prev: any) => ({ ...prev, ...data }));
   };
 
   return (
@@ -162,9 +248,7 @@ const DoYouHaveInsuranceForm = ({
                 </div>
               </div>
               <div className=" inline-flex flex-col items-start justify-center">
-                <label
-                  className="text-right  text-base font-normal text-[#2a2f31]"
-                >
+                <label className="text-right  text-base font-normal text-[#2a2f31]">
                   Yes, I have.
                 </label>
                 <label className=" text-sm font-normal text-[#5e6366]">
@@ -178,32 +262,36 @@ const DoYouHaveInsuranceForm = ({
         {values[`hasInsurance${section}`] === "1" && (
           <div
             id="carrierSection"
-            className={`flex flex-col ${!isValidating && validationStatus === "done" && !isValidInsurance ? "bg-[#d13e27]/10" : "bg-[#e8f2f5] "} p-4`}
-          >
+            className={`flex flex-col ${!isValidating && validationStatus === "done" && !validateResult
+              ? "bg-[#d13e27]/10"
+              : "bg-[#e8f2f5]"
+              } p-4`}          >
             {/* Who is the insurance carrier */}
             <div className="relative mt-4 items-center">
               <div>
                 <select
                   id="insuranceCarrier"
                   name={`insuranceCarrier${section}`}
-                  value={values[`insuranceCarrier${section}`]}
+                  value={values[`insuranceCarrier${section}`] || ""}
                   onChange={handleChange}
                   disabled={
                     isValidating ||
-                    (validationStatus === "done" && isValidInsurance)
+                    (validationStatus === "done" && validateResult)
                   }
-                  className={`  ${!isValidating && validationStatus == "done" && !isValidInsurance ? "border-[#d13e27]" : "border-[#dbddde]"}   ${isValidating ? " flex-col border border-[#dbddde] bg-[#e8f2f5]  text-[#6e787a] opacity-70" : "border"} w-full rounded-lg  py-2 pl-3 pt-6 ${!isValidating && validationStatus == "done" ? "text-[#2a2f31]" : ""}   ${
-                    touched[`insuranceCarrier${section}`] &&
+                  className={`  ${!isValidating && validationStatus == "done" && !validateResult ? "border-[#d13e27]" : "border-[#dbddde]"}   ${isValidating ? " flex-col border border-[#dbddde] bg-[#e8f2f5]  text-[#6e787a] opacity-70" : "border"} w-full rounded-lg  py-2 pl-3 pt-6 ${!isValidating && validationStatus == "done" ? "text-[#2a2f31]" : ""}   ${touched[`insuranceCarrier${section}`] &&
                     errors[`insuranceCarrier${section}`]
-                      ? "border-red-500"
-                      : "border-[#6e787a]"
-                  }  `}
+                    ? "border-red-500"
+                    : "border-[#6e787a]"
+                    }  `}
                 >
                   <option disabled value={""}>
                     Choose Carrier
                   </option>
-                  <option value="Cigna HMO/PPO">Cigna HMO/PPO</option>
-                  <option value="Kaiser Permanente">Kaiser Permanente</option>
+                  {JSON.parse(carriers).map((carrier: any) => (
+                    <option value={carrier.id} key={carrier.id}>
+                      {carrier.display}
+                    </option>
+                  ))}
                 </select>
               </div>
               <label
@@ -225,25 +313,23 @@ const DoYouHaveInsuranceForm = ({
                     onChange={handleChange}
                     disabled={
                       isValidating ||
-                      (validationStatus === "done" && isValidInsurance)
+                      (validationStatus === "done" && validateResult)
                     }
                     onBlur={handleBlur}
                     className={` border
-                  ${
-                    isValidating
-                      ? "border-[#dbddde] bg-[#e8f2f5] text-[#6e787a] opacity-70"
-                      : validationStatus === "done"
-                        ? isValidInsurance
-                          ? "border-[#6ea787a]"
-                          : "border-red-500"
+                  ${isValidating
+                        ? "border-[#dbddde] bg-[#e8f2f5] text-[#6e787a] opacity-70"
+                        : validationStatus === "done"
+                          ? validateResult
+                            ? "border-[#6ea787a]"
+                            : "border-red-500"
+                          : "border-[#6e787a]"
+                      } 
+                  ${touched[`subscriberId${section}`] &&
+                        errors[`subscriberId${section}`]
+                        ? "border-red-500"
                         : "border-[#6e787a]"
-                  } 
-                  ${
-                    touched[`subscriberId${section}`] &&
-                    errors[`subscriberId${section}`]
-                      ? "border-red-500"
-                      : "border-[#6e787a]"
-                  } 
+                      } 
                   w-full rounded-lg px-4 py-2 pt-6
                 `}
                   />
@@ -285,10 +371,10 @@ const DoYouHaveInsuranceForm = ({
 
             {!isValidating && validationStatus == "done" && (
               <div
-                className={`${isValidInsurance ? "bg-[#31936e]/25  text-status-green-text" : " bg-[#d13e27]/25 text-status-red-text"} mt-4 inline-flex h-[33px] items-center justify-center gap-2.5 rounded px-3 py-2`}
+                className={`${validateResult ? "bg-[#31936e]/25  text-status-green-text" : " bg-[#d13e27]/25 text-status-red-text"} mt-4 inline-flex h-[33px] items-center justify-center gap-2.5 rounded px-3 py-2`}
               >
                 <div className={`text-center text-sm font-bold `}>
-                  {isValidInsurance ? "Valid Insurance" : "Invalid Insurance"}
+                  {validateResult ? "Valid Insurance" : "Invalid Insurance"}
                 </div>
               </div>
             )}

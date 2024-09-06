@@ -2,8 +2,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-// import Link from "@/node_modules/next/link";
-import { updateInsuranceDetails, validateSubscriberId } from "../actions/api"; // Adjust the path as necessary
+import Link from "@/node_modules/next/link";
+import {
+  fetchCarriers,
+  fetchClinicalQuestions,
+  fetchServiceIntakeQuestions,
+  updateInsuranceDetails,
+  validateSubscriberId,
+} from "../actions/api"; // Adjust the path as necessary
 import { useFormik } from "formik";
 import DoYouHaveInsuranceForm from "./InsuranceForms/DoYouHaveInsuranceForm";
 import SubscriberForm from "./InsuranceForms/SubscriberForm";
@@ -11,7 +17,7 @@ import { FormProvider, useFormState } from "./FormContext";
 import ImageUpload from "./Fields/ImageUpload";
 import { patientSchema } from "../schemas/patient";
 export default function Insurance() {
-  const [currentStep, setCurrentStep] = useState(1);
+  // const [insuranceStep, setInsuranceStep] = useState(1);
   const [values, setValues] = useState<FormValues>({});
   const [isValidInsurance, setIsValidInsurance] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -19,6 +25,7 @@ export default function Insurance() {
   const [triggerValidation, setTriggerValidation] = useState(false);
   const [triggerSubmit, setTriggerSubmit] = useState(false);
   const [errors, setErrors] = useState({});
+  const [carriers, setCarriers] = useState({});
   const handleErrors = (newErrors: any) => {
     setErrors(newErrors);
     setHasErrors(Object.keys(newErrors).length > 0);
@@ -31,7 +38,25 @@ export default function Insurance() {
     setIsSubmitting(isSubmitting);
   };
   const handleCurrentStep = (currentStep: number) => {
-    setCurrentStep(currentStep);
+    setInsuranceStep(currentStep);
+  };
+  const handleValidateResult1 = (result: boolean) => {
+    setValidateResult1(result);
+  };
+  const handleValidateResult2 = (result: boolean) => {
+    setValidateResult2(result);
+  };
+  const handleValidationStatus1 = (status: boolean) => {
+    setValidationStatus1(status);
+  };
+  const handleValidationStatus2 = (status: boolean) => {
+    setValidationStatus2(status);
+  };
+  const handleRteData1 = (rteData1: any) => {
+    setRteData1(rteData1);
+  };
+  const handleRteData2 = (rteData2: any) => {
+    setRteData2(rteData2);
   };
 
   const resetState = () => {
@@ -39,85 +64,183 @@ export default function Insurance() {
     setIsValidating(false);
     setTriggerValidation(false);
     setTriggerSubmit(false);
+    // setValidateResult1(false);
+    // setValidateResult2(false);
+    setIsSubmitting(false);
   };
-  const { onHandleNext, onHandleBack, patientData, setInsuranceData, insuranceData } =
-    useFormState();
+  const {
+    onHandleNext,
+    setClinicalQuestionsData,
+    onHandleBack,
+    patientData,
+    setInsuranceData,
+    setRteData1,
+    rteData1,
+    setRteData2,
+    rteData2,
+    setValidationStatus1,
+    validationStatus1,
+    setValidateResult1,
+    validateResult1,
+    setValidationStatus2,
+    validationStatus2,
+    validateResult2,
+    setValidateResult2,
+    insuranceData,
+    setInsuranceStep,
+    insuranceStep,
+    subscriberData,
+    setSubscriberData,
+    setAdditionalSubscriberData,
+    additionalSubscriberData,
+  } = useFormState();
 
   const onHandleFormSubmit = async (data: any) => {
-    switch (currentStep) {
+    switch (insuranceStep) {
       case 1:
         // Validation logic
-        console.log(patientData, " patientdata in insurace")
+        console.log(patientData, " patientdata in insurace");
 
         if (data.hasInsurance === "1") {
-          setTriggerValidation(true);
+          if (!validateResult1) {
+            setTriggerValidation(true);
+            // setInsuranceData((prev: any) => ({ ...prev, ...data }));
+           
+          } else {
+            setInsuranceStep(insuranceStep + 1);
+          }
+
           //simulate api call await
-          setTimeout(() => {
-            if (isValidInsurance) {
-              setCurrentStep(currentStep + 1);
-              resetState();
-            }
-          }, 3000);
+          if (isValidInsurance) {
+            // setInsuranceData((prev: any) => ({ ...prev, ...data }));
+
+            setInsuranceStep(insuranceStep + 1);
+            resetState();
+          }
         } else {
           //no insurance
-          setInsuranceData((prev: any) => ({ ...prev, ...data }));
           onHandleNext();
         }
         break;
 
       case 2:
+        setInsuranceData((prev: any) => ({
+          ...prev,
+          ...data,
+          ...subscriberData,
+        }));
         setTriggerSubmit(true);
-        setInsuranceData((prev: any) => ({ ...prev, ...values }));
+   
+        // setInsuranceData((prev: any) => ({ ...prev, ...subscriberData}));
+        //call api to store  subscriber data to db
+        console.log(insuranceData, " insuranceddata all");
 
-       
+        console.log(subscriberData, " subscriberData all");
         break;
       case 3:
         if (data.hasInsurance2 === "1") {
-          setTriggerValidation(true);
-          setTimeout(() => {
-            if (isValidInsurance) {
-              setInsuranceData((prev: any) => ({ ...prev, ...values }));
+          if (!validateResult2) {
+            // setInsuranceData((prev: any) => ({ ...prev, ...data }));
 
-              setCurrentStep(currentStep + 1);
-              resetState();
-            }
-          }, 3000);
+            setTriggerValidation(true);
+          } else {
+            setInsuranceStep(insuranceStep + 1);
+          }
+
+          //simulate api call await
+          if (isValidInsurance) {
+            // setInsuranceData((prev: any) => ({ ...prev, ...data }));
+ 
+
+            setInsuranceStep(insuranceStep + 1);
+            // setSubscriberData([]);// clear subscriber data for new info on the next one
+
+            resetState();
+          }
         } else {
           //no insurance
-          setInsuranceData((prev: any) => ({ ...prev, ...values }));
-
+          // setInsuranceData((prev: any) => ({ ...prev, ...data }));
           onHandleNext();
         }
         break;
       case 4:
+        setInsuranceData((prev: any) => ({
+          ...prev,
+          ...data,
+          ...additionalSubscriberData,
+        }));
         setTriggerSubmit(true);
-        try {
-          // const response = await updateInsuranceDetails(data);
-          // const updatedInsuranceData = response; // assuming the API returns the updated insurance data
-          setInsuranceData((prev: any) => ({ ...prev, ...values }));
-          onHandleNext();
-        } catch (error) {
-          console.log(error);
-          alert('Oops! Something went wrong. Please try again');
-        }
+      
+        // setInsuranceData((prev: any) => ({ ...prev, additionalSubscriberData}));
+        //call api to store  subscriber data to db
+        console.log(insuranceData, " insuranceddata all");
+        console.log(additionalSubscriberData, " additionalSubscriberData all");
+        onHandleNext();
         break;
 
       default:
         break;
     }
   };
-  const handleInsuranceDataChange = (data:any) => {
-    setInsuranceData((prev:any) => ({ ...prev, ...data }));
+  const handleInsuranceDataChange = (data: any) => {
+    console.log("handling ", data)
+    setInsuranceData((prev: any) => ({ ...prev, ...data }));
+  };
+  const handleSubscriberDataChange = (data: any) => {
+    setSubscriberData(data);
+    // setInsuranceData((prev: any) => ({ ...prev, ...data }));
+  };
+  //optional since subscriber will be sent to api after main sub then
+  // addtl sub will replace data usig setsubscriberdata and  another request will be sent
+  // to update the other rte virtual sub
+  const handleAdditionalSubscriberChange = (data: any) => {
+    setAdditionalSubscriberData(data);
+    // setInsuranceData((prev: any) => ({ ...prev, ...data }));
+
+  };
+ 
+  // useEffect(() => {
+  //   const handleInsuranceDataChange = (data: any) => {
+  //     setInsuranceData((prev: any) => ({ ...prev, ...data }));
+  //   };
+  //   const handleSubscriberDataChange = (data: any) => {
+  //     setSubscriberData(data);
+  //     // setInsuranceData((prev: any) => ({ ...prev, ...data }));
+  //   };
+   
+  //   const handleAdditionalSubscriberChange = (data: any) => {
+  //     setAdditionalSubscriberData(data);
+  //     // setInsuranceData((prev: any) => ({ ...prev, ...data }));
+  
+  //   };
+  //   // Call the handleInsuranceDataChange function when the component mounts
+  //   handleInsuranceDataChange({
+  //     /* initial insurance data */
+  //   });
+  //   handleSubscriberDataChange({
+  //     /* initial insurance data */
+  //   });
+  //   handleAdditionalSubscriberChange({
+  //     /* initial insurance data */
+  //   });
+  // }, [setInsuranceData]);
+
+  const getCarriers = async () => {
+    setCarriers(await fetchCarriers(patientData.regionId));
+    console.log("Carriers: " + carriers);
   };
   useEffect(() => {
-    const handleInsuranceDataChange = (data:any) => {
-      setInsuranceData(data);
-    };
+    // setInsuranceData(insuranceData)
+    console.log("Triggered submit with insuranceData: ", insuranceData);
+    // setSubscriberData(subscriberData);
+    // setAdditionalSubscriberData(additionalSubscriberData);
+    console.log(subscriberData, "subsk");
+    console.log(additionalSubscriberData, "additionalSubscriberData subsk");
+  }, [triggerSubmit, insuranceData, subscriberData, additionalSubscriberData]); 
 
-    // Call the handleInsuranceDataChange function when the component mounts
-    handleInsuranceDataChange({ /* initial insurance data */ });
-  }, [setInsuranceData]);
-
+  useEffect(() => {
+    getCarriers();
+  }, []);
 
   useEffect(() => {
     if (isValidInsurance) {
@@ -126,23 +249,39 @@ export default function Insurance() {
   }, [isValidInsurance]);
 
   const handleBack = () => {
-    if (currentStep > 1) {
-      setIsValidInsurance(false);
-      setIsValidating(false);
-      setTriggerValidation(false);
-      setCurrentStep(currentStep - 1);
+    if (insuranceStep > 1) {
+      // setIsValidInsurance(false);
+      // setIsValidating(false);
+      // setTriggerValidation(false);
+      setInsuranceStep(insuranceStep - 1);
     } else {
       onHandleBack();
     }
   };
-  
+  const isNextDisabled = () => {
+    if (insuranceStep === 2 || insuranceStep === 4) {
+      // For current step = 2 or 4, monitor IsSubmitting
+
+      return hasErrors || IsSubmitting;
+    } else {
+      // For "Do You Have Insurance" Form
+      const currentValidateResult =
+        insuranceStep === 3 ? validateResult2 : validateResult1;
+
+      return (
+        isValidating ||
+        // currentValidateResult ||
+        (hasErrors && values.hasInsurance2 === "1") ||
+        (hasErrors && values.hasInsurance === "1")
+      );
+    }
+  };
   interface FormValues {
     hasInsurance?: string;
     subscriberId?: string;
     // Add other fields as needed
     hasInsurance2?: string;
     subscriberId2?: string;
-    
 
     insuranceCarrier?: string;
 
@@ -150,189 +289,215 @@ export default function Insurance() {
     insuranceLastName?: string;
     insuranceDob?: string;
     insurancePhone?: string;
-
-
   }
 
   return (
-    <FormProvider>
-      {/* <form onSubmit={(e) => e.preventDefault()} className="flex flex-1 flex-col"> */}
-      <div className={`flex flex-1 flex-col p-6`}>
-        <div className="text-xl">
-          {currentStep === 1
-            ? "Do you have health insurance"
-            : currentStep === 2
-              ? "Insurance Details"
-              : currentStep === 3
-                ? "Do you have additional health insurance"
-                : currentStep === 4
-                  ? "Additional Insurance Details"
-                  : "Insurance"}
-        </div>
-
-        {currentStep === 1 && (
-          <DoYouHaveInsuranceForm
-            section=""
-            isValidInsurance={isValidInsurance}
-            onInsuranceDataChange={handleInsuranceDataChange}
-
-            setIsValidInsurance={setIsValidInsurance} // Pass
-            isValidating={isValidating}
-            handleErrors={handleErrors}
-            setIsValidating={setIsValidating} // Pass
-            onSubmit={updateValues} // update the checkbox values to parent
-            hasInsurance={values.hasInsurance || ""}
-            triggerValidation={triggerValidation}
-            setTriggerValidation={setTriggerValidation}
-          />
-        )}
-        {currentStep === 2 && (
-          <SubscriberForm
-            section=""
-            patientDetails={patientData}
-            
-            onInsuranceDataChange={handleInsuranceDataChange}
-            setCurrentStep={handleCurrentStep}
-            currentStep={currentStep}
-            onSubmit={updateValues}
-            handleErrors={handleErrors}
-            setIsSubmitting={handleIsSubmitting} // Pass the handleIsSubmitting function
-            isSubmitting={IsSubmitting}
-            triggerSubmit={triggerSubmit}
-            setTriggerSubmit={setTriggerSubmit}
-          />
-        )}
-        {currentStep === 3 && (
-          <DoYouHaveInsuranceForm
-            section="2"
-            isValidInsurance={isValidInsurance}
-            onInsuranceDataChange={handleInsuranceDataChange}
-
-            setIsValidInsurance={setIsValidInsurance} // Pass
-            isValidating={isValidating}
-            setIsValidating={setIsValidating} // Pass
-            onSubmit={updateValues} // update the checkbox values to parent
-            handleErrors={handleErrors}
-            hasInsurance={values.hasInsurance || ""}
-            triggerValidation={triggerValidation}
-            setTriggerValidation={setTriggerValidation}
-          />
-        )}
-        {currentStep === 4 && (
-          <SubscriberForm
-            section="2"
-            patientDetails={patientData}
-            onInsuranceDataChange={handleInsuranceDataChange}
-
-            setCurrentStep={handleCurrentStep}
-            currentStep={currentStep}
-            onSubmit={updateValues}
-            triggerSubmit={triggerSubmit}
-            handleErrors={handleErrors}
-            setIsSubmitting={handleIsSubmitting}
-            isSubmitting={IsSubmitting}
-            setTriggerSubmit={setTriggerSubmit}
-          />
-        )}
-
-        {/* Action */}
-        <div className={` flex items-end gap-4 `}>
-          <div className="w-2/6 ">
-            <button
-              id="back"
-              onClick={() => {
-                // e.preventDefault();
-                handleBack();
-              }}
-              disabled={isValidating || isValidInsurance ? true : false}
-              className={` text-black h-10  w-full rounded-3xl border-2 border-slate-600  text-center font-semibold `}
-            >
-              <span className="flex items-center justify-center">Back</span>
-            </button>
+    <div className="flex flex-1">
+      <FormProvider>
+        {/* <form onSubmit={(e) => e.preventDefault()} className="flex flex-1 flex-col"> */}
+        <div className={`flex flex-1 flex-col p-6`}>
+          <div className="text-xl">
+            {insuranceStep === 1
+              ? "Do you have health insurance"
+              : insuranceStep === 2
+                ? "Insurance Details"
+                : insuranceStep === 3
+                  ? "Do you have additional health insurance"
+                  : insuranceStep === 4
+                    ? "Additional Insurance Details"
+                    : "Insurance"}
           </div>
-          {values[`hasInsurance`] === "0" ||
+
+          {insuranceStep === 1 && (
+            <DoYouHaveInsuranceForm
+              section=""
+              isValidInsurance={isValidInsurance}
+              onInsuranceDataChange={handleInsuranceDataChange}
+              setRteData={handleRteData1}
+              rteData={rteData1}
+              setIsValidInsurance={setIsValidInsurance} // Pass
+              validateResult={validateResult1}
+              setValidateResult={setValidateResult1}
+              validationStatus={validationStatus1}
+              setValidationStatus={setValidationStatus1} // Pass
+              isValidating={isValidating}
+              handleErrors={handleErrors}
+              setIsValidating={setIsValidating} // Pass
+              onSubmit={updateValues} // update the checkbox values to parent
+              hasInsurance={values.hasInsurance || ""}
+              triggerValidation={triggerValidation}
+              setTriggerValidation={setTriggerValidation}
+              carriers={carriers}
+              registrationId={patientData.registrationId}
+            />
+          )}
+          {insuranceStep === 2 && (
+            <SubscriberForm
+              section=""
+              patientDetails={patientData}
+              onSubscriberDataChange={handleSubscriberDataChange}
+              setCurrentStep={handleCurrentStep}
+              currentStep={insuranceStep}
+              onSubmit={updateValues}
+              onRteDataChange={rteData1} /// pass to subs
+              handleErrors={handleErrors}
+              setIsSubmitting={handleIsSubmitting} // Pass the handleIsSubmitting function
+              isSubmitting={IsSubmitting}
+              triggerSubmit={triggerSubmit}
+              setTriggerSubmit={setTriggerSubmit}
+              regId={patientData.registrationId}
+              dob={patientData.dateOfBirth}
+            />
+          )}
+          {insuranceStep === 3 && (
+            <DoYouHaveInsuranceForm
+              section="2"
+              isValidInsurance={isValidInsurance}
+              onInsuranceDataChange={handleInsuranceDataChange}
+              setIsValidInsurance={setIsValidInsurance} // Pass
+              validateResult={validateResult2}
+              setValidateResult={setValidateResult2}
+              validationStatus={validationStatus2}
+              setValidationStatus={setValidationStatus2} // Pass
+              setRteData={handleRteData2}
+              rteData={rteData2}
+              isValidating={isValidating}
+              setIsValidating={setIsValidating} // Pass
+              onSubmit={updateValues} // update the checkbox values to parent
+              handleErrors={handleErrors}
+              hasInsurance={values.hasInsurance || ""}
+              triggerValidation={triggerValidation}
+              setTriggerValidation={setTriggerValidation}
+              carriers={carriers}
+              registrationId={patientData.registrationId}
+            />
+          )}
+          {insuranceStep === 4 && (
+            <SubscriberForm
+              section="2"
+              patientDetails={patientData}
+              onSubscriberDataChange={handleAdditionalSubscriberChange}
+              setCurrentStep={handleCurrentStep}
+              currentStep={insuranceStep}
+              onSubmit={updateValues}
+              onRteDataChange={rteData2}
+              triggerSubmit={triggerSubmit}
+              handleErrors={handleErrors}
+              setIsSubmitting={handleIsSubmitting}
+              isSubmitting={IsSubmitting}
+              setTriggerSubmit={setTriggerSubmit}
+              regId={patientData.registrationId}
+              dob={patientData.dateOfBirth}
+            />
+          )}
+
+          {/* Action */}
+          <div className={` flex items-end gap-4 `}>
+            <div className="w-2/6 ">
+              <button
+                id="back"
+                onClick={() => {
+                  // e.preventDefault();
+                  handleBack();
+                }}
+                // disabled={
+                // isValidating ||
+                // (currentStep === 1
+                //   ? validateResultSection1
+                //   : currentStep === 3
+                //     ? validateResultSection2
+                //     : false)
+                // }
+                className={` text-black h-10  w-full rounded-3xl border-2 border-slate-600  text-center font-semibold `}
+              >
+                <span className="flex items-center justify-center">Back</span>
+              </button>
+            </div>
+            {values[`hasInsurance`] === "0" ||
             values[`hasInsurance`] === "1" ||
             values[`hasInsurance2`] === "0" ||
             values[`hasInsurance2`] === "1" ? (
-            <div className="w-4/6">
-              <button
-                disabled={
-                  isValidating ||
-                    isValidInsurance ||
-                    IsSubmitting ||
-                    (hasErrors && values.hasInsurance2 === "1") ||
-                    (hasErrors && values.hasInsurance === "1")
-                    ? true
-                    : false
-                }
-                id="Next"
-                type="submit"
-                onClick={(e) => {
-                  console.log(currentStep);
-                  e.preventDefault();
-                  onHandleFormSubmit(values);
-                }}
-                className={`${(
-                  (currentStep === 1 && values.hasInsurance === "1" && hasErrors) || 
-                  (currentStep === 3 && values.hasInsurance2 === "1" && hasErrors)
-                ) ? "pointer-events-none opacity-50" : ""} bg-spruce-4 w-full rounded-3xl py-2 text-center font-semibold text-white`}              >
-                {isValidating ? (
-                  <span className="flex items-center justify-center">
-                    <svg
-                      className="mr-3 h-5 w-5 animate-spin"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Validating...
-                  </span>
-                ) : (
-                  <>
-                    {currentStep === 1 && values.hasInsurance === "1" ? (
-                      <span>Validate Insurance</span>
-                    ) : currentStep === 1 ? (
-                      <span>Next</span>
-                    ) : null}
+              <div className="w-4/6">
+                <button
+                  disabled={isNextDisabled()}
+                  id="Next"
+                  type="submit"
+                  onClick={(e) => {
+                    console.log(insuranceStep);
+                    e.preventDefault();
+                    onHandleFormSubmit(values);
+                  }}
+                  className={`${
+                    (insuranceStep === 1 &&
+                      values.hasInsurance === "1" &&
+                      hasErrors) ||
+                    (insuranceStep === 3 &&
+                      values.hasInsurance2 === "1" &&
+                      hasErrors) ||
+                    (insuranceStep === 2 && hasErrors) ||
+                    (insuranceStep === 4 && hasErrors)
+                      ? "pointer-events-none opacity-50"
+                      : ""
+                  } bg-spruce-4 w-full rounded-3xl py-2 text-center font-semibold text-white`}
+                >
+                  {isValidating ? (
+                    <span className="flex items-center justify-center">
+                      <svg
+                        className="mr-3 h-5 w-5 animate-spin"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Validating...
+                    </span>
+                  ) : (
+                    <>
+                      {insuranceStep === 1 && values.hasInsurance === "1" ? (
+                        <span>Validate Insurance</span>
+                      ) : insuranceStep === 1 ? (
+                        <span>Next</span>
+                      ) : null}
 
-                    {currentStep === 2 && <span>Next</span>}
+                      {insuranceStep === 2 && <span>Next</span>}
 
-                    {currentStep === 3 && values.hasInsurance2 === "1" ? (
-                      <span>Validate Insurance</span>
-                    ) : currentStep === 3 ? (
-                      <span>Next</span>
-                    ) : null}
+                      {insuranceStep === 3 && values.hasInsurance2 === "1" ? (
+                        <span>Validate Insurance</span>
+                      ) : insuranceStep === 3 ? (
+                        <span>Next</span>
+                      ) : null}
 
-                    {currentStep === 4 && <span>Submit</span>}
-                  </>
-                )}
-              </button>
-            </div>
-          ) : (
-            <div className="w-4/6">
-              <div className=" flex h-10 items-center justify-center gap-2.5 rounded-[100px] pl-4 ">
-                <div className=" text-sm font-normal text-[#5e6366]">
-                  Select an option to proceed
+                      {insuranceStep === 4 && <span>Submit</span>}
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="w-4/6">
+                <div className=" flex h-10 items-center justify-center gap-2.5 rounded-[100px] pl-4 ">
+                  <div className=" text-sm font-normal text-[#5e6366]">
+                    Select an option to proceed
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
-      {/* </form> */}
-    </FormProvider>
+        {/* </form> */}
+      </FormProvider>
+    </div>
   );
 }

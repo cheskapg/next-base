@@ -305,6 +305,8 @@ const SubscriberForm = ({
         [`frontInsuranceCard${section}`]: frontInsuranceCard || '',
         [`backInsuranceCard${section}`]: backInsuranceCard || '',
       };
+      delete errors[`frontInsuranceCard${section}`];
+      delete errors[`backInsuranceCard${section}`];
 
       setValues((prevData: any) => ({
         ...prevData,
@@ -365,7 +367,8 @@ const SubscriberForm = ({
         ...prevData,
         ...clearedValues,
       }));
-
+      delete errors[`frontInsuranceCard${section}`];
+      delete errors[`backInsuranceCard${section}`];
       // Ensure touched fields are set correctly for non-patient options
       setTouched(
         {
@@ -432,28 +435,35 @@ const SubscriberForm = ({
     setInsuranceData((prev: any) => ({ ...prev, ...data })); // pass data to insurance
     console.log('SETTING  DATA', data);
     console.log('SETTING INSURANCE DATA', insuranceData);
-    await updateInsuranceDetails(regId, id, data, sequence);
-    // //Upload Insurance Subscriber
-    const frontImage = frontInsuranceCard != null ? frontInsuranceImage : null;
-    const backImage = backInsuranceCard != null ? backInsuranceImage : null;
 
-    const formData = new FormData();
-    formData.append('regId', JSON.stringify(regId));
-    formData.append('dob', dob);
-    formData.append('type', 'INSURANCE');
-    formData.append('sequence', JSON.stringify(sequence));
+    if (values[`insuranceSubscriber${section}`] !== 'Patient'){
+        const frontImage = frontInsuranceCard != null ? frontInsuranceImage : null;
+        const backImage = backInsuranceCard != null ? backInsuranceImage : null;
+    
+        const formData = new FormData();
+        formData.append('regId', JSON.stringify(regId));
+        formData.append('dob', dob);
+        formData.append('type', 'INSURANCE');
+        formData.append('sequence', JSON.stringify(sequence));
+    
+        if (frontImage != null)
+          formData.append('frontIdentificationImage', frontImage);
+        if (backImage != null)
+          formData.append('backIdentificationImage', backImage);
+    
+        const response = await fetch(`/api/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+        await updateInsuranceDetails(regId, id, data, sequence);
+        // //Upload Insurance Subscriber
+    
+        console.log(response);
+    }else{
+        console.log("NO INSURANCE IMAGE NEEDED - Patient");
 
-    if (frontImage != null)
-      formData.append('frontIdentificationImage', frontImage);
-    if (backImage != null)
-      formData.append('backIdentificationImage', backImage);
-
-    const response = await fetch(`/api/upload`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    console.log(response);
+    }
+  
 
     // onSubscriberDataChange((prev: any) => ({ ...prev, ...data })); // pass data to insurance
 
@@ -475,18 +485,23 @@ const SubscriberForm = ({
   const loadIds = async () => {
     const imageObj: any = JSON.parse(await LoadInsurance(regId, dob, sequence));
     console.log(JSON.stringify(imageObj?.BackImage?.file_name));
+  
+    const frontImage = imageObj?.FrontImage?.encodedImage || null;
+    const backImage = imageObj?.BackImage?.encodedImage || null;
+  
+    if (frontImage !== null) {
+      setFieldValue(`frontInsuranceCard${section}`, frontImage);
+      setFrontInsuranceCard(frontImage);
 
-    setFieldValue(
-      `frontInsuranceCard${section}`,
-      imageObj?.FrontImage?.encodedImage || null,
-    );
-    setFieldValue(
-      `backInsuranceCard${section}`,
-      imageObj?.BackImage?.encodedImage || null,
-    );
-    setFrontInsuranceCard(imageObj?.FrontImage?.encodedImage || null);
-    setBackInsuranceCard(imageObj?.BackImage?.encodedImage || null);
+    }
+    if (backImage !== null) {
+      setFieldValue(`backInsuranceCard${section}`, backImage);
+      setBackInsuranceCard(backImage);
+
+    }
+  
   };
+  
 
   type TFormValues = {
     insuranceCarrier: string;
