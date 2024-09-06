@@ -46,7 +46,31 @@ const SubscriberForm = ({
   const { virtual_subscriber, id } = onRteDataChange || {}; // Destructure virtual_subscriber from onRteDataChange
   const stateList = states;
   const { setInsuranceData, insuranceData } = useFormState();
-  const [errorUpload, setErrorUpload] = useState(false);
+
+  const [touchedImages, setTouchedImages] = useState({
+    [`frontInsuranceCard${section}`]: false,
+    [`backInsuranceCard${section}`]: false,
+  });
+  const handleTouched = (field:any) => {
+    setTouchedImages((prev) => ({
+      ...prev,
+      [field]: true,
+    }));
+  };
+  
+  const handleError = (field:any, hasError:any) => {
+    setErrorUploads((prev) => ({
+      ...prev,
+      [field]: hasError,
+    }));
+  };
+  
+
+  
+  const [errorUploads, setErrorUploads] = useState({
+    [`frontInsuranceCard${section}`]: false,
+    [`backInsuranceCard${section}`]: false,
+  });
   const [frontInsuranceCard, setFrontInsuranceCard] = useState(null);
   const [backInsuranceCard, setBackInsuranceCard] = useState(null);
 
@@ -69,9 +93,11 @@ const SubscriberForm = ({
     [`insuranceSubscriber${section}`]:
       insuranceData[`insuranceSubscriber${section}`] || '',
     [`frontInsuranceCard${section}`]:
-      frontInsuranceCard || insuranceData[`frontInsuranceCard${section}`] || '',
+      frontInsuranceCard ||
+      insuranceData[`frontInsuranceCard${section}`] ||
+      null,
     [`backInsuranceCard${section}`]:
-      backInsuranceCard || insuranceData[`backInsuranceCard${section}`] || '',
+      backInsuranceCard || insuranceData[`backInsuranceCard${section}`] || null,
   };
 
   const validationSchema =
@@ -102,6 +128,22 @@ const SubscriberForm = ({
     },
   });
   const [sameAsPatient, setSameAsPatient] = useState(false);
+
+  // Ensure to call handleErrors with the updated errors for image upload
+  useEffect(() => {
+    handleErrors(errors);
+  }, [errors]);
+  
+  // Set touched state for images when they are touched
+  useEffect(() => {
+    if (touched[`frontInsuranceCard${section}`]) {
+      handleTouched(`frontInsuranceCard${section}`);
+    }
+    if (touched[`backInsuranceCard${section}`]) {
+      handleTouched(`backInsuranceCard${section}`);
+    }
+  }, [touched[`frontInsuranceCard${section}`], touched[`backInsuranceCard${section}`]]);
+
 
   useEffect(() => {
     if (onRteDataChange) {
@@ -173,6 +215,12 @@ const SubscriberForm = ({
 
     loadIds();
   }, []); // Run once on mount
+  useEffect(() => {
+    // handleInsuranceSubscriber();
+
+    console.log('YOUR values:', values);
+    console.log('YOUR INSURANCE:', insuranceData);
+  }, [values, insuranceData]); // Run once on mount
 
   useEffect(() => {
     // Log the current values and subscriber selection
@@ -699,11 +747,11 @@ const SubscriberForm = ({
                 <span className={`text-xs font-normal text-zest-6 `}>*</span>
               </label>
               {errors[`insuranceFirstName${section}`] &&
-                  touched[`insuranceFirstName${section}`] && (
-                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
-                      {errors[`insuranceFirstName${section}`] as string}
-                    </span>
-                  )}
+                touched[`insuranceFirstName${section}`] && (
+                  <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                    {errors[`insuranceFirstName${section}`] as string}
+                  </span>
+                )}
             </div>
             {/* Last Name */}
             <div
@@ -726,11 +774,11 @@ const SubscriberForm = ({
                 <span className={`text-xs font-normal text-zest-6 `}>*</span>
               </label>
               {errors[`insuranceLastName${section}`] &&
-                  touched[`insuranceLastName${section}`] && (
-                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
-                      {errors[`insuranceLastName${section}`] as string}
-                    </span>
-                  )}
+                touched[`insuranceLastName${section}`] && (
+                  <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                    {errors[`insuranceLastName${section}`] as string}
+                  </span>
+                )}
             </div>
             <div
               className={`${errors[`insuranceDob${section}`] && touched[`insuranceDob${section}`] ? 'text-status-red-text' : 'text-black-4 '} relative mt-4 flex w-full`}
@@ -759,11 +807,11 @@ const SubscriberForm = ({
               ></img>
             </div>
             {errors[`insuranceDob${section}`] &&
-                  touched[`insuranceDob${section}`] && (
-                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
-                      {errors[`insuranceDob${section}`] as string}
-                    </span>
-                  )}
+              touched[`insuranceDob${section}`] && (
+                <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                  {errors[`insuranceDob${section}`] as string}
+                </span>
+              )}
             {/*Phone */}
             <div className="mt-4 flex">
               <div
@@ -812,7 +860,7 @@ const SubscriberForm = ({
             </div>
             {/* Address */}
             <div
-              className={`${errors[`insuranceAddress${section}`] && touched[`insuranceAddress${section}`]? 'text-status-red-text' : 'text-black-4 '}  relative mt-4`}
+              className={`${errors[`insuranceAddress${section}`] && touched[`insuranceAddress${section}`] ? 'text-status-red-text' : 'text-black-4 '}  relative mt-4`}
             >
               <input
                 type="text"
@@ -820,7 +868,7 @@ const SubscriberForm = ({
                 name={`insuranceAddress${section}`}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                placeholder='123 Street'
+                placeholder="123 Street"
                 value={values[`insuranceAddress${section}`] || ''}
                 className={` ${
                   errors[`insuranceAddress${section}`] &&
@@ -838,11 +886,11 @@ const SubscriberForm = ({
               </label>
             </div>
             {errors[`insuranceAddress${section}`] &&
-                  touched[`insuranceAddress${section}`] && (
-                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
-                      {errors[`insuranceAddress${section}`] as string}
-                    </span>
-                  )}
+              touched[`insuranceAddress${section}`] && (
+                <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                  {errors[`insuranceAddress${section}`] as string}
+                </span>
+              )}
             {/* Address2 */}
             <div className="relative mt-4 text-black-4">
               <input
@@ -896,11 +944,11 @@ const SubscriberForm = ({
               </label>
             </div>
             {errors[`insuranceCity${section}`] &&
-                  touched[`insuranceCity${section}`] && (
-                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
-                      {errors[`insuranceCity${section}`] as string}
-                    </span>
-                  )}
+              touched[`insuranceCity${section}`] && (
+                <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                  {errors[`insuranceCity${section}`] as string}
+                </span>
+              )}
             {/* State */}
             <div
               className={`${errors[`insuranceState${section}`] && touched[`insuranceState${section}`] ? 'text-status-red-text' : 'text-black-4 '}  mt-4 flex`}
@@ -935,12 +983,14 @@ const SubscriberForm = ({
                   <span className={`text-xs font-normal text-zest-6 `}>*</span>
                 </label>
                 <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
-                {errors[`insuranceState${section}`] &&
-                  touched[`insuranceState${section}`] && (
-                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
-                      {errors[`insuranceState${section}`] as string}
-                    </span>
-                  )}
+                  {errors[`insuranceState${section}`] &&
+                    touched[`insuranceState${section}`] && (
+                      <span
+                        className={`pl-2 text-xs font-normal  text-zest-6 `}
+                      >
+                        {errors[`insuranceState${section}`] as string}
+                      </span>
+                    )}
                 </span>
               </div>
               <div
@@ -975,11 +1025,11 @@ const SubscriberForm = ({
             </div>
             {/* // test insurance */}
             <div className="p-6">
-              <div className=" text-black text-base font-medium ">
+              <div className=" text-black-4 text-base font-medium ">
                 Upload insurance card
               </div>
 
-              <div className="text-black pt-2 text-sm font-normal ">
+              <div className=" text-black-4  pt-2 text-sm font-normal ">
                 If you have a digital insurance card, download or screenshot
                 both sides to upload.
               </div>
@@ -991,12 +1041,16 @@ const SubscriberForm = ({
                   id={`frontInsuranceCard${section}`}
                   name={`frontInsuranceCard${section}`}
                   label="Upload Front of Insurance Card"
-                  error={errorUpload}
+                  error={errorUploads[`frontInsuranceCard${section}`]|| false}
+                  // touchedImage={touchedImages[`frontInsuranceCard${section}`]}
                   value={values[`frontInsuranceCard${section}`]}
                   setValue={(val) => {
-                    setFieldValue(`frontInsuranceCard${section}`, val );
+                    setFieldValue(`frontInsuranceCard${section}`, val);
+                    handleTouched(`frontInsuranceCard${section}`);
                   }}
-                  setError={setErrorUpload}
+                  setError={(err) =>
+                    handleError(`frontInsuranceCard${section}`, err)
+                  }
                   setInsuranceImage={setFrontInsuranceImage}
                 />
               </div>
@@ -1006,12 +1060,16 @@ const SubscriberForm = ({
                   id={`backInsuranceCard${section}`}
                   name={`backInsuranceCard${section}`}
                   label="Upload Back of Insurance Card"
-                  error={errorUpload}
+                  error={errorUploads[`backInsuranceCard${section}`]|| false}
+                  // touchedImage={touchedImages[`backInsuranceCard${section}`]|| false}
                   value={values[`backInsuranceCard${section}`]}
-                  setValue={(val) => {
+                  setValue={(val:any) => {
                     setFieldValue(`backInsuranceCard${section}`, val);
+                    handleTouched(`backInsuranceCard${section}`);
                   }}
-                  setError={setErrorUpload}
+                  setError={(err:any) =>
+                    handleError(`backInsuranceCard${section}`, err)
+                  }
                   setInsuranceImage={setBackInsuranceImage}
                 />
               </div>
