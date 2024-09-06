@@ -103,45 +103,6 @@ const SubscriberForm = ({
   });
   const [sameAsPatient, setSameAsPatient] = useState(false);
 
-  //   useEffect(() => {
-  //     if (onRteDataChange) {
-  //       const { subscriber_relation } = onRteDataChange;
-
-  //       if (subscriber_relation === values[`insuranceSubscriber${section}`]) {
-  //         setInsuranceData((prevData: any) => ({
-  //           ...prevData,
-  //           [`insuranceFirstName${section}`]: virtual_subscriber?.first_name || "",
-  //           [`insuranceLastName${section}`]: virtual_subscriber?.last_name || "",
-  //           [`insuranceDob${section}`]: virtual_subscriber?.dob
-  //             ? new Date(virtual_subscriber?.dob)?.toISOString().substring(0, 10)
-  //             : "",
-  //           [`insurancePhone${section}`]: virtual_subscriber?.phone_number || "",
-  //           [`insuranceAddress${section}`]: virtual_subscriber?.virtual_address?.address_1 || "",
-  //           [`insuranceAddress2_${section}`]: virtual_subscriber?.virtual_address?.address_2 || "",
-  //           [`insuranceCity${section}`]: virtual_subscriber?.virtual_address?.city || "",
-  //           [`insuranceState${section}`]: virtual_subscriber?.virtual_address?.state || "",
-  //           [`insuranceZip${section}`]: virtual_subscriber?.virtual_address?.zipcode || "",
-  //           [`insuranceSubscriber${section}`]: subscriber_relation || "",
-  //           [`frontInsuranceCard${section}`]: insuranceData
-  //             ? insuranceData[`frontInsuranceCard${section}`]
-  //             : "",
-  //           [`backInsuranceCard${section}`]: insuranceData
-  //             ? insuranceData[`backInsuranceCard${section}`]
-  //             : "",
-  //         }));
-  //       }
-  //     }
-  //   }, [ values[`insuranceSubscriber${section}`]]);
-
-  //   useEffect(() => {
-  //     console.log("UPDATED INSURANCE DATA", insuranceData);
-  //     // onSubscriberDataChange(insuranceData);
-
-  //     setFieldValue(
-  //       `insuranceSubscriber${section}`,
-  //       onRteDataChange.subscriber_relation
-  //     );
-  //   }, []);
   useEffect(() => {
     if (onRteDataChange) {
       console.log(onRteDataChange, 'SUBSCRIBER FORM RTE DATAA');
@@ -187,7 +148,6 @@ const SubscriberForm = ({
       setFieldValue(`insuranceState${section}`, patientDetails.state);
       setFieldValue(`insuranceZip${section}`, patientDetails.zipCode);
       setErrors(errors);
-      handleErrors(errors);
     } else {
       // Clear the fields when the checkbox is unchecked
       setFieldValue(`insuranceAddress${section}`, '');
@@ -208,79 +168,11 @@ const SubscriberForm = ({
     handleErrors(errors);
   }, [errors]);
 
-  //   const handleInsuranceSubscriber = () => {
-  //     if (values[`insuranceSubscriber${section}`] === "Patient") {
-  //       // Set all fields to the patient's details
-  //       setTouched({}, false);
-  //       setErrors({});
-
-  //       setInsuranceData((prevData: any) => ({
-  //         ...prevData,
-  //         [`insuranceFirstName${section}`]: patientDetails.firstName || "",
-  //         [`insuranceLastName${section}`]: patientDetails.lastName || "",
-  //         [`insuranceDob${section}`]: patientDetails.dateOfBirth
-  //           ? new Date(patientDetails.dateOfBirth).toISOString().substring(0, 10)
-  //           : "",
-  //         [`insurancePhone${section}`]: patientDetails.phoneNumber || "",
-  //         [`insuranceAddress${section}`]: patientDetails.addressLine1 || "",
-  //         [`insuranceAddress2_${section}`]: patientDetails.addressLine2 || "",
-  //         [`insuranceCity${section}`]: patientDetails.city || "",
-  //         [`insuranceState${section}`]: patientDetails.state || "",
-  //         [`insuranceZip${section}`]: patientDetails.zipCode || "",
-  //         [`frontInsuranceCard${section}`]: frontInsuranceCard || "",
-  //         [`backInsuranceCard${section}`]: backInsuranceCard || "",
-  //       }));
-  //     } else {
-  //       // Set touched fields for validation if subscriber is not "Patient"
-  //       setTouched({
-  //         [`insuranceFirstName${section}`]: true,
-  //         [`insuranceLastName${section}`]: true,
-  //         [`insuranceDob${section}`]: true,
-  //         [`insurancePhone${section}`]: true,
-  //         [`insuranceAddress${section}`]: true,
-  //         [`insuranceAddress2_${section}`]: true,
-  //         [`insuranceCity${section}`]: true,
-  //         [`insuranceState${section}`]: true,
-  //         [`insuranceZip${section}`]: true,
-  //         [`frontInsuranceCard${section}`]: true,
-  //         [`backInsuranceCard${section}`]: true,
-  //       }, true);
-  //     }
-
-  //     // Handle errors for current form state
-  //     handleErrors(errors);
-  //   };
-
   useEffect(() => {
     // handleInsuranceSubscriber();
 
     loadIds();
   }, []); // Run once on mount
-
-  //   useEffect(() => {
-  //     if (values[`insuranceSubscriber${section}`] !== "Patient") {
-  //       console.log("Resetting form values because subscriber is not Patient");
-
-  //       // Reset form values
-  //     //   resetFormValues();
-
-  //       // Set all form values to empty
-  //       setInsuranceData((prevData: any) => ({
-  //         ...prevData,
-  //         [`insuranceFirstName${section}`]: "",
-  //         [`insuranceLastName${section}`]: "",
-  //         [`insuranceDob${section}`]: "",
-  //         [`insurancePhone${section}`]: "",
-  //         [`insuranceAddress${section}`]: "",
-  //         [`insuranceAddress2_${section}`]: "",
-  //         [`insuranceCity${section}`]: "",
-  //         [`insuranceState${section}`]: "",
-  //         [`insuranceZip${section}`]: "",
-  //         [`frontInsuranceCard${section}`]: "",
-  //         [`backInsuranceCard${section}`]: "",
-  //       }));
-  //     }
-  //   }, [values[`insuranceSubscriber${section}`]]);
 
   useEffect(() => {
     // Log the current values and subscriber selection
@@ -290,7 +182,7 @@ const SubscriberForm = ({
       values[`insuranceSubscriber${section}`],
     );
     const { subscriber_relation } = onRteDataChange?.subscriber_relation;
-    console.log(subscriberSchema2, 'select an option schema');
+    console.log(subscriber_relation, 'select an option schema');
     // Define virtualSubscriber
     const virtualSubscriber = {
       [`insuranceFirstName${section}`]: virtual_subscriber?.first_name || '',
@@ -324,53 +216,33 @@ const SubscriberForm = ({
       subscriber_relation === values[`insuranceSubscriber${section}`] &&
       subscriber_relation !== 'Patient'
     ) {
-    //   setInsuranceData((prevData: any) => ({
-    //     ...prevData,
-    //     ...virtualSubscriber,
-    //   }));
+      setInsuranceData((prevData: any) => ({
+        ...prevData,
+        ...virtualSubscriber,
+      }));
+      // Update the Formik values using setValues
       setValues((prevData: any) => ({
         ...prevData,
         ...virtualSubscriber, // Merge the cleared values into insuranceData
-      }));    }
-
-    if (values[`insuranceSubscriber${section}`] !== 'Patient') {
-      setErrors({});
+      }));
     }
-    if (values[`insuranceSubscriber${section}`] === 'Patient') {
-      // Log details being set to insuranceData
-      console.log('Setting insurance data with patient details:', {
-        [`insuranceFirstName${section}`]: patientDetails.firstName || '',
-        [`insuranceLastName${section}`]: patientDetails.lastName || '',
-        [`insuranceDob${section}`]: patientDetails.dateOfBirth
-          ? new Date(patientDetails.dateOfBirth).toISOString().substring(0, 10)
-          : '',
-        [`insurancePhone${section}`]: patientDetails.phoneNumber || '',
-        [`insuranceAddress${section}`]: patientDetails.addressLine1 || '',
-        [`insuranceAddress2_${section}`]: patientDetails.addressLine2 || '',
-        [`insuranceCity${section}`]: patientDetails.city || '',
-        [`insuranceState${section}`]: patientDetails.state || '',
-        [`insuranceZip${section}`]: patientDetails.zipCode || '',
-        [`frontInsuranceCard${section}`]: frontInsuranceCard || '',
-        [`backInsuranceCard${section}`]: backInsuranceCard || '',
-      });
 
-      // setInsuranceData((prevData: any) => ({
-      //   ...prevData,
-      //   [`insuranceFirstName${section}`]: patientDetails.firstName || "",
-      //   [`insuranceLastName${section}`]: patientDetails.lastName || "",
-      //   [`insuranceDob${section}`]: patientDetails.dateOfBirth
-      //     ? new Date(patientDetails.dateOfBirth).toISOString().substring(0, 10)
-      //     : "",
-      //   [`insurancePhone${section}`]: patientDetails.phoneNumber || "",
-      //   [`insuranceAddress${section}`]: patientDetails.addressLine1 || "",
-      //   [`insuranceAddress2_${section}`]: patientDetails.addressLine2 || "",
-      //   [`insuranceCity${section}`]: patientDetails.city || "",
-      //   [`insuranceState${section}`]: patientDetails.state || "",
-      //   [`insuranceZip${section}`]: patientDetails.zipCode || "",
-      //   [`frontInsuranceCard${section}`]: frontInsuranceCard || "",
-      //   [`backInsuranceCard${section}`]: backInsuranceCard || "",
-      // }));
+    if (values[`insuranceSubscriber${section}`] === '') {
+      const newErrors = { ...errors };
+      if (values[`insuranceSubscriber${section}`] === '') {
+        // Add custom error message for insuranceSubscriber
+        newErrors[`insuranceSubscriber${section}`] = 'This field is required';
+      } else {
+        // Clear error message for insuranceSubscriber if it's not empty
+        delete newErrors[`insuranceSubscriber${section}`];
+      }
+    }
+    const newErrors = { ...errors };
+
+    if (values[`insuranceSubscriber${section}`] === 'Patient') {
+      // Set values for 'Patient'
       const patientValues = {
+        [`insuranceSubscriber${section}`]: 'Patient',
         [`insuranceFirstName${section}`]: patientDetails.firstName || '',
         [`insuranceLastName${section}`]: patientDetails.lastName || '',
         [`insuranceDob${section}`]: patientDetails.dateOfBirth
@@ -385,42 +257,49 @@ const SubscriberForm = ({
         [`frontInsuranceCard${section}`]: frontInsuranceCard || '',
         [`backInsuranceCard${section}`]: backInsuranceCard || '',
       };
+
       setValues((prevData: any) => ({
         ...prevData,
-        ...patientValues, // Merge the cleared values into insuranceData
-      }));      // Also update the insuranceData if needed
-    //   setInsuranceData((prevData: any) => ({
-    //     ...prevData,
-    //     ...patientValues, // Merge the cleared values into insuranceData
-    //   }));
+        ...patientValues,
+      }));
 
-      //   setFieldValue(`insuranceSubscriber${section}`, 'Patient');
-      //   setFieldValue(`insuranceFirstName${section}`, patientDetails.firstName);
-      //   setFieldValue(`insuranceLastName${section}`, patientDetails.lastName);
-      //   setFieldValue(`insuranceDob${section}`, patientDetails.dateOfBirth);
-      //   setFieldValue(`insurancePhone${section}`, patientDetails.phoneNumber);
-      //   setFieldValue(`insuranceAddress${section}`, patientDetails.addressLine1);
-      //   setFieldValue(
-      //     `insuranceAddress2_${section}`,
-      //     patientDetails.addressLine2,
-      //   );
-      //   setFieldValue(`insuranceCity${section}`, patientDetails.city);
-      //   setFieldValue(`insuranceState${section}`, patientDetails.state);
-      //   setFieldValue(`insuranceZip${section}`, patientDetails.zipCode);
-      // Log reset state
-      console.log('Resetting touched fields and errors.');
-      setTouched({}, false);
-      setErrors({});
-      handleErrors({});
-    } else {
-      // Log touched fields for validation
-      console.log('Setting touched fields for validation.');
-      console.log('CLEAR DATA SWITCHED TO NEW SUBSCRIBER.');
-
-      // Create a new object with all the fields set to empty values
-      const clearedValues = {
+      setInsuranceData((prevData: any) => ({
+        ...prevData,
         [`insuranceSubscriber${section}`]: 'Patient',
+        ...patientValues,
+      }));
 
+      // Keep existing errors, but mark fields as touched
+      setTouched(
+        {
+          [`insuranceFirstName${section}`]: false,
+          [`insuranceLastName${section}`]: false,
+          [`insuranceDob${section}`]: false,
+          [`insurancePhone${section}`]: false,
+          [`insuranceAddress${section}`]: false,
+          [`insuranceAddress2_${section}`]: false,
+          [`insuranceCity${section}`]: false,
+          [`insuranceState${section}`]: false,
+          [`insuranceZip${section}`]: false,
+          [`frontInsuranceCard${section}`]: false,
+          [`backInsuranceCard${section}`]: false,
+        },
+        false,
+      );
+
+      // Optionally update errors here if needed
+    } else {
+      // Handle other subscriber options
+      if (values[`insuranceSubscriber${section}`] === '') {
+        // Set error for empty subscriber field
+        newErrors[`insuranceSubscriber${section}`] = 'This field is required';
+      } else {
+        // Clear error for subscriber field if not empty
+        delete newErrors[`insuranceSubscriber${section}`];
+      }
+
+      // Clear values for non-patient options
+      const clearedValues = {
         [`insuranceFirstName${section}`]: '',
         [`insuranceLastName${section}`]: '',
         [`insuranceDob${section}`]: '',
@@ -436,37 +315,31 @@ const SubscriberForm = ({
 
       setValues((prevData: any) => ({
         ...prevData,
-        ...clearedValues, // Merge the cleared values into insuranceData
+        ...clearedValues,
       }));
-      setErrors({});
-      setTouched({}, false);
 
-      // Also update the insuranceData if needed
-    //   setInsuranceData((prevData: any) => ({
-    //     ...prevData,
-    //     ...clearedValues, // Merge the cleared values into insuranceData
-    //   }));
-
-      //   setTouched({
-      //     [`insuranceFirstName${section}`]: true,
-      //     [`insuranceLastName${section}`]: true,
-      //     [`insuranceDob${section}`]: true,
-      //     [`insurancePhone${section}`]: true,
-      //     [`insuranceAddress${section}`]: true,
-      //     [`insuranceAddress2_${section}`]: true,
-      //     [`insuranceCity${section}`]: true,
-      //     [`insuranceState${section}`]: true,
-      //     [`insuranceZip${section}`]: true,
-      //     [`frontInsuranceCard${section}`]: true,
-      //     [`backInsuranceCard${section}`]: true,
-      //   }, true);
+      // Ensure touched fields are set correctly for non-patient options
+      setTouched(
+        {
+          [`insuranceFirstName${section}`]: false,
+          [`insuranceLastName${section}`]: false,
+          [`insuranceDob${section}`]: false,
+          [`insurancePhone${section}`]: false,
+          [`insuranceAddress${section}`]: false,
+          [`insuranceAddress2_${section}`]: false,
+          [`insuranceCity${section}`]: false,
+          [`insuranceState${section}`]: false,
+          [`insuranceZip${section}`]: false,
+          [`frontInsuranceCard${section}`]: false,
+          [`backInsuranceCard${section}`]: false,
+        },
+        false,
+      );
     }
 
-    // Log current errors
-    console.log('Current errors:', errors);
-    handleErrors(errors);
+    // Update Formik errors
+    setErrors(newErrors);
   }, [values[`insuranceSubscriber${section}`]]);
-
   const [frontInsuranceImage, setFrontInsuranceImage] = useState(null);
   const [backInsuranceImage, setBackInsuranceImage] = useState(null);
 
@@ -786,10 +659,8 @@ const SubscriberForm = ({
                   : 'border-poise-2'
               }  `}
             >
-              <option value="none">
-                Select an option
-              </option>
-              <option defaultValue="Patient">Patient</option>
+              <option value="">Select an option</option>
+              <option value="Patient">Patient</option>
               <option value="Spouse">Spouse</option>
               <option value="Mother">Mother</option>
               <option value="Father">Father</option>
@@ -805,7 +676,7 @@ const SubscriberForm = ({
           </div>
 
           <div
-            className={` ${errors[`insuranceFirstName${section}`] ? 'text-status-red-text' : 'text-black-4 '} flex h-full flex-1 flex-col ${values[`insuranceSubscriber${section}`] === 'Patient' || values[`insuranceSubscriber${section}`] === 'none' ? 'hidden' : 'block'}`}
+            className={` ${errors[`insuranceFirstName${section}`] ? 'text-status-red-text' : 'text-black-4 '} flex h-full flex-1 flex-col ${values[`insuranceSubscriber${section}`] === 'Patient' || values[`insuranceSubscriber${section}`] === '' ? 'hidden' : 'block'}`}
           >
             {/* First Name */}
             <div
@@ -827,9 +698,12 @@ const SubscriberForm = ({
                 Patient&apos;s Legal First Name{' '}
                 <span className={`text-xs font-normal text-zest-6 `}>*</span>
               </label>
-              <span className={`pl-2 text-xs font-normal text-zest-6`}>
-                {errors[`insuranceFirstName${section}`] as string}
-              </span>
+              {errors[`insuranceFirstName${section}`] &&
+                  touched[`insuranceFirstName${section}`] && (
+                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                      {errors[`insuranceFirstName${section}`] as string}
+                    </span>
+                  )}
             </div>
             {/* Last Name */}
             <div
@@ -851,9 +725,12 @@ const SubscriberForm = ({
                 Patient&apos;s Legal Last Name{' '}
                 <span className={`text-xs font-normal text-zest-6 `}>*</span>
               </label>
-              <span className={`pl-2 text-xs font-normal text-zest-6`}>
-                {errors[`insuranceLastName${section}`] as string}
-              </span>
+              {errors[`insuranceLastName${section}`] &&
+                  touched[`insuranceLastName${section}`] && (
+                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                      {errors[`insuranceLastName${section}`] as string}
+                    </span>
+                  )}
             </div>
             <div
               className={`${errors[`insuranceDob${section}`] && touched[`insuranceDob${section}`] ? 'text-status-red-text' : 'text-black-4 '} relative mt-4 flex w-full`}
@@ -881,9 +758,12 @@ const SubscriberForm = ({
                 className="absolute right-0 top-0 z-10 mr-[15px] mt-[29px] w-4 items-end justify-end"
               ></img>
             </div>
-            <span className={`pl-2 text-xs font-normal text-zest-6`}>
-              {errors[`insuranceDob${section}`] as string}
-            </span>
+            {errors[`insuranceDob${section}`] &&
+                  touched[`insuranceDob${section}`] && (
+                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                      {errors[`insuranceDob${section}`] as string}
+                    </span>
+                  )}
             {/*Phone */}
             <div className="mt-4 flex">
               <div
@@ -904,9 +784,12 @@ const SubscriberForm = ({
                   Phone Number{' '}
                   <span className={`text-xs font-normal text-zest-6 `}>*</span>
                 </label>
-                <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
-                  {errors[`insurancePhone${section}`] as string}
-                </span>
+                {errors[`insurancePhone${section}`] &&
+                  touched[`insurancePhone${section}`] && (
+                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                      {errors[`insurancePhone${section}`] as string}
+                    </span>
+                  )}
               </div>
             </div>
             {/* Same as Patient */}
@@ -929,7 +812,7 @@ const SubscriberForm = ({
             </div>
             {/* Address */}
             <div
-              className={`${errors[`insuranceAddress${section}`] ? 'text-status-red-text' : 'text-black-4 '}  relative mt-4`}
+              className={`${errors[`insuranceAddress${section}`] && touched[`insuranceAddress${section}`]? 'text-status-red-text' : 'text-black-4 '}  relative mt-4`}
             >
               <input
                 type="text"
@@ -937,6 +820,7 @@ const SubscriberForm = ({
                 name={`insuranceAddress${section}`}
                 onChange={handleChange}
                 onBlur={handleBlur}
+                placeholder='123 Street'
                 value={values[`insuranceAddress${section}`] || ''}
                 className={` ${
                   errors[`insuranceAddress${section}`] &&
@@ -953,9 +837,12 @@ const SubscriberForm = ({
                 <span className={`text-xs font-normal text-zest-6 `}>*</span>
               </label>
             </div>
-            <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
-              {errors[`insuranceAddress${section}`] as string}
-            </span>
+            {errors[`insuranceAddress${section}`] &&
+                  touched[`insuranceAddress${section}`] && (
+                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                      {errors[`insuranceAddress${section}`] as string}
+                    </span>
+                  )}
             {/* Address2 */}
             <div className="relative mt-4 text-black-4">
               <input
@@ -1008,12 +895,15 @@ const SubscriberForm = ({
                 City <span className="text-xs font-normal text-zest-6">*</span>
               </label>
             </div>
-            <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
-              {errors[`insuranceCity${section}`] as string}
-            </span>
+            {errors[`insuranceCity${section}`] &&
+                  touched[`insuranceCity${section}`] && (
+                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                      {errors[`insuranceCity${section}`] as string}
+                    </span>
+                  )}
             {/* State */}
             <div
-              className={`${errors[`insuranceState${section}`] ? 'text-status-red-text' : 'text-black-4 '}  mt-4 flex`}
+              className={`${errors[`insuranceState${section}`] && touched[`insuranceState${section}`] ? 'text-status-red-text' : 'text-black-4 '}  mt-4 flex`}
             >
               <div className="relative w-3/5">
                 <select
@@ -1024,7 +914,8 @@ const SubscriberForm = ({
                   onBlur={handleBlur}
                   value={values[`insuranceState${section}`] || ''}
                   className={`border  text-black-4 ${
-                    errors[`insuranceState${section}`]
+                    errors[`insuranceState${section}`] &&
+                    touched[`insuranceState${section}`]
                       ? 'border-red-500'
                       : 'border-poise-2'
                   } w-full rounded-lg px-4 py-2 pt-6`}
@@ -1044,11 +935,16 @@ const SubscriberForm = ({
                   <span className={`text-xs font-normal text-zest-6 `}>*</span>
                 </label>
                 <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
-                  {errors[`insuranceState${section}`] as string}
+                {errors[`insuranceState${section}`] &&
+                  touched[`insuranceState${section}`] && (
+                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                      {errors[`insuranceState${section}`] as string}
+                    </span>
+                  )}
                 </span>
               </div>
               <div
-                className={`${errors[`insuranceZip${section}`] ? 'text-status-red-text' : 'text-black-4 '} relative w-3/4 pl-4`}
+                className={`${errors[`insuranceZip${section}`] && touched[`insuranceZip${section}`] ? 'text-status-red-text' : 'text-black-4 '} relative w-3/4 pl-4`}
               >
                 <input
                   type="text"
@@ -1059,7 +955,8 @@ const SubscriberForm = ({
                   onBlur={handleBlur}
                   value={values[`insuranceZip${section}`] || ''}
                   className={` border ${
-                    errors[`insuranceZip${section}`]
+                    errors[`insuranceZip${section}`] &&
+                    touched[`insuranceZip${section}`]
                       ? 'border-red-500'
                       : 'border-poise-2'
                   }   w-full rounded-lg border-poise-2 px-4 py-2 pt-6`}
@@ -1068,9 +965,12 @@ const SubscriberForm = ({
                   Zip / Postal Code{' '}
                   <span className={`text-xs font-normal text-zest-6 `}>*</span>
                 </label>
-                <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
-                  {errors[`insuranceZip${section}`] as string}
-                </span>
+                {errors[`insuranceZip${section}`] &&
+                  touched[`insuranceZip${section}`] && (
+                    <span className={`pl-2 text-xs font-normal  text-zest-6 `}>
+                      {errors[`insuranceZip${section}`] as string}
+                    </span>
+                  )}
               </div>
             </div>
             {/* // test insurance */}
@@ -1094,7 +994,7 @@ const SubscriberForm = ({
                   error={errorUpload}
                   value={values[`frontInsuranceCard${section}`]}
                   setValue={(val) => {
-                    setFieldValue(`frontInsuranceCard${section}`, val);
+                    setFieldValue(`frontInsuranceCard${section}`, val );
                   }}
                   setError={setErrorUpload}
                   setInsuranceImage={setFrontInsuranceImage}
