@@ -1,550 +1,303 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useFormik } from "formik";
-import { FormProvider, useFormState } from "../FormContext";
-import { transform } from "next/dist/build/swc";
-import {
-  fetchServiceIntakeAnswers,
-  updateServiceAnswers,
-} from "../../actions/api";
-import test from "node:test";
-import { createValidationSchema } from "@/app/schemas/questions/questionsValidator";
-import { formatPhoneNumber } from "@/app/utils/helper";
-const BehavioralQuestions = () => {
-  const {
-    serviceQuestionsData,
-    setServiceAnswersData,
-    setSteppedBack,
-    steppedBack,
-    serviceAnswersData,
-    patientData,
-    onHandleBack,
-    onHandleNext,
-  } = useFormState();
-  const behavioralKey = process.env.NEXT_PUBLIC_BEHAVIORAL_KEY;
-  const therapistKey = process.env.NEXT_PUBLIC_THERAPIST_KEY; // ADD CONDITIONS HERE IN FILTERING THE QUESTIONS
-  const serviceQuestionsArray = Array.isArray(serviceQuestionsData)
-    ? serviceQuestionsData.filter(
-      (question) =>
-        question.service_line_id === behavioralKey && question.service_line_id === therapistKey && question.form_display === true
-    )
-    : Object.values(serviceQuestionsData).filter(
-      (question: any) =>
-        question.service_line_id === behavioralKey && question.service_line_id === therapistKey && question.form_display === true
-    );
-  console.log(
-    serviceQuestionsArray,
-    "Filtered service BEHAVIORAL  - 3 questions with form_display true"
-  );
+import React, { useEffect, useState } from 'react';
+import { useFormik } from 'formik';
+import { FormProvider, useFormState } from '../FormContext';
+// import BehavioralQuestions from '@/app/models/BehavioralQuestions';
+// import { fetchClinicalQuestions } from '@/app/actions/api';
+import { transform } from 'next/dist/build/swc';
 
-  const findQuestionById = (questionId: number) => {
-    return serviceQuestionsArray.find((q) => q.id === questionId);
-  };
+const BehavorialQuestions = () => {
+    //   const questions = [
+    //     {
+    //       id: 'question1',
+    //       label:
+    //         'Please Select any mental health illnesses that you have been diagnosed with:',
+    //       options: [
+    //         { id: 'anxiety', label: 'Anxiety', component: 'Checkbox' },
+    //         { id: 'depression', label: 'Depression', component: 'Checkbox' },
+    //         {
+    //           id: 'personality-disorder',
+    //           label: 'Personality Disorder',
+    //           component: 'Checkbox',
+    //         },
+    //         { id: 'ptsd', label: 'PTSD', component: 'Checkbox' },
+    //         { id: 'Other', label: 'Other', component: 'Checkbox' },
 
-  const handleDropdownChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-    questionId: number
-  ) => {
-    const newValue = e.target.value;
-    const question = findQuestionById(questionId);
-
-    // Update form state
-    setFieldValue(`${questionId}`, {
-      question_id: questionId,
-      type: "dropdown",
-      person_id: patientData.personId,
-      serviceLineId: question.service_line_id,
-      answer: newValue,
-    });
-
-    // Update ServiceAnswersData
-    setNewAnswers((prevServiceAnswers: any) => ({
-      ...prevServiceAnswers,
-      [questionId]: {
-        questionId: questionId,
-        type: "dropdown",
-        personId: patientData.personId,
-        serviceLineId: question.service_line_id,
-        answer: newValue,
-      },
-    }));
-  };
-
-  const handleCheckboxChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    questionId: number
-  ) => {
-    const { name, checked } = e.target;
-    const currentAnswers = values[questionId]?.answer ? values[questionId].answer.split(",") : [];
-
-    let newAnswers;
-    if (checked) {
-      newAnswers = [...currentAnswers, name];
-    } else {
-      newAnswers = currentAnswers.filter((option: string) => option !== name);
-    }
-    const question = findQuestionById(questionId);
-
-    // Update form state
-    setFieldValue(`${questionId}`, {
-      question_id: questionId,
-      type: "checkbox",
-      person_id: patientData.personId,
-      serviceLineId: question.service_line_id,
-      answer: newAnswers.join(","),
-    });
-
-    // Update ServiceAnswersData
-    setNewAnswers((prevServiceAnswers: any) => ({
-      ...prevServiceAnswers,
-      [questionId]: {
-        questionId: questionId,
-        type: "checkbox",
-        personId: patientData.personId,
-        serviceLineId: question.service_line_id,
-        answer: newAnswers.join(","),
-      },
-    }));
-  };
-  const handleCheckClick = (option: string, questionId: number) => {
-    // Get the current value of the checkbox
-    const currentAnswers = values[questionId]?.answer ? values[questionId].answer.split(",") : [];
-    const isChecked = currentAnswers.includes(option);
-
-    // Toggle the checkbox state
-    handleCheckboxChange({ target: { name: option, checked: !isChecked } } as React.ChangeEvent<HTMLInputElement>, questionId);
-  };
-  const handleTextChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    questionId: number
-  ) => {
-    const newValue = e.target.value;
-    const question = findQuestionById(questionId);
-
-    // Update form state
-    setFieldValue(`${questionId}`, {
-      question_id: questionId,
-      type: "text",
-      person_id: patientData.personId,
-      serviceLineId: question.service_line_id,
-      answer: newValue,
-    });
-
-    // Update ServiceAnswersData
-    setNewAnswers((prevServiceAnswers: any) => ({
-      ...prevServiceAnswers,
-      [questionId]: {
-        questionId: questionId,
-        type: "text",
-        personId: patientData.personId,
-        serviceLineId: question.service_line_id,
-        answer: newValue,
-      },
-    }));
-  };
-
-  const handleDateChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    questionId: number
-  ) => {
-    const newValue = event.target.value; // This is in YYYY-MM-DD format
-    const question = findQuestionById(questionId);
-
-    // Update form state
-    setFieldValue(`${questionId}`, {
-      question_id: questionId,
-      type: "date",
-      person_id: patientData.personId,
-      serviceLineId: question.service_line_id,
-      answer: newValue,
-    });
-
-    // Update ServiceAnswersData
-    setNewAnswers((prevServiceAnswers: any) => ({
-      ...prevServiceAnswers,
-      [questionId]: {
-        questionId: questionId,
-        type: "date",
-        personId: patientData.personId,
-        serviceLineId: question.service_line_id,
-        answer: newValue,
-      },
-    }));
-  };
-
-  const handleRadioChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    questionId: number
-  ) => {
-    const newValue = e.target.value;
-    const question = findQuestionById(questionId);
-
-    // Update form state
-    setFieldValue(`${questionId}`, {
-      question_id: questionId,
-      type: "radio",
-      person_id: patientData.personId,
-      serviceLineId: question.service_line_id,
-      answer: newValue,
-    });
-
-    // Update ServiceAnswersData
-    setNewAnswers((prevServiceAnswers: any) => ({
-      ...prevServiceAnswers,
-      [questionId]: {
-        questionId: questionId,
-        type: "radio",
-        personId: patientData.personId,
-        serviceLineId: question.service_line_id,
-        answer: newValue,
-      },
-    }));
-  };
-
-  const [newAnswers, setNewAnswers] = useState<{ [key: number]: any }>({});
-
-
-  //TURN OBJECTS / answers TO ARRAY
-  const formattedData = Object.values(serviceAnswersData)
-    .filter((item: any) => item.service_line_id === behavioralKey && item.service_line_id === therapistKey ) // Only include behavioral questions
-    .map((item: any) => ({
-      questionId: item.question_id,
-      answer: item.answer,
-      personId: item.person_id,
-      type: item.type,
-      serviceLineId: item.service_line_id,
-    }));
-  //FORMAT THE KEYS AS THE QUESTIONID
-  const formattedInitialValues = formattedData.reduce((acc: any, item: any) => {
-    acc[item.questionId] = {
-      answer: item.answer || "",  // default to an empty string if undefined
-      questionId: item.questionId,
-      personId: item.personId,
-      type: item.type,
-      questionType: item.questionType,
-    };
-    return acc;
-  }, {});
-  const {
-    values,
-    errors,
-    setFieldValue,
-    handleSubmit,
-    setValues,
-    handleChange,
-    isValid,
-    setSubmitting,
-    setErrors,
-  } = useFormik({
-    initialValues: formattedInitialValues || [],
-    validationSchema: createValidationSchema(serviceQuestionsArray),
-    onSubmit: (values) => {
-      console.log("Form valuess:", values);
-
-      onHandleFormSubmit(values);
-    },
-  });
-
-  useEffect(() => {
-    getServiceAnswers();
-
-  }, []);
-  useEffect(() => {
-    setErrors(errors)
-    console.log(errors, "worksz errors")
-  }, [errors]);
-  const hasErrors = Object.keys(errors).length > 0;
-
-  useEffect(() => {
-    if (steppedBack) {
-      getServiceAnswers();
-      setSteppedBack(false);
-    }
-  }, [steppedBack]);
-  const getServiceAnswers = async () => {
-    // Replace this with your actual data fetching logic
-    const response = await fetchServiceIntakeAnswers(
-      patientData.registrationId
-    );
-
-    const formattedData = Object.values(response)
-      .filter((item: any) => item.service_line_id === behavioralKey && item.service_line_id === therapistKey) // Only include behavioralHealth questions
-      .map((item: any) => ({
-        questionId: item.question_id,
-        answer: item.answer,
-        personId: item.person_id,
-        type: item.type,
-        serviceLineId: item.service_line_id,
-      }));
-    const formattedInitialValues = formattedData.reduce((acc: any, item: any) => {
-      acc[item.questionId] = {
-        answer: item.answer || "",  // default to an empty string if undefined
-        questionId: item.questionId,
-        personId: item.personId,
-        type: item.type,
-        questionType: item.questionType,
+    //         { id: 'N/A', label: 'None', component: 'Checkbox' },
+    //       ],
+    //     },
+    //     {
+    //       id: 'question2',
+    //       label:
+    //         'Please list any other medical problems you have been diagnosed with:',
+    //       options: [
+    //         {
+    //           id: 'otherMedicalConditions',
+    //           label: 'Other Medical Conditions',
+    //           component: 'Textbox',
+    //         },
+    //       ],
+    //     },
+    //     {
+    //       id: 'question3',
+    //       label:
+    //         'Please select if your immediate family members have been diagnosed with either of the following:',
+    //       options: [
+    //         {
+    //           id: 'mentalHealthDisorder',
+    //           label: 'Mental Health Disorder',
+    //           component: 'Checkbox',
+    //         },
+    //         {
+    //           id: 'drugOrAlcoholAbuse',
+    //           label: 'Drug or Alcohol Abuse',
+    //           component: 'Checkbox',
+    //         },
+    //         { id: 'N/A', label: 'Not Applicable', component: 'Checkbox' },
+    //       ],
+    //       //add more questions here 
+    //     },
+    //   ];
+    const [questionsData, setQuestionsData] = useState([]);
+    const updateFieldValue = (
+        setFieldValue : any,
+        values : any,
+        questionId: number,
+        newAnswer = '',
+        personId = 0, // Default value if not provided
+        type = '', // Default value if not provided
+        questionType = '' // Default value if not provided
+      ) => {
+        setFieldValue(questionId, {
+          questionId,
+          answer: newAnswer,
+          personId,
+          type,
+          questionType,
+        });
       };
-      return acc;
+
+      const { patientData, onHandleBack, onHandleNext } =
+      useFormState();
+    const { behavioralQuestionsData, } = useFormState();
+    //   const initialValues: any = questionsData.reduce((values: any, question: any) => {
+    //     values[question.id] = behavioralQuestionsData[question.id] || ''; // Use data from context
+    //     if (question.input_type === 'checkbox' && question.options) {
+    //       question.options.split(',').forEach((option: any) => {
+    //         values[option] = behavioralQuestionsData[option] || false;
+    //       });
+    //     }
+    //     return values;
+    //   }, {} as BehavioralQuestions);
+
+    const initialValues: any = questionsData.reduce((values: any, question: any) => {
+        values[question.id] = {
+            questionId: question.id,
+            answer: '', // Default empty string for answers
+            personId: 0, // Assuming personId is 0 for initialization
+            type: question.input_type,
+            questionType: question.input_type,
+        };
+        // concatenate strings for checkbox as answer instead of initializing it
+        //   if (question.input_type === 'checkbox' && question.options) {
+        //     // Initialize options for checkbox questions
+        //     question.options.split(',').forEach((option: any) => {
+        //       values[option] = false; // Default to false for checkbox options
+        //     });
+        //   }
+
+
+        return values;
     }, {});
 
-    setValues(formattedInitialValues);
-  };
-  const onHandleFormSubmit = async (values: any) => {
-    try {
-      // check if there are no question id
-      console.log(patientData.personId, "personID")
+    //   Explicitly define initial values for each question
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, questionId: number) => {
+        const { name, checked } = e.target;
+        let selectedOptions = values[questionId]?.answer.split(',').filter(Boolean) || [];
+        
+        if (checked) {
+          if (!selectedOptions.includes(name)) {
+            selectedOptions.push(name);
+          }
+        } else {
+          selectedOptions = selectedOptions.filter((option: any) => option !== name);
+        }
+        
+        updateFieldValue(
+          setFieldValue,
+          values,
+          questionId,
+          selectedOptions.join(','),
+          0, // or pass a specific personId if needed
+          'checkbox', // or pass a specific type if needed
+          'checkbox' // or pass a specific questionType if needed
+        );
+      };
+      const handleRadioChange = (e: { target: { value: any; }; }, questionId: number) => {
+        const newValue = e.target.value;
+        
+        updateFieldValue(
+          setFieldValue,
+          values,
+          questionId,
+          newValue,
+          0, // or pass a specific personId if needed
+          'radio', // or pass a specific type if needed
+          'radio' // or pass a specific questionType if needed
+        );
+      };
+      const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>, questionId: number) => {
+        const newValue = e.target.value;
+        
+        updateFieldValue(
+          setFieldValue,
+          values,
+          questionId,
+          newValue,
+          0, // or pass a specific personId if needed
+          'text', // or pass a specific type if needed
+          'text' // or pass a specific questionType if needed
+        );
+      };
+      type TransformedValues = {
+        // [key: string]: BehavioralQuestions;
+      };
+      const transformValues = (values: { [key: string]: any }): TransformedValues => {
+        const transformed: TransformedValues = {};
+      
+        Object.keys(values).forEach((questionId) => {
+          const { answer, personId, type, questionType } = values[questionId];
+          
+        //   transformed[questionId] = {
+        //     answer: answer || '', // Default to an empty string if not provided
+        //     personId: personId || 0, // Default to 0 if not provided
+        //     questionId: Number(questionId), // Ensure it's a number
+        //     questionType: questionType || '', // Default to an empty string if not provided
+        //     type: type || '' // Default to an empty string if not provided
+        //   };
+        });
+      
+        return transformed;
+      };
+      
+    useEffect(() => {
+        const fetchQuestions = async () => {
+            // const questions = await fetchClinicalQuestions(1000); // Example region ID
+            // setQuestionsData(questions || []);
 
+            // console.log(questions, "questionesz");
 
-      console.log(values, "values sksksks")
+        };
 
-      const processedValues = Object.keys(newAnswers).map((key) => newAnswers[+key]);
+        // Execute the fetch operation
 
-      console.log("Processed   formattedData values:", formattedData);
-      console.log("Processed   newAnswers values:", newAnswers);
-      console.log("Processed   processedValues values:", processedValues);
-      setServiceAnswersData(processedValues);
-      console.log("VALUES TO SUBMIT", values)
-      // Send the data array to the API and wait for the response
-      const response = await updateServiceAnswers(patientData.registrationId, processedValues);
-      console.log("Response from API:", response);
+        fetchQuestions();
+    }, []);
+    const {
+        values,
+        errors,
+        setFieldValue,
+        handleSubmit,
+        handleChange,
+        isValid,
+        setSubmitting,
+    } = useFormik({
+        initialValues: initialValues,
+        onSubmit: (values) => {
+            console.log('Form values:', values);
+            
+            const formattedValues = transformValues(values);
+            console.log('Formatted Values:', formattedValues);
+        },
+    });
+    return (
+        <FormProvider>
+            <>
+                <div className="flex flex-col p-6 ">
+                    <h1 className="text-lg font-normal mb-4">Behavioral Health Questions</h1>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {questionsData.map((question: any) => (
+                            <div key={question.id} className="question container">
+                                <h2 className="text-base font-medium  mb-2">{question.question}</h2>
+                                {question.input_type === 'checkbox' && question.options && (
+                                    <div className="space-y-2">
+                                        {question.options.split(',').map((option: any) => (
+                                            <div key={option} className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id={option}
+                                                    name={option}
+                                                    //   checked={}
+                                                    checked={values[question.id]?.answer.split(',').includes(option) || false}
 
-
-      console.log("Form submitted ");
-      onHandleNext();
-
-      // return response; // Return the response if needed
-    } catch (error) {
-      console.error("Form submission error:", error);
-      alert("Oops! Something went wrong. Please try again.");
-    }
-  };
-
-  return (
-    <FormProvider>
-      <>
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1">
-          <div className="p-6 flex flex-col flex-1">
-            <h1 className="text-lg font-normal mb-4">
-              Workers Compensation Questions
-            </h1>
-            {serviceQuestionsArray?.length > 0 && serviceQuestionsArray.map((question: any) => (
-              <div key={question.id} className="mb-2 question ">
-                <h2 className="text-base font-medium  mb-4">
-                  {question.question}
-                  {question.is_required && (
-                    <span className={`text-xs font-normal text-zest-6 `}>*</span>
-                  )}
-                </h2>
-
-                {question.input_type === "checkbox" && question.options && (
-                  <div className="space-y-2">
-                    {question.options.split(",").map((option: any) => (
-                      <div key={option} className="flex items-center">
-                        <div className="mb-4 flex items-center">
-                          <div
-                            className={`border-1 flex h-6 w-6 justify-center self-center rounded-lg border ${values[question.id]?.answer?.split(",").includes(option) ? "border-sky-700" : "border-[#DBDDDE]"}`}
-                            onClick={() => handleCheckClick(option, question.id)}
-                          >
-                            <div
-                              className={`flex h-5 w-5 justify-center self-center rounded-md ${values[question.id]?.answer?.split(",").includes(option) ? "border border-sky-700 bg-sky-700" : ""}`}
-
-
-                            >
-                              <input
-                                type="checkbox"
-                                id={option}
-                                name={option}
-                                checked={
-                                  values[question.id]?.answer?.split(",").includes(option) || false
-                                }
-                                onChange={(e) => handleCheckboxChange(e, question.id)}
-                                className={`peer-not h-5 w-5 appearance-none ${values[question.id]?.answer?.split(",").includes(option) ? "invisible" : ""} rounded-md border-hidden`}
-
-                              />
-                              {values[question.id]?.answer?.split(",").includes(option) && (
-                                <div className="absolute flex items-center justify-center w-4 h-[18px] text-white">
-                                  <svg
-                                    className="w-6 h-6"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  >
-                                    <path d="M6 12l4 4L18 8" />
-                                  </svg>
-                                </div>
-                              )}
+                                                    onChange={(e) => handleCheckboxChange(e, question.id)}
+                                                    className="mr-2 h-5 w-5 rounded border-gray-300"
+                                                />
+                                                <label htmlFor={option} className="text-base font-normal text-[#2a2f31]">{option}</label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {question.input_type === 'radio' && question.options && (
+                                    <div className="space-y-2">
+                                        {question.options.split(',').map((option: any) => (
+                                            <div key={option} className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    id={option}
+                                                    name={option}
+                                                    value={option}
+                                                    checked={values[question.id]?.answer === option}
+                                                    onChange={(e) => handleRadioChange(e, question.id)}
+                                                    className="mr-2 h-4 w-4 text-blue-600 border-gray-300"
+                                                />
+                                                <label htmlFor={option} className="text-sm">{option}</label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {question.input_type === 'text' && (
+                                    <div className="mt-2">
+                                        <input
+                                            type="text"
+                                            id={question.id}
+                                            name={question.id}
+                                            onChange={(e) => handleTextChange(e, question.id)}
+                                            value={values[question.id]?.answer || ''} // Accessing answer from Formik state
+                                            placeholder={question.subtext || ''}
+                                            className="w-full p-2 border rounded-md"
+                                        />
+                                    </div>
+                                )}
+                                {question.input_type === 'textarea' && (
+                                    <div className="mt-2">
+                                        <textarea
+                                            id={question.id}
+                                            name={question.id}
+                                            value={values[question.id]?.answer || ''} // Accessing answer from Formik state
+                                            onChange={handleChange}
+                                            placeholder={question.subtext || ''}
+                                            className="w-full p-2 border rounded-md"
+                                        ></textarea>
+                                    </div>
+                                )}
+                                {question.is_required && (
+                                    <span className="text-red-500 text-sm">Required</span>
+                                )}
                             </div>
-                          </div>
-                          <label
-                            htmlFor={option}
-                            className="text-base ml-4 font-normal text-[#2a2f31]"
-                          >
-                            {option}
-                          </label>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {question.input_type === "radio" && question.options && (
-                  <div className="space-y-2">
-                    {question.options.split(",").map((option: any) => (
-                      <div key={option} className="flex items-center">
-                        <div
-                          className={`border-1 flex h-6 w-6 justify-center self-center rounded-lg border ${values[question.id]?.answer === option ? "border-sky-700" : "border-[#DBDDDE]"}`}
+                        ))}
+                        <button
+                            type="submit"
+                            onClick={onHandleNext}
+                            disabled={!isValid}
+                            className="mt-4 rounded bg-blue-500 p-2 text-white font-bold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                          <div
-                            className={`flex h-5 w-5 justify-center self-center rounded-md ${values[question.id]?.answer === option ? "border border-sky-700 bg-sky-700" : ""}`}
-                          >
-                            <input
-                              type="radio"
-                              id={`${question.id}-${option}`}
-                              name={`question-${question.id}`}
-                              value={option || ""}
-                              checked={values[question.id]?.answer === option}
-                              onChange={(e) => handleRadioChange(e, question.id)}
-                              className={`peer-not h-5 w-5 appearance-none ${values[question.id]?.answer === option ? "invisible" : ""} rounded-md border-hidden`}
-                            />
-                          </div>
-                        </div>
-                        <label
-                          htmlFor={option}
-                          className="text-base ml-4 text-[#2a2f31]"
-                        >
-                          {option}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {question.input_type === "text" && (
-                  <div>
-                    <textarea
-                      id={question.id}
-                      name={question.id}
-                      rows={question.question.toLowerCase().includes("list") ? 6 : undefined}
-                      onChange={(e) => handleTextChange(e, question.id)}
-                      value={values[question.id]?.answer || ""}
-                      placeholder={question.subtext || "Enter information"}
-                      className="block w-full text-base border rounded-md"
-                    ></textarea>
-                  </div>
-                )}
-
-                {question.input_type === "phone" && (
-                  <div className="flex">
-                    <input
-                      id={question.id}
-                      name={question.id}
-                      type="tel"
-                      onChange={(e) => handleTextChange(e, question.id)}
-                      value={formatPhoneNumber(values[question.id]?.answer) || ""}
-                      placeholder={question.subtext || "123-456-7985"}
-                      className="w-full rounded-md border px-4 py-3 text-base"
-                    />
-                  </div>
-                )}
-
-                {question.input_type === "date" && (
-                  <div className="w-full relative flex">
-                    <input
-                      type="date"
-                      id={question.id}
-                      name={`question-${question.id}`}
-                      value={values[question.id]?.answer || ""}
-                      onChange={(e) => handleDateChange(e, question.id)}
-                      className={`border ${errors[question.id] ? "border-red-600" : "border-gray-300"} w-full py-2 pt-6 rounded-lg appearance-none`}
-                      placeholder="mm/dd/yyyy"
-                    />
-                    <label
-                      htmlFor="dateOfInjury"
-                      className={`absolute top-0 left-0 text-black-4 text-xs mt-2 ml-3 ${errors.dateOfBirth ? "text-zest-6" : ""}`}
-                    >
-                      Input Date
-                      <span className={`text-zest-6 text-xs font-normal `}>
-                        *
-                      </span>
-                    </label>
-                    <img
-                      alt="Calendar"
-                      src="../assets/images/Calendar.svg"
-                      className="absolute right-0 top-0 mt-[29px] z-10 mr-[15px] items-end justify-end w-4"
-                    />
-                  </div>
-                )}
-
-                {question.input_type === "dropdown" && question.options && (
-                  <div className="my-2">
-                    <select
-                      id={question.id}
-                      name={`question-${question.id}`}
-                      onChange={(e) => handleDropdownChange(e, question.id)}
-                      value={values[question.id]?.answer || ""}
-                      className="block w-full text-base border rounded-md"
-                    >
-                      <option value="" disabled>
-                        Select an option
-                      </option>
-                      {question.options.split(",").map((option: any) => (
-                        <option key={option} value={option || ""}>
-                          {option.replace("&comma;", ",")}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {errors[question.id] && (
-                  <span className="pl-2 text-xs font-normal text-zest-6">
-                    Required Field
-                  </span>
-                )}
-              </div>
-            ))}
-
-          </div>
-          <div className="flex p-4 items-end gap-4 ">
-            <div className="w-2/6 ">
-              <button
-                id="back"
-                onClick={onHandleBack}
-                className={` w-full rounded-3xl text-black text-center h-10 py-2 border-slate-600 border-2  `}
-              >
-                Back
-              </button>
-            </div>
-            <div className="w-2/6 ">
-              <button
-                id="back"
-                onClick={onHandleNext}
-                className={` w-full rounded-3xl text-black text-center h-10 py-2 border-slate-600 border-2  `}
-              >
-                Skip
-              </button>
-            </div>
-            <div className="w-4/6">
-              <button
-                id="submit"
-                type="submit"
-                onClick={onHandleFormSubmit}
-                className={`  ${hasErrors
-                  ? "pointer-events-none opacity-50"
-                  : ""
-                  } w-full  rounded-3xl text-white text-center py-2  bg-spruce-4 `}
-                disabled={hasErrors}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        </form>
-      </>
-    </FormProvider>
-  );
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </>
+        </FormProvider>
+    );
 };
 
-export default BehavioralQuestions;
+export default BehavorialQuestions;

@@ -145,19 +145,29 @@ const SubscriberForm = ({
   };
 
   const handleInsuranceSubscriber = () => {
-    if (values[`insuranceSubscriber${section}`] === 'Patient') {
+    if (values[`insuranceSubscriber${section}`] === "Patient") {
       setTouched({}, false);
       setErrors({});
+      console.log(patientDetails, "patientData in subsss");
+      console.log(patientDetails.phoneNumber, "patientDphoneNumberata in subsss");
 
+      setFieldValue(`insuranceSubscriber${section}`, "Patient");
       setFieldValue(`insuranceFirstName${section}`, patientDetails.firstName);
-      setFieldValue(`insuranceLastName${section}`, patientDetails.firstName);
+      setFieldValue(`insuranceLastName${section}`, patientDetails.lastName);
       setFieldValue(`insuranceDob${section}`, patientDetails.dateOfBirth);
       setFieldValue(`insurancePhone${section}`, patientDetails.phoneNumber);
       setFieldValue(`insuranceAddress${section}`, patientDetails.addressLine1);
-      setFieldValue(`insuranceAddress2_${section}`, patientDetails.addressLine2);
+      setFieldValue(
+        `insuranceAddress2_${section}`,
+        patientDetails.addressLine2
+      );
       setFieldValue(`insuranceCity${section}`, patientDetails.city);
       setFieldValue(`insuranceState${section}`, patientDetails.state);
       setFieldValue(`insuranceZip${section}`, patientDetails.zipCode);
+      // setFieldValue(`frontInsuranceCard${section}`, frontInsuranceCard);
+      // setFieldValue(`backInsuranceCard${section}`, backInsuranceCard);
+      setTouched({}, false);
+      setErrors({});
       handleErrors(errors); // Pass the current errors to the parent component
     } else {
       if (sameAsPatient) {
