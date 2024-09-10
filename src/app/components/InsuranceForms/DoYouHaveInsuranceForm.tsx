@@ -2,14 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { useFormState } from "../FormContext";
 import {
-  doYouHaveInsuranceSchema,
-  doYouHaveInsuranceSchema2,
+createCarrierSchema
 } from "../../schemas/insurance";
-import { validateSubscriberId } from "../../actions/api";
-
+import { validateSubscriberId, } from "../../actions/api";
+import Carrier from "@/app/models/Carrier";
 interface DoYouHaveInsuranceProps {
-  onSubmit: any;
-  section: "" | "2"; // Restrict section to these two values
+  onCheckboxChange: any;
+  section: 1| 2; // Restrict section to these two values
   isValidInsurance: boolean; // triggers page change
   onInsuranceDataChange: any;
   rteData: any;
@@ -24,7 +23,7 @@ interface DoYouHaveInsuranceProps {
   handleErrors: (errors: any) => void; // Add this prop
 
   setTriggerValidation: (triggerValidation: boolean) => void;
-  hasInsurance: any;
+  // hasInsurance: any;
   triggerValidation: any;
   carriers: any;
   registrationId: number;
@@ -42,7 +41,7 @@ const DoYouHaveInsuranceForm = ({
   validationStatus,
   setIsValidating,
   setValidationStatus,
-  onSubmit,
+  onCheckboxChange,
   triggerValidation,
   setTriggerValidation: setTriggerValidation1,
   handleErrors,
@@ -57,6 +56,7 @@ const DoYouHaveInsuranceForm = ({
     validationStatus2,
     validateResult2,
   } = useFormState();
+  const validationSchema = createCarrierSchema(section);
 
   const {
     values,
@@ -81,8 +81,7 @@ const DoYouHaveInsuranceForm = ({
         : "",
       // ... other dynamic fields for the section
     },
-    validationSchema:
-      section === "2" ? doYouHaveInsuranceSchema2 : doYouHaveInsuranceSchema,
+    validationSchema:validationSchema,
     validateOnChange: true,
     validateOnBlur: true,
     enableReinitialize: true,
@@ -107,7 +106,7 @@ const DoYouHaveInsuranceForm = ({
       handleErrors(errors); // Pass the current errors to the parent component
     }
   }, [errors, handleErrors, values[`hasInsurance${section}`]]);
-  const sequence = section === "" ? "1" : section === "2" ? "2" : "1"; // Defaults to 1 if section is not "2"
+  const sequence = section === 1 ? "1" : section === 2 ? "2" : "1"; // Defaults to 1 if section is not "2"
 
 
   // const [rteData1, setRteData1] = useState<any>();
@@ -120,10 +119,9 @@ const DoYouHaveInsuranceForm = ({
     setFieldValue(`hasInsurance${section}`, value);
 
     // Notify parent of the change
-    onSubmit({
+    onCheckboxChange({
       ...values,
-      [`hasInsurance${section}`]: value,
-    });
+      [`hasInsurance${section}`]: value, section });
   };
 
 
@@ -208,13 +206,14 @@ const DoYouHaveInsuranceForm = ({
   }, [triggerValidation]);
   console.log("validation status", validationStatus)
   console.log("validation result", validateResult)
+
   const onHandleFormSubmit = (data: any) => {
 
     console.log("after validation status", validationStatus)
     console.log("after validation result", validateResult)
     console.log("doyouhave", data)
 
-    onInsuranceDataChange(data);
+    onInsuranceDataChange(data, section);
     //  setInsuranceData((prev: any) => ({ ...prev, ...data }));
   };
 
@@ -224,9 +223,8 @@ const DoYouHaveInsuranceForm = ({
         <div className={`flex flex-col `}>
           <div className="relative mt-4 items-center">
             <div
-              onClick={() => {
-                if (!isValidating) handleCheckboxChange("1");
-              }}
+                      onClick={() => !isValidating && handleCheckboxChange("1")}
+
               className="flex gap-4"
             >
               <div
@@ -239,7 +237,7 @@ const DoYouHaveInsuranceForm = ({
                   <input
                     type="checkbox"
                     disabled={isValidating || isValidInsurance}
-                    name="hasInsurance"
+                    name={`hasInsurance${section}`}
                     onBlur={handleBlur}
                     checked={values[`hasInsurance${section}`] === "1"}
                     onChange={() => handleCheckboxChange("1")}
@@ -399,7 +397,7 @@ const DoYouHaveInsuranceForm = ({
                   className={`flex   h-5  w-5 justify-center self-center rounded-md  ${values[`hasInsurance${section}`] === "0" ? "bg-sky-700 " : ""}`}
                 >
                   <input
-                    id="hasInsurance"
+                    id={`hasInsurance${section}`}
                     type="checkbox"
                     disabled={isValidating}
                     name={`hasInsurance${section}`}

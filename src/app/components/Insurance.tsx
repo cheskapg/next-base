@@ -31,8 +31,9 @@ export default function Insurance() {
     setHasErrors(Object.keys(newErrors).length > 0);
   };
   const [hasErrors, setHasErrors] = useState(false);
-  const updateValues = (newValues: any) => {
-    setValues((prevValues) => ({ ...prevValues, ...newValues }));
+  const handleCarrierUpdate = (newValues: any) => {
+    console.log(newValues, "new values carrier update")
+    setValues((prevValues:any) => ({ ...prevValues, ...newValues }));
   };
   const handleIsSubmitting = (isSubmitting: boolean) => {
     setIsSubmitting(isSubmitting);
@@ -40,18 +41,18 @@ export default function Insurance() {
   const handleCurrentStep = (currentStep: number) => {
     setInsuranceStep(currentStep);
   };
-  const handleValidateResult1 = (result: boolean) => {
-    setValidateResult1(result);
-  };
-  const handleValidateResult2 = (result: boolean) => {
-    setValidateResult2(result);
-  };
-  const handleValidationStatus1 = (status: boolean) => {
-    setValidationStatus1(status);
-  };
-  const handleValidationStatus2 = (status: boolean) => {
-    setValidationStatus2(status);
-  };
+  // const handleValidateResult1 = (result: boolean) => {
+  //   setValidateResult1(result);
+  // };
+  // const handleValidateResult2 = (result: boolean) => {
+  //   setValidateResult2(result);
+  // };
+  // const handleValidationStatus1 = (status: boolean) => {
+  //   setValidationStatus1(status);
+  // };
+  // const handleValidationStatus2 = (status: boolean) => {
+  //   setValidationStatus2(status);
+  // };
   const handleRteData1 = (rteData1: any) => {
     setRteData1(rteData1);
   };
@@ -92,7 +93,7 @@ export default function Insurance() {
     subscriberData,
     setSubscriberData,
     setAdditionalSubscriberData,
-    additionalSubscriberData,
+    // additionalSubscriberData,
   } = useFormState();
 
   const onHandleFormSubmit = async (data: any) => {
@@ -101,11 +102,11 @@ export default function Insurance() {
         // Validation logic
         console.log(patientData, " patientdata in insurace");
 
-        if (data.hasInsurance === "1") {
+        if (data.hasInsurance1 === "1") {
           if (!validateResult1) {
             setTriggerValidation(true);
             // setInsuranceData((prev: any) => ({ ...prev, ...data }));
-           
+
           } else {
             setInsuranceStep(insuranceStep + 1);
           }
@@ -124,13 +125,12 @@ export default function Insurance() {
         break;
 
       case 2:
-        setInsuranceData((prev: any) => ({
-          ...prev,
-          ...data,
-          ...subscriberData,
-        }));
+        // setInsuranceData((prev: any) => ({
+        //   ...prev,
+        //   ...data,
+        // }));
         setTriggerSubmit(true);
-   
+
         // setInsuranceData((prev: any) => ({ ...prev, ...subscriberData}));
         //call api to store  subscriber data to db
         console.log(insuranceData, " insuranceddata all");
@@ -150,7 +150,7 @@ export default function Insurance() {
           //simulate api call await
           if (isValidInsurance) {
             // setInsuranceData((prev: any) => ({ ...prev, ...data }));
- 
+
 
             setInsuranceStep(insuranceStep + 1);
             // setSubscriberData([]);// clear subscriber data for new info on the next one
@@ -164,41 +164,58 @@ export default function Insurance() {
         }
         break;
       case 4:
-        setInsuranceData((prev: any) => ({
-          ...prev,
-          ...data,
-          ...additionalSubscriberData,
-        }));
+        // setInsuranceData((prev: any) => ({
+        //   ...prev,
+        //   ...data
+
+        // }));
         setTriggerSubmit(true);
-      
+
         // setInsuranceData((prev: any) => ({ ...prev, additionalSubscriberData}));
         //call api to store  subscriber data to db
         console.log(insuranceData, " insuranceddata all");
-        console.log(additionalSubscriberData, " additionalSubscriberData all");
-        onHandleNext();
+        // console.log(additionalSubscriberData, " additionalSubscriberData all");
+        // onHandleNext();
         break;
 
       default:
         break;
     }
   };
-  const handleInsuranceDataChange = (data: any) => {
+  //from carrier
+  const handleInsuranceDataChange = (data: any, index: any) => {
     console.log("handling ", data)
-    setInsuranceData((prev: any) => ({ ...prev, ...data }));
-  };
-  const handleSubscriberDataChange = (data: any) => {
-    setSubscriberData(data);
     // setInsuranceData((prev: any) => ({ ...prev, ...data }));
+    setInsuranceData((prevData: any) => {
+      // Create a copy of the current insurance data
+      const updatedData = [...prevData];
+
+      // Ensure the section index is valid
+      const section = index - 1; // Adjusting for zero-based indexing
+
+      // Update the specific section with the new data
+      updatedData[section] = {
+        ...updatedData[section], // Preserve existing data in the section
+        ...data, // Merge the new data
+      };
+
+      return updatedData;
+    });
   };
+  // const handleSubscriberDataChange = (data: any) => {
+
+  //   // setSubscriberData((prev: any) => ({ ...prev, ...data }));
+  //       setInsuranceData((prev: any) => ({ ...prev, ...data }));
+  // };
   //optional since subscriber will be sent to api after main sub then
   // addtl sub will replace data usig setsubscriberdata and  another request will be sent
   // to update the other rte virtual sub
-  const handleAdditionalSubscriberChange = (data: any) => {
-    setAdditionalSubscriberData(data);
-    // setInsuranceData((prev: any) => ({ ...prev, ...data }));
+  // const handleAdditionalSubscriberChange = (data: any) => {
+  //   // setAdditionalSubscriberData(data);
+  //   setInsuranceData((prev: any) => ({ ...prev, ...data }));
 
-  };
- 
+  // };
+
   // useEffect(() => {
   //   const handleInsuranceDataChange = (data: any) => {
   //     setInsuranceData((prev: any) => ({ ...prev, ...data }));
@@ -207,11 +224,11 @@ export default function Insurance() {
   //     setSubscriberData(data);
   //     // setInsuranceData((prev: any) => ({ ...prev, ...data }));
   //   };
-   
+
   //   const handleAdditionalSubscriberChange = (data: any) => {
   //     setAdditionalSubscriberData(data);
   //     // setInsuranceData((prev: any) => ({ ...prev, ...data }));
-  
+
   //   };
   //   // Call the handleInsuranceDataChange function when the component mounts
   //   handleInsuranceDataChange({
@@ -235,8 +252,8 @@ export default function Insurance() {
     // setSubscriberData(subscriberData);
     // setAdditionalSubscriberData(additionalSubscriberData);
     console.log(subscriberData, "subsk");
-    console.log(additionalSubscriberData, "additionalSubscriberData subsk");
-  }, [triggerSubmit, insuranceData, subscriberData, additionalSubscriberData]); 
+    // console.log(additionalSubscriberData, "additionalSubscriberData subsk");
+  }, [triggerSubmit, insuranceData]);
 
   useEffect(() => {
     getCarriers();
@@ -247,6 +264,11 @@ export default function Insurance() {
       onHandleFormSubmit(values);
     }
   }, [isValidInsurance]);
+  
+  useEffect(() => {
+
+    console.log(hasErrors, "has errors insurance")
+  }, [hasErrors]);
 
   const handleBack = () => {
     if (insuranceStep > 1) {
@@ -258,6 +280,7 @@ export default function Insurance() {
       onHandleBack();
     }
   };
+
   const isNextDisabled = () => {
     if (insuranceStep === 2 || insuranceStep === 4) {
       // For current step = 2 or 4, monitor IsSubmitting
@@ -272,12 +295,12 @@ export default function Insurance() {
         isValidating ||
         // currentValidateResult ||
         (hasErrors && values.hasInsurance2 === "1") ||
-        (hasErrors && values.hasInsurance === "1")
+        (hasErrors && values.hasInsurance1 === "1")
       );
     }
   };
   interface FormValues {
-    hasInsurance?: string;
+    hasInsurance1?: string;
     subscriberId?: string;
     // Add other fields as needed
     hasInsurance2?: string;
@@ -310,7 +333,7 @@ export default function Insurance() {
 
           {insuranceStep === 1 && (
             <DoYouHaveInsuranceForm
-              section=""
+              section={1}
               isValidInsurance={isValidInsurance}
               onInsuranceDataChange={handleInsuranceDataChange}
               setRteData={handleRteData1}
@@ -323,8 +346,8 @@ export default function Insurance() {
               isValidating={isValidating}
               handleErrors={handleErrors}
               setIsValidating={setIsValidating} // Pass
-              onSubmit={updateValues} // update the checkbox values to parent
-              hasInsurance={values.hasInsurance || ""}
+              onCheckboxChange={handleCarrierUpdate} // update the checkbox values to parent
+              // hasInsurance1={values.hasInsurance1 || ""}
               triggerValidation={triggerValidation}
               setTriggerValidation={setTriggerValidation}
               carriers={carriers}
@@ -333,12 +356,12 @@ export default function Insurance() {
           )}
           {insuranceStep === 2 && (
             <SubscriberForm
-              section=""
+              section={1}
               patientDetails={patientData}
-              onSubscriberDataChange={handleSubscriberDataChange}
+              onSubscriberDataChange={handleInsuranceDataChange}
               setCurrentStep={handleCurrentStep}
               currentStep={insuranceStep}
-              onSubmit={updateValues}
+              // onSubmit={handleCarrierUpdate}
               onRteDataChange={rteData1} /// pass to subs
               handleErrors={handleErrors}
               setIsSubmitting={handleIsSubmitting} // Pass the handleIsSubmitting function
@@ -351,7 +374,7 @@ export default function Insurance() {
           )}
           {insuranceStep === 3 && (
             <DoYouHaveInsuranceForm
-              section="2"
+              section={2}
               isValidInsurance={isValidInsurance}
               onInsuranceDataChange={handleInsuranceDataChange}
               setIsValidInsurance={setIsValidInsurance} // Pass
@@ -363,9 +386,9 @@ export default function Insurance() {
               rteData={rteData2}
               isValidating={isValidating}
               setIsValidating={setIsValidating} // Pass
-              onSubmit={updateValues} // update the checkbox values to parent
+              onCheckboxChange={handleCarrierUpdate} // update the checkbox values to parent
               handleErrors={handleErrors}
-              hasInsurance={values.hasInsurance || ""}
+              // hasInsurance1={values.hasInsurance1 || ""}
               triggerValidation={triggerValidation}
               setTriggerValidation={setTriggerValidation}
               carriers={carriers}
@@ -374,12 +397,12 @@ export default function Insurance() {
           )}
           {insuranceStep === 4 && (
             <SubscriberForm
-              section="2"
+              section={2}
               patientDetails={patientData}
-              onSubscriberDataChange={handleAdditionalSubscriberChange}
+              onSubscriberDataChange={handleInsuranceDataChange}
               setCurrentStep={handleCurrentStep}
               currentStep={insuranceStep}
-              onSubmit={updateValues}
+              // onSubmit={handleCarrierUpdate}
               onRteDataChange={rteData2}
               triggerSubmit={triggerSubmit}
               handleErrors={handleErrors}
@@ -413,10 +436,10 @@ export default function Insurance() {
                 <span className="flex items-center justify-center">Back</span>
               </button>
             </div>
-            {values[`hasInsurance`] === "0" ||
-            values[`hasInsurance`] === "1" ||
-            values[`hasInsurance2`] === "0" ||
-            values[`hasInsurance2`] === "1" ? (
+            {values[`hasInsurance1`] === "0" ||
+              values[`hasInsurance1`] === "1" ||
+              values[`hasInsurance2`] === "0" ||
+              values[`hasInsurance2`] === "1" ? (
               <div className="w-4/6">
                 <button
                   disabled={isNextDisabled()}
@@ -427,18 +450,17 @@ export default function Insurance() {
                     e.preventDefault();
                     onHandleFormSubmit(values);
                   }}
-                  className={`${
-                    (insuranceStep === 1 &&
-                      values.hasInsurance === "1" &&
+                  className={`${(insuranceStep === 1 &&
+                      values.hasInsurance1 === "1" &&
                       hasErrors) ||
-                    (insuranceStep === 3 &&
-                      values.hasInsurance2 === "1" &&
-                      hasErrors) ||
-                    (insuranceStep === 2 && hasErrors) ||
-                    (insuranceStep === 4 && hasErrors)
+                      (insuranceStep === 3 &&
+                        values.hasInsurance2 === "1" &&
+                        hasErrors) ||
+                      (insuranceStep === 2 && hasErrors) ||
+                      (insuranceStep === 4 && hasErrors)
                       ? "pointer-events-none opacity-50"
                       : ""
-                  } bg-spruce-4 w-full rounded-3xl py-2 text-center font-semibold text-white`}
+                    } bg-spruce-4 w-full rounded-3xl py-2 text-center font-semibold text-white`}
                 >
                   {isValidating ? (
                     <span className="flex items-center justify-center">
@@ -466,7 +488,7 @@ export default function Insurance() {
                     </span>
                   ) : (
                     <>
-                      {insuranceStep === 1 && values.hasInsurance === "1" ? (
+                      {insuranceStep === 1 && values.hasInsurance1 === "1" ? (
                         <span>Validate Insurance</span>
                       ) : insuranceStep === 1 ? (
                         <span>Next</span>
