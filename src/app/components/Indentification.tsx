@@ -1,67 +1,85 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Link from "@/node_modules/next/link";
 import { useFormState } from "./FormContext";
 import { useFormik } from "formik";
-import { loadUploadedImage } from "../utils/helper";
 import ImageUpload from "./Fields/ImageUpload";
 import { identificationSchema } from "../schemas/identification";
+import {
+  LoadIdentification,
+  UpdateIdentification,
+  uploadPhoto,
+} from "../actions/api";
 
 export default function Identification() {
   const { onHandleNext, onHandleBack, setPatientData, patientData } =
     useFormState();
   //console.log(patientData);
 
-  const { values, errors, handleSubmit, handleChange, isValid } = useFormik({
-    initialValues: {
-      frontInsuranceCard: "",
-      backInsuranceCard: "",
-    },
-    enableReinitialize: true,
-    validateOnMount: true,
-    validationSchema: identificationSchema,
-    onSubmit: (values: any) => {
-      onHandleFormSubmit(values);
-    },
-  });
+  const { values, errors, handleSubmit, handleChange, isValid, setFieldValue } =
+    useFormik({
+      initialValues: {
+        frontInsuranceCard: "",
+        backInsuranceCard: "",
+      },
+      enableReinitialize: true,
+      validateOnMount: true,
+      validationSchema: identificationSchema,
+      onSubmit: async (values: any) => {
+        await onHandleFormSubmit(values);
+      },
+    });
 
   const [errorUpload, setErrorUpload] = useState(false);
-  const [frontInsuranceCard, setFrontInsuranceCard] = useState("");
-  const [backInsuranceCard, setBackInsuranceCard] = useState("");
-
+  const [frontInsuranceCard, setFrontInsuranceCard] = useState(null);
+  const [backInsuranceCard, setBackInsuranceCard] = useState(null);
+  const [frontInsuranceImage, setFrontInsuranceImage] = useState(null);
+  const [backInsuranceImage, setBackInsuranceImage] = useState(null);
   type TFormValues = {
-    frontInsuranceCard: "";
-    backInsuranceCard: "";
+    frontInsuranceCard: null;
+    backInsuranceCard: null;
   };
 
-  const onHandleFormSubmit = (data: TFormValues) => {
-    //setPatientData((prev: any) => ({ ...prev, ...data }));
-    //console.log("test" + JSON.stringify(data));
-    console.log("test" + frontInsuranceCard);
-    console.log("test" + backInsuranceCard);
-    onHandleNext();
+  const onHandleFormSubmit = async (data: TFormValues) => {
+    const frontImage =
+      values.frontInsuranceCard != null ? frontInsuranceImage : null;
+    const backImage =
+      values.backInsuranceCard != null ? backInsuranceImage : null;
+
+    const formData = new FormData();
+    formData.append("regId", patientData.registrationId);
+    formData.append("dob", patientData.dateOfBirth);
+    formData.append("type", "ID");
+    formData.append("sequence", JSON.stringify(1));
+    if (frontImage != null)
+      formData.append("frontIdentificationImage", frontImage);
+    if (backImage != null)
+      formData.append("backIdentificationImage", backImage);
+
+    const response = await fetch(`/api/upload`, {
+      method: "POST",
+      body: formData,
+    });
+    if (response.ok) {
+      onHandleNext();
+    } else {
+      setErrorUpload(true);
+    }
   };
 
-  // console.log("Isvalid " + isValid);
-  // console.log("Error " + errorUpload);
-  // console.log("Error formik " + JSON.stringify(errors));
-  // console.log(
-  //   "result: " + !errorUpload &&
-  //     frontInsuranceCard != null &&
-  //     backInsuranceCard != null
-  // );
+  const loadIds = async () => {
+    const imageObj: any = JSON.parse(
+      await LoadIdentification(
+        patientData.registrationId,
+        patientData.dateOfBirth
+      )
+    );
+    setFrontInsuranceCard(imageObj?.FrontImage?.encodedImage || null);
+    setBackInsuranceCard(imageObj?.BackImage?.encodedImage || null);
+  };
 
   useEffect(() => {
-    values.frontInsuranceCard = frontInsuranceCard;
-    values.backInsuranceCard = backInsuranceCard;
-    console.log("test" + frontInsuranceCard);
-    console.log("test" + backInsuranceCard);
-    console.log(
-      "result: " + !errorUpload &&
-        frontInsuranceCard != null &&
-        backInsuranceCard != null
-    );
-  }, [frontInsuranceCard, backInsuranceCard]);
+    loadIds();
+  }, []);
 
   return (
     <>
@@ -89,7 +107,11 @@ export default function Identification() {
               error={errorUpload}
               setError={setErrorUpload}
               value={frontInsuranceCard}
-              setValue={setFrontInsuranceCard}
+              setValue={(val) => {
+                console.log(val);
+                setFieldValue(`frontInsuranceCard`, val);
+              }}
+              setInsuranceImage={setFrontInsuranceImage}
             ></ImageUpload>
           </div>
           {/* Insurance Back Card */}
@@ -101,7 +123,11 @@ export default function Identification() {
               error={errorUpload}
               setError={setErrorUpload}
               value={backInsuranceCard}
-              setValue={setBackInsuranceCard}
+              setValue={(val) => {
+                console.log(val);
+                setFieldValue(`backInsuranceCard`, val);
+              }}
+              setInsuranceImage={setBackInsuranceImage}
             ></ImageUpload>
           </div>
         </div>
@@ -119,8 +145,9 @@ export default function Identification() {
           </div>
           <div className="w-4/6">
             <button
+              type="submit"
               id="Next"
-              className={` w-full ${errorUpload || frontInsuranceCard == "" || backInsuranceCard == "" ? "disabled pointer-events-none opacity-50" : ""} rounded-3xl text-white text-center py-2  bg-spruce-4 `}
+              className={` w-full ${errorUpload || values.frontInsuranceCard == "" || values.backInsuranceCard == "" ? "disabled pointer-events-none opacity-50" : ""} rounded-3xl text-white text-center py-2  bg-spruce-4 `}
             >
               Next
             </button>

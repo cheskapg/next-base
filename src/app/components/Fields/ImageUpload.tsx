@@ -1,105 +1,6 @@
-// /* eslint-disable @next/next/no-img-element */
-// import { useEffect, useState } from "react";
 
-// export default function ImageUpload({
-//   id,
-//   name,
-//   label,
-//   error,
-//   value,
-//   setValue,
-//   setError,
-//   setInsuranceImage,
-// }: {
-//   id: string;
-//   name: string;
-//   label: string;
-//   error: boolean;
-//   value: string | null;
-//   setValue: any;
-//   setError: any;
-//   setInsuranceImage: any;
-// }) {
-//   const [imageUpload, setImageUpload] = useState(false);
-//   const [errorUpload, setErrorUpload] = useState(true);
-//   const [image, setImage] = useState(null);
-
-//   const loadUploadedImage = async (event: any) => {
-//     try {
-//       var input = event.target;
-//       var file = input.files[0];
-
-//       var output = document.getElementById(event.target.id + "Image");
-
-//       if (file != null) {
-//         var type = file.type;
-
-//         if (output != null && type.match("(jpg|jpeg|png|gif)$")) {
-//           output.setAttribute(
-//             "src",
-//             URL.createObjectURL(event.target.files[0])
-//           );
-//           setImage(event.target.files[0]);
-//           setInsuranceImage(event.target.files[0]);
-//           setValue(URL.createObjectURL(event.target.files[0]));
-
-//           setErrorUpload(false);
-//           setError(false);
-//           setImageUpload(true);
-//         } else {
-//           setErrorUpload(true);
-//           setError(true);
-//           setValue("");
-//           setImageUpload(true);
-//           label = "Error when uploading ...";
-//         }
-
-//         //console.log(output);
-//       }
-//     } catch (exception) {
-//       console.log(exception);
-//       setErrorUpload(true);
-//       setError(true);
-//       setValue("");
-//       label = "Error when uploading ...";
-//     }
-//   };
-
-//   //console.log(error);
-//   error = errorUpload;
-
-//   const preload = () => {
-//     if (value != null) {
-//       try {
-//         var output = document.getElementById(name + "Image");
-
-//         if (output != null) {
-//           output.setAttribute("src", value || "");
-//           setValue(value);
-//           setErrorUpload(false);
-//           setError(false);
-//           setImageUpload(true);
-//         } else {
-//           setErrorUpload(true);
-//           setError(true);
-//           setValue("");
-//           setImageUpload(true);
-//           label = "Error when uploading ...";
-//         }
-//       } catch (exception) {
-//         console.log("exception: " + exception);
-//         setErrorUpload(true);
-//         setError(true);
-//         setValue("");
-//         label = "Error when uploading ...";
-//       }
-//     }
-//   };
-
-//   useEffect(() => {
-//     preload();
-//   }, [value]);
 import { useEffect, useState } from "react";
+type ErrorType = boolean | { [key: string]: boolean };
 
 export default function ImageUpload({
   id,
@@ -114,12 +15,22 @@ export default function ImageUpload({
   id: string;
   name: string;
   label: string;
-  error: boolean;
+  error: ErrorType;
   value: string | null;
   setValue: (val: string | null) => void; // Update to match the type
-  setError: (err: boolean) => void;
+  setError: (err: boolean | { [key: string]: boolean }) => void;  // Flexible error setter
   setInsuranceImage: any;
 }) {
+  const isMultiple = typeof error === 'object';
+
+  const handleSetError = (hasError: boolean) => {
+    if (isMultiple) {
+      setError({ [id]: hasError } as ErrorType);
+    } else {
+      setError(hasError);
+    }
+  };
+
   const [imageUpload, setImageUpload] = useState(false);
   const [errorUpload, setErrorUpload] = useState(true);
   const [image, setImage] = useState<File | null>(null);
