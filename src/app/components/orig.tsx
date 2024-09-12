@@ -46,7 +46,15 @@ const SubscriberForm = ({
   const { virtual_subscriber, id } = onRteDataChange || {}; // Destructure virtual_subscriber from onRteDataChange
   const stateList = states;
   const { setInsuranceData, insuranceData } = useFormState();
-
+  const subscriberOptions = [
+    { value: "self", label: "Patient" },
+    { value: "spouse", label: "Spouse" },
+    { value: "mother", label: "Mother" },
+    { value: "father", label: "Father" },
+    { value: "guardian", label: "Guardian" },
+    { value: "other", label: "Other" }
+  ];
+  
   const [touchedImages, setTouchedImages] = useState({
     [`frontInsuranceCard${section}`]: false,
     [`backInsuranceCard${section}`]: false,
@@ -185,8 +193,8 @@ console.log(initialValues, 'initialValues');
     if (onRteDataChange) {
       console.log(onRteDataChange, 'RTE DATA IN SUBSCRIBER ZZZ');
       handleCheckPrice(onRteDataChange);
-      // handleOutOfNetwork(onRteDataChange);  // uncomment this to handle the data from rte
-      testInNetwork(''); // remove this or passs "test" or any string to make it false
+      handleOutOfNetwork(onRteDataChange);  // uncomment this to handle the data from rte
+      // testInNetwork(''); // remove this or passs "test" or any string to make it false
     }
   }, [onRteDataChange]); // Run the effect whenever onRteDataChange changes
 
@@ -258,131 +266,236 @@ console.log(initialValues, 'initialValues');
     console.log('YOUR values:', values);
     console.log('YOUR INSURANCE:', insuranceData);
   }, [values, insuranceData]); // Run once on mount
-  
-  useEffect(() => {
-    const subscriberValue = values[`insuranceSubscriber${section}`];
-    const subscriber_relation = onRteDataChange?.subscriber_relation;
-    
-    const isPatientSelected = subscriberValue === 'Patient';
-    const isSubscriberRelationSelected = subscriber_relation === subscriberValue;
-    const isOtherValueSelected = !isPatientSelected && !isSubscriberRelationSelected;
-  
-    let newErrors = { ...errors };
-  
-    // Clear errors and set values based on selection
-    if (!subscriberValue) {
-      // Set an error if the field is required but empty
-      newErrors[`insuranceSubscriber${section}`] = 'This field is required';
-    } else {
-      // Clear the error for subscriber field
-      delete newErrors[`insuranceSubscriber${section}`];
-      
-      if (isPatientSelected) {
-        const patientValues = {
-          [`insuranceSubscriber${section}`]: 'Patient',
-          [`insuranceFirstName${section}`]: patientDetails.firstName || '',
-          [`insuranceLastName${section}`]: patientDetails.lastName || '',
-          [`insuranceDob${section}`]: patientDetails.dateOfBirth
-            ? new Date(patientDetails.dateOfBirth).toISOString().substring(0, 10)
-            : '',
-          [`insurancePhone${section}`]: patientDetails.phoneNumber || '',
-          [`insuranceAddress${section}`]: patientDetails.addressLine1 || '',
-          [`insuranceAddress2_${section}`]: patientDetails.addressLine2 || '',
-          [`insuranceCity${section}`]: patientDetails.city || '',
-          [`insuranceState${section}`]: patientDetails.state || '',
-          [`insuranceZip${section}`]: patientDetails.zipCode || '',
-          [`frontInsuranceCard${section}`]:  'null',
-          [`backInsuranceCard${section}`]:  'null',
-        };
-        delete errors[`frontInsuranceCard${section}`];
-      delete errors[`backInsuranceCard${section}`];
-        setTouched(
-            {
-              [`insuranceFirstName${section}`]: false,
-              [`insuranceLastName${section}`]: false,
-              [`insuranceDob${section}`]: false,
-              [`insurancePhone${section}`]: false,
-              [`insuranceAddress${section}`]: false,
-              [`insuranceAddress2_${section}`]: false,
-              [`insuranceCity${section}`]: false,
-              [`insuranceState${section}`]: false,
-              [`insuranceZip${section}`]: false,
-              [`frontInsuranceCard${section}`]: false,
-              [`backInsuranceCard${section}`]: false,
-            },
-            false,
-          );
-          setErrors(errors);
-   
 
-        setValues((prevData: any) => ({ ...prevData, ...patientValues }));
-        setInsuranceData((prevData: any) => ({ ...prevData, ...patientValues }));
-      } else if (isSubscriberRelationSelected) {
-        const virtualSubscriber = {
-          [`insuranceFirstName${section}`]: virtual_subscriber?.first_name || '',
-          [`insuranceLastName${section}`]: virtual_subscriber?.last_name || '',
-          [`insuranceDob${section}`]: virtual_subscriber?.dob
-            ? new Date(virtual_subscriber?.dob).toISOString().substring(0, 10)
-            : '',
-          [`insurancePhone${section}`]: virtual_subscriber?.phone_number || '',
-          [`insuranceAddress${section}`]: virtual_subscriber?.virtual_address?.address_1 || '',
-          [`insuranceAddress2_${section}`]: virtual_subscriber?.virtual_address?.address_2 || '',
-          [`insuranceCity${section}`]: virtual_subscriber?.virtual_address?.city || '',
-          [`insuranceState${section}`]: virtual_subscriber?.virtual_address?.state || '',
-          [`insuranceZip${section}`]: virtual_subscriber?.virtual_address?.zipcode || '',
-          [`insuranceSubscriber${section}`]: subscriber_relation || '',
-          [`frontInsuranceCard${section}`]: insuranceData
-            ? insuranceData[`frontInsuranceCard${section}`]
-            : '',
-          [`backInsuranceCard${section}`]: insuranceData
-            ? insuranceData[`backInsuranceCard${section}`]
-            : '',
-        };
-    
-        setValues((prevData: any) => ({ ...prevData, ...virtualSubscriber }));
-        setInsuranceData((prevData: any) => ({ ...prevData, ...virtualSubscriber }));
-        setErrors(newErrors);
 
-      } else if (isOtherValueSelected) {
-        const clearedValues = {
-          [`insuranceFirstName${section}`]: '',
-          [`insuranceLastName${section}`]: '',
-          [`insuranceDob${section}`]: '',
-          [`insurancePhone${section}`]: '',
-          [`insuranceAddress${section}`]: '',
-          [`insuranceAddress2_${section}`]: '',
-          [`insuranceCity${section}`]: '',
-          [`insuranceState${section}`]: '',
-          [`insuranceZip${section}`]: '',
-          [`frontInsuranceCard${section}`]:  '',
-          [`backInsuranceCard${section}`]: '',
-        };
-    
-        newErrors[`insuranceSubscriber${section}`] = ''; // Clear error if other is selected
-        delete newErrors[`frontInsuranceCard${section}`];
-        delete newErrors[`backInsuranceCard${section}`];
-        setValues((prevData: any) => ({
-          ...prevData,
-          [`insuranceSubscriber${section}`]: subscriberValue,
-          ...clearedValues,
-        }));
-        setInsuranceData((prevData: any) => ({
-          ...prevData,
-          [`insuranceSubscriber${section}`]: subscriberValue,
-          ...clearedValues,
-        }));
-              setErrors(newErrors);
 
-      }
+//   const clearedValues = {
+//     [`insuranceFirstName${section}`]: '',
+//     [`insuranceLastName${section}`]: '',
+//     [`insuranceDob${section}`]: '',
+//     [`insurancePhone${section}`]: '',
+//     [`insuranceAddress${section}`]: '',
+//     [`insuranceAddress2_${section}`]: '',
+//     [`insuranceCity${section}`]: '',
+//     [`insuranceState${section}`]: '',
+//     [`insuranceZip${section}`]: '',
+//     [`frontInsuranceCard${section}`]: '',
+//     [`backInsuranceCard${section}`]: '',
+//   };
+//   const virtualSubscriber = {
+//     [`insuranceFirstName${section}`]: virtual_subscriber?.first_name || '',
+//     [`insuranceLastName${section}`]: virtual_subscriber?.last_name || '',
+//     [`insuranceDob${section}`]: virtual_subscriber?.dob
+//       ? new Date(virtual_subscriber?.dob).toISOString().substring(0, 10)
+//       : '',
+//     [`insurancePhone${section}`]: virtual_subscriber?.phone_number || '',
+//     [`insuranceAddress${section}`]: virtual_subscriber?.virtual_address?.address_1 || '',
+//     [`insuranceAddress2_${section}`]: virtual_subscriber?.virtual_address?.address_2 || '',
+//     [`insuranceCity${section}`]: virtual_subscriber?.virtual_address?.city || '',
+//     [`insuranceState${section}`]: virtual_subscriber?.virtual_address?.state || '',
+//     [`insuranceZip${section}`]: virtual_subscriber?.virtual_address?.zipcode || '',
+//     [`insuranceSubscriber${section}`]: subscriber_relation || 'none',
+//     [`frontInsuranceCard${section}`]: insuranceData
+//       ? insuranceData[`frontInsuranceCard${section}`]
+//       : '',
+//     [`backInsuranceCard${section}`]: insuranceData
+//       ? insuranceData[`backInsuranceCard${section}`]
+//       : '',
+//   };
+useEffect(() => {
+    const subscriber_relation = onRteDataChange?.subscriber_relation || "none";
+    // Check if the subscriber_relation is in subscriberOptions
+    const isSubscriberRelationInOptions = subscriberOptions.some(
+        (option) => option.value === subscriber_relation
+    );
+    // If subscriber_relation is not in options, set it to "other" and load the data
+    const initialSubscriberRelation = isSubscriberRelationInOptions
+    ? subscriber_relation
+    : 'other';
     
-    //   Remove errors related to insurance cards if not applicable
-      if (subscriberValue !== 'Patient') {
-        delete newErrors[`frontInsuranceCard${section}`];
-        delete newErrors[`backInsuranceCard${section}`];
-      }
-  
+    console.log(initialSubscriberRelation,"initialSubscriberRelation", isSubscriberRelationInOptions,"isSubscriberRelationInOptions")   
+    if (virtual_subscriber) {
+        const initialSubscriberValues = {
+            [`insuranceFirstName${section}`]: virtual_subscriber?.first_name || '',
+            [`insuranceLastName${section}`]: virtual_subscriber?.last_name || '',
+            [`insuranceDob${section}`]: virtual_subscriber?.dob
+                ? new Date(virtual_subscriber?.dob).toISOString().substring(0, 10)
+                : '',
+            [`insurancePhone${section}`]: virtual_subscriber?.phone_number || '',
+            [`insuranceAddress${section}`]: virtual_subscriber?.virtual_address?.address_1 || '',
+            [`insuranceAddress2_${section}`]: virtual_subscriber?.virtual_address?.address_2 || '',
+            [`insuranceCity${section}`]: virtual_subscriber?.virtual_address?.city || '',
+            [`insuranceState${section}`]: virtual_subscriber?.virtual_address?.state || '',
+            [`insuranceZip${section}`]: virtual_subscriber?.virtual_address?.zipcode || '',
+         
+            [`frontInsuranceCard${section}`]: "" ,
+            [`backInsuranceCard${section}`]: "",
+        };
+            //set teh dropdown to other but save subscriber relation to its original value in insurance data
+        setValues((prevData:any) => ({ ...prevData,[`insuranceSubscriber${section}`]:  initialSubscriberRelation, ...initialSubscriberValues }));
+
+
+        setInsuranceData((prevData:any) => ({ ...prevData, [`insuranceSubscriber${section}`]: initialSubscriberRelation, ...initialSubscriberValues }));
+
+        // on submit change the value to the original subscriber relation
     }
-  }, [values[`insuranceSubscriber${section}`], onRteDataChange]);
+}, []); // Empty dependency array ensures this runs only once on mount
+useEffect(() => {
+    const subscriberValue = values[`insuranceSubscriber${section}`];
+    const subscriber_relation = onRteDataChange?.subscriber_relation || "none";
+
+    const isPatientSelected = subscriberValue === 'self';
+    const isSubscriberRelationInOptions = subscriberOptions.some(
+        (option) => option.value === subscriber_relation
+    );
+    const isSubscriberRelationSelected = isSubscriberRelationInOptions && subscriber_relation === subscriberValue;
+    const isNotSubscriberRelationSelected = isSubscriberRelationInOptions && subscriber_relation !== subscriberValue;
+    // sets the dropdown to other if the subscriber value is not in the subscriber options 
+    const isOtherValueSelected = !subscriberOptions.some(
+        (option) => option.value === subscriberValue
+    );
+
+    let newErrors = { ...errors };
+
+    if (!subscriberValue) {
+        newErrors[`insuranceSubscriber${section}`] = 'This field is required';
+    } else {
+        delete newErrors[`insuranceSubscriber${section}`];
+
+        if (isPatientSelected) {
+            // Patient selected, fill patient details
+            const patientValues = {
+                [`insuranceSubscriber${section}`]: 'self',
+                [`insuranceFirstName${section}`]: patientDetails.firstName || '',
+                [`insuranceLastName${section}`]: patientDetails.lastName || '',
+                [`insuranceDob${section}`]: patientDetails.dateOfBirth
+                    ? new Date(patientDetails.dateOfBirth).toISOString().substring(0, 10)
+                    : '',
+                [`insurancePhone${section}`]: patientDetails.phoneNumber || '',
+                [`insuranceAddress${section}`]: patientDetails.addressLine1 || '',
+                [`insuranceAddress2_${section}`]: patientDetails.addressLine2 || '',
+                [`insuranceCity${section}`]: patientDetails.city || '',
+                [`insuranceState${section}`]: patientDetails.state || '',
+                [`insuranceZip${section}`]: patientDetails.zipCode || '',
+                  [`frontInsuranceCard${section}`]: "" ,
+            [`backInsuranceCard${section}`]: "",
+            };
+
+            setTouched({
+                [`insuranceFirstName${section}`]: false,
+                [`insuranceLastName${section}`]: false,
+                [`insuranceDob${section}`]: false,
+                [`insurancePhone${section}`]: false,
+                [`insuranceAddress${section}`]: false,
+                [`insuranceAddress2_${section}`]: false,
+                [`insuranceCity${section}`]: false,
+                [`insuranceState${section}`]: false,
+                [`insuranceZip${section}`]: false,
+                [`frontInsuranceCard${section}`]: false,
+                [`backInsuranceCard${section}`]: false,
+            }, false);
+
+            setErrors(errors);
+            setValues((prevData: any) => ({ ...prevData, ...patientValues }));
+            setInsuranceData((prevData: any) => ({ ...prevData, ...patientValues }));
+// this is true if the value selected has the virtual subscriber which should load the virtual subscriber data
+        } else if (isSubscriberRelationSelected) {
+            // Valid subscriber relation from options
+            const virtualSubscriber = {
+                [`insuranceFirstName${section}`]: virtual_subscriber?.first_name || '',
+                [`insuranceLastName${section}`]: virtual_subscriber?.last_name || '',
+                [`insuranceDob${section}`]: virtual_subscriber?.dob
+                    ? new Date(virtual_subscriber?.dob).toISOString().substring(0, 10)
+                    : '',
+                [`insurancePhone${section}`]: virtual_subscriber?.phone_number || '',
+                [`insuranceAddress${section}`]: virtual_subscriber?.virtual_address?.address_1 || '',
+                [`insuranceAddress2_${section}`]: virtual_subscriber?.virtual_address?.address_2 || '',
+                [`insuranceCity${section}`]: virtual_subscriber?.virtual_address?.city || '',
+                [`insuranceState${section}`]: virtual_subscriber?.virtual_address?.state || '',
+                [`insuranceZip${section}`]: virtual_subscriber?.virtual_address?.zipcode || '',
+                [`insuranceSubscriber${section}`]: subscriber_relation || 'none',
+                [`frontInsuranceCard${section}`]: "" ,
+                [`backInsuranceCard${section}`]: "",
+            };
+
+            setValues((prevData: any) => ({ ...prevData, ...virtualSubscriber }));
+            setInsuranceData((prevData: any) => ({ ...prevData, ...virtualSubscriber }));
+            setErrors(newErrors);
+
+        } else if (isOtherValueSelected) {
+            // Handle "other" value
+            if (virtual_subscriber) {
+                const otherSubscriberValues = {
+                    [`insuranceSubscriber${section}`]: subscriberValue,
+                    [`insuranceFirstName${section}`]: virtual_subscriber?.first_name || '',
+                    [`insuranceLastName${section}`]: virtual_subscriber?.last_name || '',
+                    [`insuranceDob${section}`]: virtual_subscriber?.dob
+                        ? new Date(virtual_subscriber?.dob).toISOString().substring(0, 10)
+                        : '',
+                    [`insurancePhone${section}`]: virtual_subscriber?.phone_number || '',
+                    [`insuranceAddress${section}`]: virtual_subscriber?.virtual_address?.address_1 || '',
+                    [`insuranceAddress2_${section}`]: virtual_subscriber?.virtual_address?.address_2 || '',
+                    [`insuranceCity${section}`]: virtual_subscriber?.virtual_address?.city || '',
+                    [`insuranceState${section}`]: virtual_subscriber?.virtual_address?.state || '',
+                    [`insuranceZip${section}`]: virtual_subscriber?.virtual_address?.zipcode || '',
+                    [`frontInsuranceCard${section}`]: "" ,
+                    [`backInsuranceCard${section}`]: "",
+                };
+
+            setTouched({
+                [`frontInsuranceCard${section}`]: false,
+                [`backInsuranceCard${section}`]: false,
+            }, false);
+
+                setValues((prevData: any) => ({ ...prevData, ...otherSubscriberValues }));
+                setInsuranceData((prevData: any) => ({ ...prevData, ...otherSubscriberValues }));
+                // this is true if the value selected does not have any virtual data leaving the fields empty
+            } else if (isNotSubscriberRelationSelected){
+                // Clear fields if no matching virtual subscriber
+                const otherSubscriberValues = {
+                    [`insuranceSubscriber${section}`]: subscriberValue,
+                    [`insuranceFirstName${section}`]: '',
+                    [`insuranceLastName${section}`]: '',
+                    [`insuranceDob${section}`]: '',
+                    [`insurancePhone${section}`]: '',
+                    [`insuranceAddress${section}`]: '',
+                    [`insuranceAddress2_${section}`]: '',
+                    [`insuranceCity${section}`]: '',
+                    [`insuranceState${section}`]: '',
+                    [`insuranceZip${section}`]: '',
+                    [`frontInsuranceCard${section}`]: '',
+                    [`backInsuranceCard${section}`]: '',
+                };
+
+                setValues((prevData: any) => ({ ...prevData, ...otherSubscriberValues }));
+                setInsuranceData((prevData: any) => ({ ...prevData, ...otherSubscriberValues }));
+                setErrors(newErrors);
+
+            }
+        } else {
+            // Clear fields if no matching virtual subscriber
+            const otherSubscriberValues = {
+                [`insuranceSubscriber${section}`]: subscriberValue,
+                [`insuranceFirstName${section}`]: '',
+                [`insuranceLastName${section}`]: '',
+                [`insuranceDob${section}`]: '',
+                [`insurancePhone${section}`]: '',
+                [`insuranceAddress${section}`]: '',
+                [`insuranceAddress2_${section}`]: '',
+                [`insuranceCity${section}`]: '',
+                [`insuranceState${section}`]: '',
+                [`insuranceZip${section}`]: '',
+                [`frontInsuranceCard${section}`]: '',
+                [`backInsuranceCard${section}`]: '',
+            };
+
+            setValues((prevData: any) => ({ ...prevData, ...otherSubscriberValues }));
+            setInsuranceData((prevData: any) => ({ ...prevData, ...otherSubscriberValues }));
+        }
+            setErrors(newErrors);
+        
+    }
+}, [values[`insuranceSubscriber${section}`] , onRteDataChange]);
   const [frontInsuranceImage, setFrontInsuranceImage] = useState(null);
   const [backInsuranceImage, setBackInsuranceImage] = useState(null);
 
@@ -444,7 +557,7 @@ console.log(initialValues, 'initialValues');
     console.log('SETTING INSURANCE DATA', insuranceData);
     onSubscriberDataChange(data, section);
 
-    if (values[`insuranceSubscriber${section}`] !== 'Patient') {
+    if (values[`insuranceSubscriber${section}`] !== 'self') {
       const frontImage = frontInsuranceCard != null ? frontInsuranceImage : null;
       const backImage = backInsuranceCard != null ? backInsuranceImage : null;
 
@@ -574,25 +687,14 @@ console.log(initialValues, 'initialValues');
       const inNetwork = onRteDataChange?.rte_error;
 
       if (inNetwork === '') {
-        // setIsValidNetwork(true); //- this is to handle in or out of network checks uncomment this
+        setIsValidNetwork(true); //- this is to handle in or out of network checks uncomment this
         console.log(`Network is valid: ${inNetwork}`);
       } else {
-        // setIsValidNetwork(false);//- this is to handle in or out of network checks uncomment this
+        setIsValidNetwork(false);//- this is to handle in or out of network checks uncomment this
         console.log('Invalid Network');
       }
     } catch (error) {
       console.error(error);
-    }
-  };
-  const testInNetwork = (testValue: string) => {
-    const inNetwork = testValue;
-
-    if (inNetwork === '') {
-      setIsValidNetwork(true);
-      console.log(`Network is valid: ${inNetwork}`);
-    } else {
-      setIsValidNetwork(false);
-      console.log('Invalid Network');
     }
   };
 
@@ -729,15 +831,13 @@ console.log(initialValues, 'initialValues');
                   : 'border-poise-2'
                 }  `}
             >
-              <option defaultValue="">Select an option</option>
-              <option value="Patient">Patient</option>
-              <option value="Spouse">Spouse</option>
-              <option value="Mother">Mother</option>
-              <option value="Father">Father</option>
-              <option value="Guardian">Guardian</option>
-              <option value="self">Self</option>
-              <option value="other">Other</option>
-            </select>
+           <option value="none">Select an option</option>
+    {subscriberOptions.map((option) => (
+      <option key={option.value} value={option.value}>
+        {option.label}
+      </option>
+    ))}
+  </select>
 
             <label
               htmlFor="insuranceSubscriber"
@@ -748,7 +848,7 @@ console.log(initialValues, 'initialValues');
           </div>
 
           <div
-            className={` ${errors[`insuranceFirstName${section}`] ? 'text-status-red-text' : 'text-black-4 '} flex h-full flex-1 flex-col ${values[`insuranceSubscriber${section}`] === 'Patient' || values[`insuranceSubscriber${section}`] === '' ? 'hidden' : 'block'}`}
+            className={` ${errors[`insuranceFirstName${section}`] ? 'text-status-red-text' : 'text-black-4 '} flex h-full flex-1 flex-col ${values[`insuranceSubscriber${section}`] === 'self' || values[`insuranceSubscriber${section}`] === 'none' ? 'hidden' : 'block'}`}
           >
             {/* First Name */}
             <div
@@ -1056,43 +1156,33 @@ console.log(initialValues, 'initialValues');
 
               {/* Insurance Front Card */}
 
-              <div className="relative mt-4">
-                <ImageUpload
-                  id={`frontInsuranceCard${section}`}
-                  name={`frontInsuranceCard${section}`}
-                  label="Upload Front of Insurance Card"
-                  error={errorUploads[`frontInsuranceCard${section}`] || false}
-                  // touchedImage={touchedImages[`frontInsuranceCard${section}`]}
-                  value={values[`frontInsuranceCard${section}`]}
-                  setValue={(val) => {
-                    setFieldValue(`frontInsuranceCard${section}`, val);
-                    handleTouched(`frontInsuranceCard${section}`);
-                  }}
-                  setError={(err) =>
-                    handleError(`frontInsuranceCard${section}`, err)
-                  }
-                  setInsuranceImage={setFrontInsuranceImage}
-                />
-              </div>
-              {/* Insurance Back Card */}
-              <div className="relative mt-4">
-                <ImageUpload
-                  id={`backInsuranceCard${section}`}
-                  name={`backInsuranceCard${section}`}
-                  label="Upload Back of Insurance Card"
-                  error={errorUploads[`backInsuranceCard${section}`] || false}
-                  // touchedImage={touchedImages[`backInsuranceCard${section}`]|| false}
-                  value={values[`backInsuranceCard${section}`]}
-                  setValue={(val: any) => {
-                    setFieldValue(`backInsuranceCard${section}`, val);
-                    handleTouched(`backInsuranceCard${section}`);
-                  }}
-                  setError={(err: any) =>
-                    handleError(`backInsuranceCard${section}`, err)
-                  }
-                  setInsuranceImage={setBackInsuranceImage}
-                />
-              </div>
+              <div className="mt-4 relative">
+  <ImageUpload
+    id={`frontInsuranceCard${section}`}
+    name={`frontInsuranceCard${section}`}
+    label={`Upload Front of Identification Card (Section ${section})`}
+    error={errorUploads[`frontInsuranceCard${section}`]}
+    setError={(hasError) => handleError(`frontInsuranceCard${section}`, hasError)}
+    value={formValues[`frontInsuranceCard${section}`]}
+    setValue={(val) => {
+      setFieldValue(`frontInsuranceCard${section}`, val);
+    }}
+  />
+</div>
+
+<div className="mt-4 relative">
+  <ImageUpload
+    id={`backInsuranceCard${section}`}
+    name={`backInsuranceCard${section}`}
+    label={`Upload Back of Identification Card (Section ${section})`}
+    error={errorUploads[`backInsuranceCard${section}`]}
+    setError={(hasError) => handleError(`backInsuranceCard${section}`, hasError)}
+    value={formValues[`backInsuranceCard${section}`]}
+    setValue={(val) => {
+      setFieldValue(`backInsuranceCard${section}`, val);
+    }}
+  />
+</div>
             </div>{' '}
           </div>
         </div>

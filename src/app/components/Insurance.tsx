@@ -33,7 +33,7 @@ export default function Insurance() {
   const [hasErrors, setHasErrors] = useState(false);
   const handleCarrierUpdate = (newValues: any) => {
     console.log(newValues, "new values carrier update")
-    setValues((prevValues:any) => ({ ...prevValues, ...newValues }));
+    setValues((prevValues) => ({ ...prevValues, ...newValues }));
   };
   const handleIsSubmitting = (isSubmitting: boolean) => {
     setIsSubmitting(isSubmitting);
@@ -175,7 +175,7 @@ export default function Insurance() {
         //call api to store  subscriber data to db
         console.log(insuranceData, " insuranceddata all");
         // console.log(additionalSubscriberData, " additionalSubscriberData all");
-        // onHandleNext();
+        onHandleNext();
         break;
 
       default:

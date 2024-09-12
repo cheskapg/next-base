@@ -2,7 +2,7 @@
 
 import Navbar from "./Navbar";
 import ProgressBar from "./ProgressBar";
-// import Facility from "./Facility";
+import Facility from "./Facility";
 import Insurance from "./Insurance";
 import PatientDetail from "./PatientDetail";
 import { useFormState } from "./FormContext";
@@ -13,9 +13,10 @@ import GlobalDropdowns from "../interface/GlobalDropdowns";
 import IdleModal from "./IdleModal";
 import Guarantor from "./Guarantor";
 import Consent from "./Consent";
+import ClinicalQuestions from "../models/ClinicalQuestions";
+import WorkersCompQuestions from "./QuestionsForms/WorkersCompQuestions";
 import Confirmation from "./Confirmation";
 import BehavioralQuestions from "./QuestionsForms/BehavioralQuestions";
-import ClinicalQuestions from "../models/ClinicalQuestions";
 import ClinicalQuestionsPage from "./QuestionsForms/ClinicalQuestions";
 
 export default function PageHandler({
@@ -35,28 +36,28 @@ export default function PageHandler({
 }) {
   const { step } = useFormState();
   const steps = [
-    <Confirmation key={"Confirmation"}/>,
-
-    <BehavioralQuestions key={"BehavioralQuestions"}/>,
-    <Consent
-    key={"Consent"}
-    region={region}
-    globalDropdowns={globalDropdowns}
-  />,
-  <Confirmation key={"Confirmation"}/>,
-
+  //   <Consent
+  //   key={"Consent"}
+  //   region={region}
+  //   globalDropdowns={globalDropdowns}
+  // />,
+  // <Confirmation key={"Confirmation"}/>,
     <PatientDetail
-    key={"PatientDetail"}
-    patient={patient}
-    patientId={patientNumber}
+      key={"PatientDetail"}
+      patient={patient}
+      patientId={patientNumber}
     />,
-    <ClinicalQuestionsPage key={"ClinicalQuestionsPage"}/>,
+
     <Insurance key={"Insurance"} />,
     <Guarantor
       key={"Guarantor"}
       region={region}
       globalDropdowns={globalDropdowns}
     />,
+    <BehavioralQuestions key={"BehavioralQuestions"} />,
+    <ClinicalQuestionsPage key={"ClinicalQuestionsPage"} />,
+    <WorkersCompQuestions key={"WorkersCompQuestions"} />,
+  
     <Identification key={"Identification"} />,
     <Demographics
       key={"Demographics"}
@@ -69,20 +70,22 @@ export default function PageHandler({
       region={region}
       globalDropdowns={globalDropdowns}
     />,
+    <Confirmation key={"Confirmation"}/>
   ];
+  const isVirtual = patient.reasonForVisit
+    ? patient.reasonForVisit.toString().includes("VV")
+    : false;
 
   return (
     <>
-      {/* <Navbar region={region} /> */}
+      <Navbar region={region} />
       <ProgressBar total={totalFlow} value={step} />
-      {/* <Facility
+      <Facility
         region={region}
         center={center}
         visitDate={patient.visitTime}
-        isVirtual={
-          patient.reasonForVisit.toString().includes("VV") ? true : false
-        }
-      /> */}
+        isVirtual={isVirtual}
+      />
       <IdleModal></IdleModal>
       {/* {console.log("Step: " + step)} */}
 

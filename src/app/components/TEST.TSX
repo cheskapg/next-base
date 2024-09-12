@@ -157,7 +157,119 @@ const SubscriberForm = ({
     }
   }, [touched[`frontInsuranceCard${section}`], touched[`backInsuranceCard${section}`]]);
 
+useEffect(() => {
+  const subscriberValue = values[`insuranceSubscriber${section}`];
+  const subscriber_relation = onRteDataChange?.subscriber_relation || "none";
 
+  const isPatientSelected = subscriberValue === 'self';
+  const isSubscriberRelationSelected = subscriberOptions.some(
+    (option) => option.value === subscriber_relation
+  ) && subscriber_relation === subscriberValue;
+  const isOtherValueSelected = !isPatientSelected && !isSubscriberRelationSelected;
+
+  let newErrors = { ...errors };
+
+  if (!subscriberValue) {
+    newErrors[`insuranceSubscriber${section}`] = 'This field is required';
+  } else {
+    delete newErrors[`insuranceSubscriber${section}`];
+
+    if (isPatientSelected) {
+      const patientValues = {
+        [`insuranceSubscriber${section}`]: 'self',
+        [`insuranceFirstName${section}`]: patientDetails.firstName || '',
+        [`insuranceLastName${section}`]: patientDetails.lastName || '',
+        [`insuranceDob${section}`]: patientDetails.dateOfBirth
+          ? new Date(patientDetails.dateOfBirth).toISOString().substring(0, 10)
+          : '',
+        [`insurancePhone${section}`]: patientDetails.phoneNumber || '',
+        [`insuranceAddress${section}`]: patientDetails.addressLine1 || '',
+        [`insuranceAddress2_${section}`]: patientDetails.addressLine2 || '',
+        [`insuranceCity${section}`]: patientDetails.city || '',
+        [`insuranceState${section}`]: patientDetails.state || '',
+        [`insuranceZip${section}`]: patientDetails.zipCode || '',
+        [`frontInsuranceCard${section}`]: 'null',
+        [`backInsuranceCard${section}`]: 'null',
+      };
+      delete errors[`frontInsuranceCard${section}`];
+      delete errors[`backInsuranceCard${section}`];
+      
+      setTouched({
+        [`insuranceFirstName${section}`]: false,
+        [`insuranceLastName${section}`]: false,
+        [`insuranceDob${section}`]: false,
+        [`insurancePhone${section}`]: false,
+        [`insuranceAddress${section}`]: false,
+        [`insuranceAddress2_${section}`]: false,
+        [`insuranceCity${section}`]: false,
+        [`insuranceState${section}`]: false,
+        [`insuranceZip${section}`]: false,
+        [`frontInsuranceCard${section}`]: false,
+        [`backInsuranceCard${section}`]: false,
+      }, false);
+      
+      setErrors(errors);
+      setValues((prevData) => ({ ...prevData, ...patientValues }));
+      setInsuranceData((prevData) => ({ ...prevData, ...patientValues }));
+    } else if (isSubscriberRelationSelected) {
+      const virtualSubscriber = {
+        [`insuranceFirstName${section}`]: virtual_subscriber?.first_name || '',
+        [`insuranceLastName${section}`]: virtual_subscriber?.last_name || '',
+        [`insuranceDob${section}`]: virtual_subscriber?.dob
+          ? new Date(virtual_subscriber?.dob).toISOString().substring(0, 10)
+          : '',
+        [`insurancePhone${section}`]: virtual_subscriber?.phone_number || '',
+        [`insuranceAddress${section}`]: virtual_subscriber?.virtual_address?.address_1 || '',
+        [`insuranceAddress2_${section}`]: virtual_subscriber?.virtual_address?.address_2 || '',
+        [`insuranceCity${section}`]: virtual_subscriber?.virtual_address?.city || '',
+        [`insuranceState${section}`]: virtual_subscriber?.virtual_address?.state || '',
+        [`insuranceZip${section}`]: virtual_subscriber?.virtual_address?.zipcode || '',
+        [`insuranceSubscriber${section}`]: subscriber_relation || 'none',
+        [`frontInsuranceCard${section}`]: insuranceData
+          ? insuranceData[`frontInsuranceCard${section}`]
+          : '',
+        [`backInsuranceCard${section}`]: insuranceData
+          ? insuranceData[`backInsuranceCard${section}`]
+          : '',
+      };
+      
+      setValues((prevData) => ({ ...prevData, ...virtualSubscriber }));
+      setInsuranceData((prevData) => ({ ...prevData, ...virtualSubscriber }));
+      setErrors(newErrors);
+  
+    } else if (isOtherValueSelected) {
+      const clearedValues = {
+        [`insuranceFirstName${section}`]: '',
+        [`insuranceLastName${section}`]: '',
+        [`insuranceDob${section}`]: '',
+        [`insurancePhone${section}`]: '',
+        [`insuranceAddress${section}`]: '',
+        [`insuranceAddress2_${section}`]: '',
+        [`insuranceCity${section}`]: '',
+        [`insuranceState${section}`]: '',
+        [`insuranceZip${section}`]: '',
+        [`frontInsuranceCard${section}`]: '',
+        [`backInsuranceCard${section}`]: '',
+      };
+      
+      newErrors[`insuranceSubscriber${section}`] = ''; // Clear error if "Other" is selected
+      delete newErrors[`frontInsuranceCard${section}`];
+      delete newErrors[`backInsuranceCard${section}`];
+      
+      setValues((prevData) => ({
+        ...prevData,
+        [`insuranceSubscriber${section}`]: 'other',
+        ...clearedValues,
+      }));
+      setInsuranceData((prevData) => ({
+        ...prevData,
+        [`insuranceSubscriber${section}`]: 'other',
+        ...clearedValues,
+      }));
+      setErrors(newErrors);
+    }
+  }
+}, [values[`insuranceSubscriber${section}`], onRteDataChange]);
   useEffect(() => {
     if (onRteDataChange) {
       console.log(onRteDataChange, 'SUBSCRIBER FORM RTE DATAA');
