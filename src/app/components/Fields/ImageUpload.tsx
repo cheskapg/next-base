@@ -496,7 +496,7 @@ export default function ImageUpload({
         <div className={``}>
           <div
             id={`${id}FormContainer`}
-            className={`p-6 ${!imageUpload && !(error || errorUpload) ? "" : "hidden"}`}
+            className={`p-6 ${!imageUpload && (error || errorUpload) ? "" : "hidden"}`}
           >
             <div className="p-4 w-full flex justify-center">
               <img src="../assets/images/card-new.svg" alt="" />
@@ -513,7 +513,7 @@ export default function ImageUpload({
             <img
               id={`${id}Image`}
               src="../assets/images/card-new.svg"
-              className={`${imageUpload && !(error || errorUpload) ? "" : "hidden"}`}
+              className={`${imageUpload && (error || errorUpload) ? "" : "hidden"}`}
               onError={(e) => {
                 //   console.log(e);
                 setErrorUpload(true);

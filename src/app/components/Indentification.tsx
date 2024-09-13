@@ -105,8 +105,9 @@ export default function Identification() {
               name="frontInsuranceCard"
               label="Upload Front of Identification Card"
               error={errorUpload}
-              setError={setErrorUpload}
-              value={frontInsuranceCard}
+              setError={(hasError) =>
+                setErrorUpload((prev: any) => ({ ...prev,  hasError }))
+              }              value={frontInsuranceCard}
               setValue={(val) => {
                 console.log(val);
                 setFieldValue(`frontInsuranceCard`, val);
@@ -121,7 +122,9 @@ export default function Identification() {
               name="backInsuranceCard"
               label="Upload Back of Identification Card"
               error={errorUpload}
-              setError={setErrorUpload}
+              setError={(hasError) =>
+                setErrorUpload((prev: any) => ({ ...prev, hasError }))
+              }              
               value={backInsuranceCard}
               setValue={(val) => {
                 console.log(val);

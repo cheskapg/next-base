@@ -175,7 +175,7 @@ export default function Insurance() {
         //call api to store  subscriber data to db
         console.log(insuranceData, " insuranceddata all");
         // console.log(additionalSubscriberData, " additionalSubscriberData all");
-        onHandleNext();
+        // onHandleNext();
         break;
 
       default:

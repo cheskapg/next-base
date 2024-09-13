@@ -27,6 +27,14 @@ interface SubscriberFormProps {
   regId: number;
   dob: string;
 }
+type ErrorUploadType = {
+  [key: number]: boolean;
+};
+
+
+type FileUploadType = {
+  [key: number]: string | null;
+};
 const SubscriberForm = ({
   section,
   patientDetails,
@@ -54,6 +62,8 @@ const SubscriberForm = ({
     { value: "guardian", label: "Guardian" },
     { value: "other", label: "Other" }
   ];
+
+
 
   //   const [touchedImages, setTouchedImages] = useState({
   //     [`frontInsuranceCard${section}`]: false,
@@ -101,10 +111,9 @@ const SubscriberForm = ({
     [`insuranceState${section}`]: getDefault(`insuranceState${section}`, ''),
     [`insuranceZip${section}`]: getDefault(`insuranceZip${section}`, ''),
     [`insuranceSubscriber${section}`]: getDefault(`insuranceSubscriber${section}`, ''),
-    [`frontInsuranceCard${section}`]: "",
-    [`backInsuranceCard${section}`]: "",
-    frontInsuranceCard: "",
-    backInsuranceCard: "",
+    [`frontInsuranceCard${section}`]: getDefault(`frontInsuranceCard${section}`, ''),
+    [`backInsuranceCard${section}`]: getDefault(`backInsuranceCard${section}`, ''),
+
   };
 
   const validationSchema = createValidationSchema(section);
@@ -135,36 +144,6 @@ const SubscriberForm = ({
     },
   });
   const [sameAsPatient, setSameAsPatient] = useState(false);
-
-  // Ensure to call handleErrors with the updated errors for image upload
-  useEffect(() => {
-    setErrors(errors);
-    handleErrors(errors);
-    console.log(errors, "errors");
-  }, [errors]);
-
-  //   useEffect(() => {
-  //     values [`frontInsuranceCard${section}`] = frontInsuranceCard;
-  //     values[`backInsuranceCard${section}`] = backInsuranceCard;
-  //     console.log("test front" + frontInsuranceCard);
-  //     console.log("test back" + backInsuranceCard);
-  //     console.log(
-  //       "result: " + !errorUploads &&
-  //         frontInsuranceCard != null &&
-  //         backInsuranceCard != null
-  //     );
-  //   }, [frontInsuranceCard, backInsuranceCard]);
-
-
-  // Set touched state for images when they are touched
-  //   useEffect(() => {
-  //     if (touched[`frontInsuranceCard${section}`]) {
-  //       handleTouched(`frontInsuranceCard${section}`);
-  //     }
-  //     if (touched[`backInsuranceCard${section}`]) {
-  //       handleTouched(`backInsuranceCard${section}`);
-  //     }
-  //   }, [touched[`frontInsuranceCard${section}`], touched[`backInsuranceCard${section}`]]);
 
   const handleSelectChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -202,8 +181,6 @@ const SubscriberForm = ({
     loadIds(1); // Load for section 1
     loadIds(2); // Load for section 2
 
-
-
     if (onRteDataChange) {
       console.log(onRteDataChange, 'SUBSCRIBER FORM RTE DATAA');
       console.log(
@@ -225,8 +202,9 @@ const SubscriberForm = ({
       ? subscriber_relation
       : 'other';
 
-    console.log(initialSubscriberRelation, "initialSubscriberRelation", isSubscriberRelationInOptions, "isSubscriberRelationInOptions")
+    console.log(initialSubscriberRelation, "yoii initialSubscriberRelation", isSubscriberRelationInOptions, "yoii isSubscriberRelationInOptions")
     if (virtual_subscriber) {
+      console.log(virtual_subscriber, "yoii initialvirtual_subscriberyoii")
       const initialSubscriberValues = {
         [`insuranceFirstName${section}`]: virtual_subscriber?.first_name || '',
         [`insuranceLastName${section}`]: virtual_subscriber?.last_name || '',
@@ -243,7 +221,7 @@ const SubscriberForm = ({
         [`frontInsuranceCard${section}`]: insuranceData?.[`frontInsuranceCard${section}`] || '',
         [`backInsuranceCard${section}`]: insuranceData?.[`backInsuranceCard${section}`] || '',
       };
-      //set teh dropdown to other but save subscriber relation to its original value in insurance data
+      //set the dropdown to other but save subscriber relation to its original value in insurance data
       setValues((prevData: any) => ({ ...prevData, [`insuranceSubscriber${section}`]: initialSubscriberRelation, ...initialSubscriberValues }));
       setInsuranceData((prevData: any) => ({ ...prevData, [`insuranceSubscriber${section}`]: initialSubscriberRelation, ...initialSubscriberValues }));
       // on submit change the value to the original subscriber relation
@@ -294,20 +272,27 @@ const SubscriberForm = ({
       setFieldValue(`insuranceZip${section}`, '');
     }
   }, [sameAsPatient, patientDetails]);
-  //FORR DROP DOWN CHANGES
-  const resetFormValues = () => {
-    const index = section - 1; // Adjust for zero-based indexing
-    const data = insuranceData[index] || {}; // Get the insurance data for the current section
 
-    // Construct newValues dynamically
-    const newValues = {
-      ...data,
-      insuranceSubscriber: values[`insuranceSubscriber${section}`] || '', // Preserve existing subscriber value
-    };
-
-    setValues(newValues);
-  };
-
+  const [frontInsuranceCard, setFrontInsuranceCard] = useState<FileUploadType>({
+    1: null,
+    2: null,
+  });
+  const [backInsuranceCard, setBackInsuranceCard] = useState<FileUploadType>({
+    1: null,
+    2: null,
+  });
+  const [frontInsuranceImage, setFrontInsuranceImage] = useState<FileUploadType>({
+    1: null,
+    2: null,
+  });
+  const [backInsuranceImage, setBackInsuranceImage] = useState<FileUploadType>({
+    1: null,
+    2: null,
+  });
+  const [errorUpload, setErrorUpload] = useState<ErrorUploadType>({
+    1: false,
+    2: false,
+  });
 
   useEffect(() => {
     console.log('YOUR values:', values);
@@ -317,44 +302,97 @@ const SubscriberForm = ({
   useEffect(() => {
     const subscriberValue = values[`insuranceSubscriber${section}`];
     const subscriber_relation = onRteDataChange?.subscriber_relation || "none";
-
     const isPatientSelected = subscriberValue === 'self';
     const isSubscriberRelationInOptions = subscriberOptions.some(
       (option) => option.value === subscriber_relation
     );
-    const isSubscriberRelationSelected = isSubscriberRelationInOptions && subscriber_relation === subscriberValue;
-    const isNotSubscriberRelationSelected = isSubscriberRelationInOptions && subscriber_relation !== subscriberValue;
-    // sets the dropdown to other if the subscriber value is not in the subscriber options 
-    const isOtherValueSelected = !subscriberOptions.some(
-      (option) => option.value === subscriberValue
-    );
-
     let newErrors = { ...errors };
-
     if (!subscriberValue) {
       newErrors[`insuranceSubscriber${section}`] = 'This field is required';
     } else {
       delete newErrors[`insuranceSubscriber${section}`];
 
+      if (subscriberValue !== 'self') {
+        console.log("subscriberValue !== 'self' yoii ")
+
+        if (!frontInsuranceCard[section]) {
+          console.log("!frontInsuranceCard ")
+
+          newErrors[`frontInsuranceCard${section}`] = 'Front insurance card image is required';
+        } else {
+          console.log(" has frontInsuranceCard yoii")
+
+          delete newErrors[`frontInsuranceCard${section}`];
+        }
+
+        if (!backInsuranceCard[section]) {
+          console.log("!backInsuranceCard yoii")
+
+          newErrors[`backInsuranceCard${section}`] = 'Back insurance card image is required';
+        } else {
+          delete newErrors[`backInsuranceCard${section}`];
+          console.log(" has backInsuranceCard yoii")
+
+        }
+      } else {
+        console.log("subscriberValue !== 'self' yoii PATIENT SELECTED")
+
+        delete newErrors[`frontInsuranceCard${section}`];
+        delete newErrors[`backInsuranceCard${section}`];
+      }
+      const clearSubscriberFields = {
+        [`insuranceSubscriber${section}`]: subscriberValue,
+        [`insuranceFirstName${section}`]: '',
+        [`insuranceLastName${section}`]: '',
+        [`insuranceDob${section}`]: '',
+        [`insurancePhone${section}`]: '',
+        [`insuranceAddress${section}`]: '',
+        [`insuranceAddress2_${section}`]: '',
+        [`insuranceCity${section}`]: '',
+        [`insuranceState${section}`]: '',
+        [`insuranceZip${section}`]: '',
+        [`frontInsuranceCard${section}`]: '',
+        [`backInsuranceCard${section}`]: '',
+      };
+      const virtualSubscriber = {
+        [`insuranceFirstName${section}`]: virtual_subscriber?.first_name || '',
+        [`insuranceLastName${section}`]: virtual_subscriber?.last_name || '',
+        [`insuranceDob${section}`]: virtual_subscriber?.dob
+          ? new Date(virtual_subscriber?.dob).toISOString().substring(0, 10)
+          : '',
+        [`insurancePhone${section}`]: virtual_subscriber?.phone_number || '',
+        [`insuranceAddress${section}`]: virtual_subscriber?.virtual_address?.address_1 || '',
+        [`insuranceAddress2_${section}`]: virtual_subscriber?.virtual_address?.address_2 || '',
+        [`insuranceCity${section}`]: virtual_subscriber?.virtual_address?.city || '',
+        [`insuranceState${section}`]: virtual_subscriber?.virtual_address?.state || '',
+        [`insuranceZip${section}`]: virtual_subscriber?.virtual_address?.zipcode || '',
+        [`frontInsuranceCard${section}`]: insuranceData
+          ? insuranceData[`frontInsuranceCard${section}`]
+          : '',
+        [`backInsuranceCard${section}`]: insuranceData
+          ? insuranceData[`backInsuranceCard${section}`]
+          : '',
+      };
+      const patientValues = {
+        [`insuranceSubscriber${section}`]: 'self',
+        [`insuranceFirstName${section}`]: patientDetails.firstName || '',
+        [`insuranceLastName${section}`]: patientDetails.lastName || '',
+        [`insuranceDob${section}`]: patientDetails.dateOfBirth
+          ? new Date(patientDetails.dateOfBirth).toISOString().substring(0, 10)
+          : '',
+        [`insurancePhone${section}`]: patientDetails.phoneNumber || '',
+        [`insuranceAddress${section}`]: patientDetails.addressLine1 || '',
+        [`insuranceAddress2_${section}`]: patientDetails.addressLine2 || '',
+        [`insuranceCity${section}`]: patientDetails.city || '',
+        [`insuranceState${section}`]: patientDetails.state || '',
+        [`insuranceZip${section}`]: patientDetails.zipCode || '',
+        [`frontInsuranceCard${section}`]: "empty",
+        [`backInsuranceCard${section}`]: "empty",
+      };
+
       if (isPatientSelected) {
         // Patient selected, fill patient details
-        const patientValues = {
-          [`insuranceSubscriber${section}`]: 'self',
-          [`insuranceFirstName${section}`]: patientDetails.firstName || '',
-          [`insuranceLastName${section}`]: patientDetails.lastName || '',
-          [`insuranceDob${section}`]: patientDetails.dateOfBirth
-            ? new Date(patientDetails.dateOfBirth).toISOString().substring(0, 10)
-            : '',
-          [`insurancePhone${section}`]: patientDetails.phoneNumber || '',
-          [`insuranceAddress${section}`]: patientDetails.addressLine1 || '',
-          [`insuranceAddress2_${section}`]: patientDetails.addressLine2 || '',
-          [`insuranceCity${section}`]: patientDetails.city || '',
-          [`insuranceState${section}`]: patientDetails.state || '',
-          [`insuranceZip${section}`]: patientDetails.zipCode || '',
-          [`frontInsuranceCard${section}`]: "empty",
-          [`backInsuranceCard${section}`]: "empty",
-        };
-
+        console.log("isPatientSelected yoii")
         setTouched({
           [`insuranceFirstName${section}`]: false,
           [`insuranceLastName${section}`]: false,
@@ -368,114 +406,60 @@ const SubscriberForm = ({
           [`frontInsuranceCard${section}`]: false,
           [`backInsuranceCard${section}`]: false,
         }, false);
-
         setErrors(errors);
         setValues((prevData: any) => ({ ...prevData, ...patientValues }));
         setInsuranceData((prevData: any) => ({ ...prevData, ...patientValues }));
-        // this is true if the value selected has the virtual subscriber which should load the virtual subscriber data
-      } else if (isSubscriberRelationSelected) {
-        // Valid subscriber relation from options
-        const virtualSubscriber = {
-          [`insuranceFirstName${section}`]: virtual_subscriber?.first_name || '',
-          [`insuranceLastName${section}`]: virtual_subscriber?.last_name || '',
-          [`insuranceDob${section}`]: virtual_subscriber?.dob
-            ? new Date(virtual_subscriber?.dob).toISOString().substring(0, 10)
-            : '',
-          [`insurancePhone${section}`]: virtual_subscriber?.phone_number || '',
-          [`insuranceAddress${section}`]: virtual_subscriber?.virtual_address?.address_1 || '',
-          [`insuranceAddress2_${section}`]: virtual_subscriber?.virtual_address?.address_2 || '',
-          [`insuranceCity${section}`]: virtual_subscriber?.virtual_address?.city || '',
-          [`insuranceState${section}`]: virtual_subscriber?.virtual_address?.state || '',
-          [`insuranceZip${section}`]: virtual_subscriber?.virtual_address?.zipcode || '',
-          [`insuranceSubscriber${section}`]: subscriber_relation || 'none',
-          [`frontInsuranceCard${section}`]: insuranceData
-            ? insuranceData[`frontInsuranceCard${section}`]
-            : '',
-          [`backInsuranceCard${section}`]: insuranceData
-            ? insuranceData[`backInsuranceCard${section}`]
-            : '',
-        };
+        //subscriber relation is within the options value
+      } else if (isSubscriberRelationInOptions) {
+        if (subscriberValue === subscriber_relation) {
+          console.log("SubscriberRelationInOptions and  SubscriberRelationSelected yoii")
 
-        setValues((prevData: any) => ({ ...prevData, ...virtualSubscriber }));
-        setInsuranceData((prevData: any) => ({ ...prevData, ...virtualSubscriber }));
-        setErrors(newErrors);
-
-      } else if (isOtherValueSelected) {
-        // Handle "other" value
-        //if other value has virtual subscriber set fields
-        if (virtual_subscriber) {
-          const otherSubscriberValues = {
-            [`insuranceSubscriber${section}`]: subscriberValue,
-            [`insuranceFirstName${section}`]: virtual_subscriber?.first_name || '',
-            [`insuranceLastName${section}`]: virtual_subscriber?.last_name || '',
-            [`insuranceDob${section}`]: virtual_subscriber?.dob
-              ? new Date(virtual_subscriber?.dob).toISOString().substring(0, 10)
-              : '',
-            [`insurancePhone${section}`]: virtual_subscriber?.phone_number || '',
-            [`insuranceAddress${section}`]: virtual_subscriber?.virtual_address?.address_1 || '',
-            [`insuranceAddress2_${section}`]: virtual_subscriber?.virtual_address?.address_2 || '',
-            [`insuranceCity${section}`]: virtual_subscriber?.virtual_address?.city || '',
-            [`insuranceState${section}`]: virtual_subscriber?.virtual_address?.state || '',
-            [`insuranceZip${section}`]: virtual_subscriber?.virtual_address?.zipcode || '',
-            [`frontInsuranceCard${section}`]: insuranceData
-              ? insuranceData[`frontInsuranceCard${section}`]
-              : '',
-            [`backInsuranceCard${section}`]: insuranceData
-              ? insuranceData[`backInsuranceCard${section}`]
-              : '',
-          };
-
-          setTouched({
-            [`frontInsuranceCard${section}`]: false,
-            [`backInsuranceCard${section}`]: false,
-          }, false);
-
-          setValues((prevData: any) => ({ ...prevData, ...otherSubscriberValues }));
-          setInsuranceData((prevData: any) => ({ ...prevData, ...otherSubscriberValues }));
-          // this is true if the value selected does not have any virtual data leaving the fields empty
-        } else if (isNotSubscriberRelationSelected) {
-          // Clear fields if no matching virtual subscriber
-          const otherSubscriberValues = {
-            [`insuranceSubscriber${section}`]: subscriberValue,
-            [`insuranceFirstName${section}`]: '',
-            [`insuranceLastName${section}`]: '',
-            [`insuranceDob${section}`]: '',
-            [`insurancePhone${section}`]: '',
-            [`insuranceAddress${section}`]: '',
-            [`insuranceAddress2_${section}`]: '',
-            [`insuranceCity${section}`]: '',
-            [`insuranceState${section}`]: '',
-            [`insuranceZip${section}`]: '',
-            [`frontInsuranceCard${section}`]: '',
-            [`backInsuranceCard${section}`]: '',
-          };
-
-          setValues((prevData: any) => ({ ...prevData, ...otherSubscriberValues }));
-          setInsuranceData((prevData: any) => ({ ...prevData, ...otherSubscriberValues }));
-          setErrors(newErrors);
+          setValues((prevData: any) => ({
+            ...prevData, [`insuranceSubscriber${section}`]: subscriber_relation || 'none',
+            ...virtualSubscriber
+          }));
+          setInsuranceData((prevData: any) => ({
+            ...prevData, [`insuranceSubscriber${section}`]: subscriber_relation || 'none',
+            ...virtualSubscriber
+          }));
 
         }
-      } else {
-        // Clear fields if no matching virtual subscriber default
-        const otherSubscriberValues = {
-          [`insuranceSubscriber${section}`]: subscriberValue,
-          [`insuranceFirstName${section}`]: '',
-          [`insuranceLastName${section}`]: '',
-          [`insuranceDob${section}`]: '',
-          [`insurancePhone${section}`]: '',
-          [`insuranceAddress${section}`]: '',
-          [`insuranceAddress2_${section}`]: '',
-          [`insuranceCity${section}`]: '',
-          [`insuranceState${section}`]: '',
-          [`insuranceZip${section}`]: '',
-          [`frontInsuranceCard${section}`]: '',
-          [`backInsuranceCard${section}`]: '',
-        };
+        else {
+          console.log("SubscriberRelationInOptions  SubscriberRelation NOTSelected yoii")
 
-        setValues((prevData: any) => ({ ...prevData, ...otherSubscriberValues }));
-        setInsuranceData((prevData: any) => ({ ...prevData, ...otherSubscriberValues }));
+          setValues((prevData: any) => ({ ...prevData, ...clearSubscriberFields }));
+          setInsuranceData((prevData: any) => ({ ...prevData, ...clearSubscriberFields }));
+        }
+
+        //if any of the options is selected and the subscriber relation is in the options
       }
-      setErrors(newErrors);
+      else if (!isSubscriberRelationInOptions) {
+        const initialSubscriberRelation = isSubscriberRelationInOptions
+          ? subscriber_relation
+          : 'other';
+
+        if (subscriberValue === "other") {
+          console.log("SubscriberRelationInOptions and  subscriberValue === other yoiii")
+
+          setValues((prevData: any) => ({
+            ...prevData, [`insuranceSubscriber${section}`]: initialSubscriberRelation,
+            ...virtualSubscriber
+          }));
+          setInsuranceData((prevData: any) => ({
+            ...prevData, [`insuranceSubscriber${section}`]: initialSubscriberRelation,
+            ...virtualSubscriber
+          }));
+
+        } else {
+          console.log("SubscriberRelationInOptions and  subscriberValue DID NOT CHOOSE OTHER  yoiii")
+
+          setValues((prevData: any) => ({ ...prevData, ...clearSubscriberFields }));
+          setInsuranceData((prevData: any) => ({ ...prevData, ...clearSubscriberFields }));
+        }
+
+      } else {
+        console.log("else yoii else")
+      }
 
     }
   }, [values[`insuranceSubscriber${section}`], onRteDataChange]);
@@ -503,58 +487,56 @@ const SubscriberForm = ({
   }, [triggerSubmit]);
   const sequence = section === '' ? 1 : section === '2' ? 2 : 1; // Defaults to 1 if section is not "2"
 
-  type ErrorUploadType = {
-    [key: number]: boolean;
-  };
-
-
-  type FileUploadType = {
-    [key: number]: string | null;
-  };
-
-  const [frontInsuranceCard, setFrontInsuranceCard] = useState<FileUploadType>({
-    1: null,
-    2: null,
-  });
-  const [backInsuranceCard, setBackInsuranceCard] = useState<FileUploadType>({
-    1: null,
-    2: null,
-  });
-  const [frontInsuranceImage, setFrontInsuranceImage] = useState<FileUploadType>({
-    1: null,
-    2: null,
-  });
-  const [backInsuranceImage, setBackInsuranceImage] = useState<FileUploadType>({
-    1: null,
-    2: null,
-  });
-  const [errorUpload, setErrorUpload] = useState<ErrorUploadType>({
-    1: false,
-    2: false,
-  });
 
   // UseEffect to monitor if all required images are uploaded
   useEffect(() => {
-    const currentErrors: { [key: string]: string } = {};
+    const subscriberValue = values[`insuranceSubscriber${section}`];
+    const currentErrors: { [key: string]: string } = Object.keys(errors).reduce((acc, key) => {
+      const error = errors[key];
+      if (typeof error === 'string') {
+        acc[key] = error;
+      }
+      return acc;
+    }, {} as { [key: string]: string });
+    // Validate insurance subscriber field
+    if (!subscriberValue) {
+      currentErrors[`insuranceSubscriber${section}`] = 'This field is required';
+    } else {
+      delete currentErrors[`insuranceSubscriber${section}`];
 
-    // Check if images for the current section are missing
-    if (!frontInsuranceCard[section]) {
-      currentErrors[`frontInsuranceCard${section}`] = 'Front insurance card image is required';
+      // Validate front and back insurance cards only if subscriber is not 'self'
+      if (subscriberValue !== 'self') {
+        if (!frontInsuranceCard[section]) {
+          currentErrors[`frontInsuranceCard${section}`] = 'Front insurance card image is required';
+        } else {
+          delete currentErrors[`frontInsuranceCard${section}`];
+        }
+
+        if (!backInsuranceCard[section]) {
+          currentErrors[`backInsuranceCard${section}`] = 'Back insurance card image is required';
+        } else {
+          delete currentErrors[`backInsuranceCard${section}`];
+        }
+      } else {
+        // If 'self', clear insurance image errors
+        delete currentErrors[`frontInsuranceCard${section}`];
+        delete currentErrors[`backInsuranceCard${section}`];
+      }
     }
-    if (!backInsuranceCard[section]) {
-      currentErrors[`backInsuranceCard${section}`] = 'Back insurance card image is required';
-    }
 
-    // Update error state
-    setErrorUpload((prev: any) => ({
-      ...prev,
-      [section]: Object.keys(currentErrors).length > 0,
-    }));
-
-    // Pass errors to parent
+    // Update Formik errors with the final `currentErrors` object
+    setErrors(currentErrors);
     handleErrors(currentErrors);
-  }, [frontInsuranceCard, backInsuranceCard, section, handleErrors]);
+    console.log('area Errors:', currentErrors);
+  }, [
+    frontInsuranceCard[section],
+    backInsuranceCard[section],
+    values[`insuranceSubscriber${section}`],
+    insuranceData,
+    values,
+    errors
 
+  ]);
 
   const onHandleFormSubmit = async (data: any) => {
     // Save the submitted data to insuranceData
@@ -573,7 +555,7 @@ const SubscriberForm = ({
 
     //   return updatedData;
     // });
-
+    
     console.log('SETTING  DATA', data);
     console.log('SETTING INSURANCE DATA', insuranceData);
     onSubscriberDataChange(data, section);
@@ -637,36 +619,6 @@ const SubscriberForm = ({
       setIsSubmitting(false);
     }
   }, [triggerSubmit]);
-
-  //   const loadIds = async () => {
-  //     const imageObj: any = JSON.parse(await LoadInsurance(regId, dob, sequence));
-  //     console.log(JSON.stringify(imageObj?.BackImage?.file_name));
-
-  //     const frontImage = imageObj?.FrontImage?.encodedImage || null;
-  //     const backImage = imageObj?.BackImage?.encodedImage || null;
-
-  //     if (frontImage !== null) {
-  //         const frontImageSet = {
-  //             [`frontInsuranceCard${section}`]: frontImage,
-  //           };
-  //       setFieldValue(`frontInsuranceCard${section}`, frontImage);
-  //       setFrontInsuranceCard(frontImage);
-
-  //       setInsuranceData((prevData: any) => ({ ...prevData, ...frontImageSet }));
-  //     }
-  //     if (backImage !== null) {
-  //         const backImageSet = {
-  //             [`backInsuranceCard${section}`]: backImage,
-  //           };
-
-  //           setInsuranceData((prevData: any) => ({ ...prevData, ...backImageSet }));
-
-  //       setFieldValue(`backInsuranceCard${section}`, backImage);
-  //       setBackInsuranceCard(backImage);
-
-  //     }
-
-  //   };
   const loadIds = async (section: number) => {
     const imageObj: any = JSON.parse(await LoadInsurance(regId, dob, sequence));
 
@@ -684,45 +636,6 @@ const SubscriberForm = ({
     }
   };
 
-  //   type TFormValues = {
-  //     insuranceCarrier: string;
-  //     subscriberId: string;
-  //     hasInsurance: string;
-  //     insuranceFirstName: string;
-  //     insuranceLastName: string;
-  //     insuranceDob: string;
-  //     insurancePhone: string;
-  //     insuranceAddress: string;
-  //     insuranceAddress2: string;
-  //     insuranceCity: string;
-  //     insuranceState: string;
-  //     insuranceZip: string;
-  //     isValidInsurance: string;
-  //     insuranceSubscriber: string;
-  //     //insurance card
-
-  //     frontInsuranceCard: string;
-  //     backInsuranceCard: string;
-
-  //     //additional subscriber
-  //     insuranceCarrier2: string;
-  //     subscriberId2: string;
-  //     hasInsurance2: string;
-  //     insuranceFirstName2: string;
-  //     insuranceLastName2: string;
-  //     insuranceDob2: string;
-  //     insurancePhone2: string;
-  //     insuranceAddress2_2: string;
-  //     insuranceCity2: string;
-  //     insuranceState2: string;
-  //     insuranceZip2: string;
-  //     isValidInsurance2: string;
-  //     insuranceSubscriber2: string;
-  //     //insurance card
-
-  //     frontInsuranceCard2: string;
-  //     backInsuranceCard2: string;
-  //   };
   const handleCheckPrice = (onRteDataChange: any) => {
     try {
       const copayAmountUc = onRteDataChange?.copay_amount_uc;
@@ -1225,6 +1138,7 @@ const SubscriberForm = ({
                   setValue={(val: any) => {
                     setFrontInsuranceCard((prev) => ({ ...prev, [section]: val }));
                     setFieldValue(`frontInsuranceCard${section}`, val);
+                    setInsuranceData((prev) => ({ ...prev, [`frontInsuranceCard${section}`]: val }));
                   }}
                   setInsuranceImage={(image: any) =>
                     setFrontInsuranceImage((prev) => ({ ...prev, [section]: image }))
@@ -1243,11 +1157,12 @@ const SubscriberForm = ({
                   label={`Upload Back of Identification Card (Section ${section})`}
                   error={errorUpload[section]}
                   setValue={(val: any) => {
-                    setBackInsuranceCard((prev) => ({ ...prev, [section]: val }));
+                    setBackInsuranceCard((prev: any) => ({ ...prev, [section]: val }));
                     setFieldValue(`backInsuranceCard${section}`, val);
+                    setInsuranceData((prev: any) => ({ ...prev, [`backInsuranceCard${section}`]: val }));
                   }}
                   setInsuranceImage={(image: any) =>
-                    setBackInsuranceImage((prev) => ({ ...prev, [section]: image }))
+                    setBackInsuranceImage((prev: any) => ({ ...prev, [section]: image }))
                   }
                   setError={(hasError) =>
                     setErrorUpload((prev: any) => ({ ...prev, [section]: hasError }))

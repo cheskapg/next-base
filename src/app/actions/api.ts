@@ -1,219 +1,41 @@
-/* eslint-disable import/order */
-/* eslint-disable @typescript-eslint/no-throw-literal */
-// "use server";
+"use server";
 
-// import IPatient from "../interface/IPatient";
-import { mapToUpdatePatientDto, mapToPatient, mapToPcp, mapToUserSession, mapToGuarantor, mapToUpdateGuarantorDto } from "../utils/mapper";
-import { removeNullAttributes } from "../utils/helper";// import { removeNullAttributes } from "../utils/helper";
+
 import Patient from "../models/Patient";
-import Pcp from "@/models/Pcp";
-import RegionSpecificDetails from "@/interface/RegionSpecificDetails";// import ApiResponse from "../interface/ApiResponse";
-import IGuarantor from "@/interface/IGuarantor";
-import Guarantor from "@/models/Guarantor";
-import Insurance from "@/models/Insurance";
-import ClinicalQuestions from "@/models/ClinicalQuestions";
-const clinicalQuestions = [
-  {
-    id: 1,
-    region_id: 1000,
-    section: "GoHealth Quality",
-    question: "Please check the respective boxes if you have been diagnosed with any of the following:",
-    subtext: null,
-    options: "High Blood Pressure,High Cholesterol,Diabetes,Cancer,Kidney Disease,Asthma/COPD,Congestive Heart Failure,Heart Attack,Anxiety,Depression,Other",
-    input_type: "checkbox",
-    visit_reason: null,
-    conditional_id: null,
-    conditional_value: null,
-    minimum_age: null,
-    is_required: false,
-    form_display: true,
-    high_risk_answer: null,
-    high_risk_answer_status: null,
-  },
-  {
-    id: 2,
-    region_id: 1000,
-    section: "GoHealth Quality",
-    question: "Please list any other medical problems you have been diagnosed with:",
-    subtext: null,
-    options: null,
-    input_type: "text",
-    visit_reason: null,
-    conditional_id: 1,
-    conditional_value: "OTHER",
-    minimum_age: null,
-    is_required: false,
-    form_display: true,
-    high_risk_answer: null,
-    high_risk_answer_status: null,
-  },
-  {
-    id: 3,
-    region_id: 1000,
-    section: "GoHealth Quality",
-    question: "Please check the respective boxes if any of your first-degree relatives (ex: siblings, parents, children) have been diagnosed with these illnesses:",
-    subtext: null,
-    options: "Diabetes,Heart Disease,Cancer,HTN,Stroke,Mental Illness,Other",
-    input_type: "checkbox",
-    visit_reason: null,
-    conditional_id: null,
-    conditional_value: null,
-    minimum_age: null,
-    is_required: false,
-    form_display: true,
-    high_risk_answer: null,
-    high_risk_answer_status: null,
-  },
-  {
-    id: 4,
-    region_id: 1000,
-    section: "GoHealth Quality",
-    question: "Please list any other medical problems your first-degree relatives have been diagnosed with:",
-    subtext: null,
-    options: null,
-    input_type: "text",
-    visit_reason: null,
-    conditional_id: 3,
-    conditional_value: "OTHER",
-    minimum_age: null,
-    is_required: false,
-    form_display: true,
-    high_risk_answer: null,
-    high_risk_answer_status: null,
-  },
-  {
-    id: 5,
-    region_id: 1000,
-    section: "GoHealth Quality",
-    question: "Have you received a flu shot since September 2020?",
-    subtext: null,
-    options: "Yes,No",
-    input_type: "radio",
-    visit_reason: null,
-    conditional_id: null,
-    conditional_value: null,
-    minimum_age: null,
-    is_required: false,
-    form_display: true,
-    high_risk_answer: null,
-    high_risk_answer_status: null,
-  },
-  {
-    id: 6,
-    region_id: 1000,
-    section: "GoHealth Quality",
-    question: "The CDC recommends the flu shot as one of the best ways to keep you and your family safe from this dangerous virus. Would you like a flu shot during your visit?",
-    subtext: null,
-    options: "Yes,No",
-    input_type: "radio",
-    visit_reason: null,
-    conditional_id: 5,
-    conditional_value: "No",
-    minimum_age: null,
-    is_required: false,
-    form_display: true,
-    high_risk_answer: null,
-    high_risk_answer_status: null,
-  },
-  {
-    id: 7,
-    region_id: 1000,
-    section: "Tobacco",
-    question: "Do you smoke cigarettes?",
-    subtext: null,
-    options: "Yes,No, but I was a former smoker,I was never a smoker",
-    input_type: "dropdown",
-    visit_reason: null,
-    conditional_id: null,
-    conditional_value: null,
-    minimum_age: null,
-    is_required: false,
-    form_display: true,
-    high_risk_answer: null,
-    high_risk_answer_status: null,
-  },
-  {
-    id: 8,
-    region_id: 1000,
-    section: "GoHealth Quality",
-    question: "Have you returned from Guinea or Democratic Republic of Congo within the past month?",
-    subtext: null,
-    options: "Yes,No",
-    input_type: "radio",
-    visit_reason: null,
-    conditional_id: null,
-    conditional_value: null,
-    minimum_age: null,
-    is_required: false,
-    form_display: true,
-    high_risk_answer: null,
-    high_risk_answer_status: null,
-  },
-  {
-    id: 9,
-    region_id: 1000,
-    section: "GoHealth Quality",
-    question: "Do you currently have fever and/or severe headache, fatigue, muscle pain, vomiting, diarrhea, abdominal pain, rash or unexplained bleeding?",
-    subtext: null,
-    options: "Yes,No",
-    input_type: "radio",
-    visit_reason: null,
-    conditional_id: 8,
-    conditional_value: "Yes",
-    minimum_age: null,
-    is_required: false,
-    form_display: true,
-    high_risk_answer: "Yes",
-    high_risk_answer_status: null,
-  },
-  {
-    id: 10,
-    region_id: 1000,
-    section: "COVID Related",
-    question: "Is your visit COVID-19 related?",
-    subtext: null,
-    options: "Yes,No",
-    input_type: "radio",
-    visit_reason: null,
-    conditional_id: null,
-    conditional_value: null,
-    minimum_age: null,
-    is_required: false,
-    form_display: true,
-    high_risk_answer: null,
-    high_risk_answer_status: null,
-  },
-  // Add more questions here if needed...
-];
+import { mapToUpdatePatientDto, mapToPatient, mapToPcp, mapToUserSession, mapToGuarantor, mapToUpdateGuarantorDto, mapToInsurance, mapToInsuranceDto } from "../utils/mapper";
+import RegionSpecificDetails from "../interface/RegionSpecificDetails";
+import ApiResponse from "../interface/ApiResponse";
+import Pcp from "../models/Pcp";
+import Guarantor from "../models/Guarantor";
+import Insurance from "../models/Insurance";
+import ClinicalQuestions from "../models/ClinicalQuestions";
+import Carrier from "../models/Carrier";
+import Photo from "../models/Photo";
+import { json } from "stream/consumers";
+import { UpdateSubcriberDto } from "../dto/UpdateSubcriberDto";
 
-export default clinicalQuestions;
 
 export const updatePatientDetails = async (patient: any, step: number): Promise<any> => {
   try {
-    console.log('Calling Map Patient Details');
-    let payload =  mapToUpdatePatientDto(patient);
-  
-    // TODO: Move to server logging
-    console.log('Calling Update Patient Details');
-    console.log(JSON.stringify(payload));
-    console.log(patient.patientId);
-    // Static response
-    const response = {
-      ok: true,
-      json: async () => ({
-        message: 'Patient details updated successfully',
-        data: payload,
-      }),
-    };
+
+    let payload = mapToUpdatePatientDto(patient);
+    const response = await fetch(
+      `${process.env.API_BASE_URL}/reg/${patient.patientId}/patient`,
+      {
+        method: 'PUT',
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      },
+    );
 
     if (!response.ok) {
       const error = await response.json();
       throw error;
     }
     const jsonData: any = await response.json();
-
-    // TODO: Move to server logging
-    console.log('Update Patient Success', jsonData);
 
     return jsonData;
   } catch (error) {
@@ -222,172 +44,350 @@ export const updatePatientDetails = async (patient: any, step: number): Promise<
   }
 };
 
-export const fetchRegionSpecificDetails = async (region_id: number): Promise<RegionSpecificDetails> => {
-  // Static response
-  const jsonData: any = {
-    data: {
-      regionName: "North Region",
-      supervisors: ["Supervisor A", "Supervisor B"],
-      // other static region details
-    },
-  };
+
+export const fetchRegionSpecificDetails = async (
+  region_id: number,
+): Promise<RegionSpecificDetails> => {
+  const response = await fetch(
+    `${process.env.API_BASE_URL}/locations/regions/${region_id}/super`,
+  );
+
+  const jsonData: any =
+    (await response.json()) as ApiResponse<RegionSpecificDetails>;
 
   return jsonData.data;
 };
 
-export const fetchPatientRegistrationById = async (id: number): Promise<Patient> => {
-  // Static response
-  const jsonData: any = {
-    data: {      // other static patient details
-    },
-  };
+export const fetchPatientRegistrationById = async (
+  id: number,
+): Promise<Patient> => {
+  console.log(id,' fetch id')
+
+  const response = await fetch(
+    `${process.env.API_BASE_URL}/reg/${id}/patient`,
+    { cache: 'no-store' },
+  );
+
+  const jsonData: any = await response.json();
+  console.log(jsonData, "fetchPatientRegistrationById")
   return mapToPatient(jsonData.data);
 };
 
-export const fetchPatientPcp = async (region: number, searchText: string): Promise<Pcp[]> => {
-  // Static response
-  const jsonData: any = {
-    data: [
-      { name: "Dr. Alice", specialty: "Cardiology" },
-      { name: "Dr. Bob", specialty: "Dermatology" },
-      // other static PCPs
-    ],
-  };
-  return mapToPcp(jsonData.data);
+export const validateInsurance = async (
+  id: number, carrierId: number, subscriberNumber: string
+): Promise<Guarantor> => {
+  const response = await fetch(
+    `${process.env.API_BASE_URL}/rte/verify`,
+    { cache: 'no-store' },
+  );
+  const jsonData: any = await response.json();
+  if (jsonData.statusCode != 404)
+    return mapToGuarantor(jsonData.data);
+  else
+    return mapToGuarantor(new Guarantor());
 };
 
-export const fetchSuffixList = async () => {
-  // Static response
-  const jsonData = {
-    data: ["Jr.", "Sr.", "III"],
-  };
-  
-  return jsonData.data;
+
+export const fetchGuarantorRegistrationById = async (
+  id: number,
+): Promise<Guarantor> => {
+  const response = await fetch(
+    `${process.env.API_BASE_URL}/reg/${id}/guarantor`,
+    { cache: 'no-store' },
+  );
+  const jsonData: any = await response.json();
+  if (jsonData.statusCode != 404)
+    return mapToGuarantor(jsonData.data);
+  else
+    return mapToGuarantor(new Guarantor());
 };
 
-export const fetchCenterInfo = async (centerId: number) => {
-  // Static response
-  const jsonData = {
-    data: [
-      { centerName: "Health Center A", address: "123 Main St" },
-      { centerName: "Health Center B", address: "456 Oak Ave" },
-      // other static center info
-    ],
-  };
-  
-  return jsonData.data;
-};
-
-export const fetchMaritalStatusList = async () => {
-  // Static response
-  const jsonData = {
-    data: ["Single", "Married", "Divorced", "Widowed"],
-  };
-  
-  return jsonData.data;
-};
-
-// Static list of valid subscriber IDs
-const validSubscriberIds = ['1111c', '2222d', '3333e'];
-
-
-export const validateSubscriberId = async (subscriberId: string) => {
-  // Static response simulating an API call
-  const response = {
-    ok: true,
-    json: async () => ({
-      message: 'Subscriber ID validated successfully',
-      data: {
-        isValid: validSubscriberIds.includes(subscriberId),
-      },
-    }),
-  };
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw error;
-  }
-
-  const jsonData = await response.json();
-  return jsonData.data.isValid;
-};
-
-const coPayPrice = ['30', '20', '50'];
-
-export const checkPrice = async (copay: string ) => {
-  // Static response simulating an API call
-  const response = {
-    ok: true,
-    json: async () => ({
-      message: 'copay price available successfully',
-      data: {
-        isValid: coPayPrice.includes(copay),
-      },
-    }),
-  };
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw error;
-  }
-
-  const jsonData = await response.json();
-  return jsonData.data.isValid;
-};
-
-//Guarantor
-
-
-// export const fetchGuarantorRegistrationById = async (
-//   id: number,
-// ): Promise<Guarantor> => {
-//   const response = await fetch(
-//     `${process.env.API_BASE_URL}/reg/${id}/guarantor`,
-//     { cache: 'no-store' },
-//   );
-//   const jsonData: any = await response.json();
-//   console.log(jsonData.statusCode != 404);
-//   if(jsonData.statusCode != 404)
-//     return mapToGuarantor(jsonData.data);
-//   else 
-//     return  mapToGuarantor(new Guarantor());
-// };
-
-export const updateGuarantor = async (id:number,guarantor: Guarantor): Promise<Guarantor> => {
-  let payload =  mapToUpdateGuarantorDto(guarantor);
-
+export const updateGuarantor = async (id: number, guarantor: Guarantor): Promise<Guarantor> => {
+  // console.log("Guarantor: "+ id);
   const response = await fetch(
     `${process.env.API_BASE_URL}/reg/${id}/guarantor`,
     {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(mapToUpdateGuarantorDto(guarantor)),
-  });
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(mapToUpdateGuarantorDto(guarantor)),
+    });
 
   if (!response.ok) {
+    console.log(response);
     throw new Error('Failed to update guarantor');
   }
 
   const updatedData = await response.json();
-  console.log(updatedData);
+  //console.log(updatedData);
   return updatedData as Guarantor;
 };
 
+export const fetchClinicalQuestions = async (  region: number,
+) => {
+  try {
+    const response = await fetch(`${process.env.API_BASE_URL}/locations/regions/${region}/clinicalQuestions` ); // Replace with your API endpoint
+    const jsonData: any = await response.json();
+    console.log(jsonData,"return")
+    return jsonData.data;
+  } catch (error) {
+    console.error('Error fetching questions:', error);
+  }
+};
+export const updateClinicalAnswers = async (registrationId: number, data: any) => {
+  try {
+      const response = await fetch(`${process.env.API_BASE_URL}/reg/${registrationId}/clinicalAnswers`, {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+              // Add other headers as needed
+          },
+          body: JSON.stringify(data),
+      });
 
-export const generateVerifyToken = async (id:number) => {
+
+      const result = await response.json();
+      console.log('Success:', result);
+      return result; // Return the result so it can be used by the calling function
+  } catch (error) {
+      console.error('Error:', error);
+      throw error; // Re-throw the error so it can be caught by the calling function
+  }
+};
+export const updateServiceAnswers = async (registrationId: number, data: any) => {
+  try {
+      const response = await fetch(`${process.env.API_BASE_URL}/reg/${registrationId}/serviceIntakeAnswers`, {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+              // Add other headers as needed
+          },
+          body: JSON.stringify(data),
+      });
+
+
+      const result = await response.json();
+      console.log('Success:', result);
+      return result; // Return the result so it can be used by the calling function
+  } catch (error) {
+      console.error('Error:', error);
+      throw error; // Re-throw the error so it can be caught by the calling function
+  }
+};
+
+export const fetchServiceIntakeAnswers = async (registrationId: number) => {
+  try {
+    const response = await fetch(`${process.env.API_BASE_URL}/reg/${registrationId}/serviceIntakeAnswers` ); // Replace with your API endpoint
+    const jsonData: any = await response.json();
+    console.log(jsonData,"return")
+    return jsonData.data;
+  } catch (error) {
+    console.error('Error fetching service answers:', error);
+  }
+
+}
+export const fetchClinicalAnswers = async (  registrationId: number,
+) => {
+  try {
+    const response = await fetch(`${process.env.API_BASE_URL}/reg/${registrationId}/clinicalAnswers` ); // Replace with your API endpoint
+    const jsonData: any = await response.json();
+    console.log(jsonData,"return")
+    return jsonData.data;
+  } catch (error) {
+    console.error('Error fetching clinical answers:', error);
+  }
+};
+export const fetchServiceIntakeQuestions = async (  region: number,
+) => {
+  try {
+    const response = await fetch(`${process.env.API_BASE_URL}/locations/regions/${region}/serviceIntakeQuestions` ); // Replace with your API endpoint
+    const jsonData: any = await response.json();
+
+    return jsonData.data;
+  } catch (error) {
+    console.error('Error fetching service questions:', error);
+  }
+};
+export const generateVerifyToken = async (id: number) => {
   const response = await fetch(`${process.env.API_BASE_URL}/reg/${id}/token/dob`);
-  const jsonData:any = (await response.json());
+  const jsonData: any = (await response.json());
   return jsonData;
 };
 
+
+
+  export const uploadPhoto = async (id: number, image: any, token: string, imageLocation: string) => {
+    try {
+      // Make the API request
+      const response = await fetch(`${process.env.API_BASE_URL}/files/${id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }, body: image,
+      });
+  
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      console.log(response);
+      throw new Error('Failed to upload file '+ JSON.stringify(response));
+    }
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      
+    }
+  };
+
+  export const UpdateIdentification = async (
+    regId: number,
+    dob: string,
+    frontIdentificationImage?: any,
+    backIdentificationImage?: any
+  ): Promise<any> => {
+    let isValid = false;
+    try {
+      const token = await verifyUserSession(regId, dob);
+      
+      if (frontIdentificationImage) {
+        const frontResponse = await uploadPhoto(regId, frontIdentificationImage, token, "front");
+        isValid = frontResponse.statusCode === 200 ? true : false;
+        console.log(frontResponse);
+      }
+  
+      if (backIdentificationImage) {
+        const backResponse = await uploadPhoto(regId, backIdentificationImage, token, "back");
+        isValid = backResponse.statusCode === 200 ? true : false;
+        console.log(backResponse);
+      }
+  
+      return new Response(
+        JSON.stringify({
+          message: "Image Uploaded successfully!",
+          isValid,
+        })
+      );
+  
+    } catch (error) {
+      console.log("Error uploading files:", error);
+      throw error;
+    }
+  }
+
+  
+
+  export const LoadIdentification = async (regId: number, dob: string): Promise<any> => {
+   try{
+
+        const token = await verifyUserSession(regId, dob)
+        const photos:Photo[] = await fetchFile(regId,token);
+        const frontPhotoObj:Photo = photos.filter(x=>x.side=="front"&&x.type=="ID").reverse()[0];
+        const encodedImage = frontPhotoObj? await LoadPhoto(regId,token, frontPhotoObj.file_name):"";
+        
+        if(frontPhotoObj!=undefined)
+        frontPhotoObj.encodedImage= "data:image/jpeg;base64,"+encodedImage;
+        const backPhotoObj:Photo = photos.filter(x=>x.side=="back"&&x.type=="ID").reverse()[0];
+       
+        const backEncodedImage = backPhotoObj?  await LoadPhoto(regId,token, backPhotoObj.file_name):"";
+        if(backPhotoObj!=undefined)
+        backPhotoObj.encodedImage= "data:image/jpeg;base64,"+backEncodedImage;
+        
+        const identificationImages = {
+          FrontImage : frontPhotoObj,
+          BackImage : backPhotoObj
+        };
+        
+        return JSON.stringify(identificationImages);
+        
+      } catch (error) {
+        console.log('Error fetching file with query:', error);
+        throw error;
+      }
+      }
+
+      export const LoadInsurance = async (regId: number, dob: string, sequence:number): Promise<any> => {
+        try{
+     
+             const token = await verifyUserSession(regId, dob)
+             const photos:Photo[] = await fetchFile(regId,token);
+             const frontPhotoObj:Photo = photos.filter(x=>x.side=="front"&&x.type=="INSURANCE" && x.sequence==sequence).reverse()[0];
+             const encodedImage = frontPhotoObj? await LoadPhoto(regId,token, frontPhotoObj.file_name):"";
+             
+             if(frontPhotoObj!=undefined)
+             frontPhotoObj.encodedImage= "data:image/jpeg;base64,"+encodedImage;
+             const backPhotoObj:Photo = photos.filter(x=>x.side=="back"&&x.type=="INSURANCE" && x.sequence==sequence).reverse()[0];
+            
+             const backEncodedImage = backPhotoObj?  await LoadPhoto(regId,token, backPhotoObj.file_name):"";
+             if(backPhotoObj!=undefined)
+             backPhotoObj.encodedImage= "data:image/jpeg;base64,"+backEncodedImage;
+             
+             const identificationImages = {
+               FrontImage : frontPhotoObj,
+               BackImage : backPhotoObj
+             };
+             
+             return JSON.stringify(identificationImages);
+             
+           } catch (error) {
+             console.log('Error fetching file with query:', error);
+             throw error;
+           }
+           }
+
+
+
+  export const fetchFile = async (regId: number,  token: string,): Promise<any> => {
+    try {
+      const response = await fetch(`${process.env.API_BASE_URL}/files/${regId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        const error = await response.json();
+        throw error;
+      }
+  
+      const jsonData: any = await response.json();
+      const photos: Photo[] = jsonData.data.map((item: any) => new Photo(item));
+      return photos
+    } catch (error) {
+      console.log('Error fetching file:', error);
+      throw error;
+    }
+  };
+  
+  export const LoadPhoto = async (regId: number, token: string, fileName: string): Promise<any> => {
+    try {
+      const response = await fetch(`${process.env.API_BASE_URL}/files/${regId}?load=${fileName}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        const error = await response.json();
+        throw error;
+      }
+  
+      const fileData:any = await response.json();
+      return fileData.data;
+    } catch (error) {
+      console.log('Error fetching file with query:', error);
+      throw error;
+    }
+  };
+
 export const verifyUserSession = async (
   id: number,
-  dob:string
+  dob: string
 ): Promise<any> => {
 
-  console.log(id);
+
   const response = await fetch(
     `${process.env.API_BASE_URL}/reg/${id}/token/dob/verify`,
     {
@@ -396,14 +396,205 @@ export const verifyUserSession = async (
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({"challenge": `${dob}`}),
+      body: JSON.stringify({ "challenge": `${dob}` }),
     },
   );
   const jsonData: any = await response.json();
-  console.log(jsonData);
+
   return jsonData.token;
 };
 
+export const fetchPatientPcp = async (
+  region: number,
+  searchText: string,
+): Promise<Pcp[]> => {
+  const response = await fetch(
+    `${process.env.API_BASE_URL}/locations/regions/${region}/pcps?name=${searchText}`,
+
+  );
+  const jsonData: any = await response.json();
+  return mapToPcp(jsonData.data);
+};
+
+export const fetchSuffixList = async () => {
+  const response = await fetch(`${process.env.API_BASE_URL}/fields/suffix`);
+  const jsonData = (await response.json()) as ApiResponse<any[]>;
+  return jsonData.data;
+};
+
+export const fetchCenterInfo = async (centerId: number) => {
+  const response = await fetch(`${process.env.API_BASE_URL}/locations/centers/${centerId}`);
+  const jsonData = (await response.json()) as ApiResponse<any[]>;
+
+  return jsonData.data;
+};
+
+export const fetchMaritalStatusList = async () => {
+  const response = await fetch(
+    `${process.env.API_BASE_URL}/fields/maritalStatus`,
+  );
+  const jsonData = (await response.json()) as ApiResponse<any[]>;
+
+  return jsonData.data;
+};
+
+// export const validateSubscriberId = async (regId: number, subscriberId: string, carrier: string) => {
+//   console.log("Registration ID:", regId);
+//   console.log("Carrier:", carrier);
+//   console.log("Subscriber ID:", subscriberId);
+  
+//   const requestBody = {
+//     registrationId: regId,
+//     carrierId: carrier,
+//     subscriberNumber: subscriberId,
+//   };
+
+//   console.log("Request Body:", JSON.stringify(requestBody));
+
+//   try {
+//     const response = await fetch(`${process.env.API_BASE_URL}/rte/Verify`, {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify(requestBody),
+//     });
+
+//     console.log("Response Status:", response.status);
+//     console.log("Response OK:", response.ok);
+
+//     if (!response.ok) {
+//       const error = await response.json();
+//       console.error("Error Response:", error);
+//       throw new Error(error.message || "Validation failed");
+//     }
+
+//     const jsonData = await response.json();
+//     console.log("Response Data:", JSON.stringify(jsonData.data));
+
+//     const insuredPerson = mapToInsurance(jsonData.data);
+//     console.log("Mapped Insurance Data:", JSON.stringify(insuredPerson));
+ 
+//     return jsonData.status === 'success';
+//   } catch (error) {
+//     console.error("API call failed:", error);
+//     throw error;  // Re-throw the error after logging it
+//   }
+// };
+// Mock response
+// Mock response data
+const mockResponse = {
+  id: 22763,
+  valid: false, // Change this to true to test the success path
+  is_active: true,
+  carrier_id: 1001,
+  subscriber_id: 69173,
+  subscriber_relation: "other",
+  subscriber_number: "W265892344",
+  plan_name: "Open Access MC",
+  group_number: "023249701000062",
+  copay_amount_uc: 85,
+  copay_amount_pcp: null,
+  individual_deductible: 2000,
+  family_deductible: 4000,
+  created_at: "2024-08-15T02:39:04.567Z",
+  updated_at: "2024-08-15T02:39:23.857Z",
+  pokitdok_error: null,
+  other_comment: null,
+  primary_bre_address_id: null,
+  bre_entity_identifier_code: null,
+  bre_id_qualifier: null,
+  bre_id: null,
+  bre_organization_name: "AETNA INC",
+  managed_care_organization: null,
+  emr_query_key: null,
+  managed_care_phone: null,
+  managed_care_url: null,
+  plan_number: null,
+  sequence: null,
+  payor_id: 1854,
+  changehealth_error: null,
+  insurance_type_code: null,
+  insurance_type: "Point of Service (POS)",
+  rte_error: null,
+  virtual_subscriber: {
+    id: 69173,
+    first_name: "BRITTNEY",
+    last_name: "HEGARTY",
+    phone_number: null,
+    address_id: null,
+    created_at: "2024-08-15T02:39:04.560Z",
+    updated_at: "2024-08-15T02:39:23.863Z",
+    dob: null,
+    sex: null,
+    sex_at_birth: null,
+    preferred_pronouns: null,
+    gender_identity: null,
+    email: null,
+    race_id: null,
+    language_id: null,
+    ethnicity_id: null,
+    patient_type: null,
+    suffix: null,
+    marital_status: null
+  }
+};
+export const validateSubscriberId = async (regId: number, 
+  subscriberId: string, carrier: string, section: string) => {
+
+  const requestBody = {
+    registrationId: regId,
+    carrierId: carrier,
+    subscriberNumber: subscriberId,
+    sequence: section,
+  };
+
+  try {
+    const response = await fetch(`${process.env.API_BASE_URL}/rte/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+
+    // if (!response.ok) {
+    //   const error = await response.json();
+    //   console.error("Error Response:", error);
+
+    //   return { success: false, data: null };  // Return false with no data if the response is not OK
+    // }
+
+    const jsonData = await response.json();
+    // // Check if the `valid` property is false
+    // if (!jsonData.data.valid) {
+    //   console.log(jsonData.data, "Invalid data received, returning false.");
+    //   return { success: false, data: null };  // Return false with no data if `valid` is false
+    // }
+
+    // Map to insurance data only if `valid` is true
+    const insuredPerson = mapToInsurance(jsonData.data);
+      console.log(jsonData.data, "valid data received, returning true.");
+
+    return { success: jsonData.status === 'success', data: insuredPerson };  // Return success and mapped data
+  } catch (error) {
+    console.error("API call failed:", error);
+    return { success: false, data: null };  // Return false with no data if there is an exception
+  }
+};
+
+
+export const fetchCarriers = async (regionId:number) => {
+
+  const response = await fetch(
+    `${process.env.API_BASE_URL}/locations/regions/${regionId}/carriers`,
+  );
+  const jsonData = (await response.json()) as ApiResponse<any[]>;
+  const carriers = jsonData.data.map((item: any) => new Carrier(item));
+
+  return JSON.stringify(carriers);
+};
 
 // Insurance 
 export const fetchInsuranceDetails = async (id: number): Promise<Insurance> => {
@@ -431,8 +622,6 @@ export const fetchInsuranceDetails = async (id: number): Promise<Insurance> => {
     }
     const jsonData: any = await response.json();
 
-    console.log('Fetch Insurance Success', jsonData);
-
     return jsonData.data;
   } catch (error) {
     console.log('Call logging api here:', error);
@@ -440,75 +629,28 @@ export const fetchInsuranceDetails = async (id: number): Promise<Insurance> => {
   }
 };
 
-export const updateInsuranceDetails = async (insurance: Insurance): Promise<Insurance> => {
+export const updateInsuranceDetails = async (regId:number,insuranceId:number,insurance: Insurance, sequence: number): Promise<Insurance> => {
   try {
-    console.log('Calling Update Insurance Details');
-    console.log(JSON.stringify(insurance));
-
-    // Static response
-    const response = {
-      ok: true,
-      json: async () => ({
-        message: 'Insurance details updated successfully',
-        data: insurance,
-      }),
-    };
+    const updateSubcriber = new UpdateSubcriberDto(insurance);
+    const response = await fetch(
+      `${process.env.API_BASE_URL}/reg/${regId}/insurance/${insuranceId}/subscriber`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateSubcriber)
+      }
+    );
 
     if (!response.ok) {
       const error = await response.json();
       throw error;
     }
     const jsonData: any = await response.json();
-
-    console.log('Update Insurance Success', jsonData);
-
     return jsonData.data;
   } catch (error) {
     console.log('Call logging api here:', error);
     throw error;
-  }
-};
-
-
-// API function to update clinical questions data
-export const updateClinicalQuestions = async (
-  registrationId: number, 
-  clinicalQuestionsData: ClinicalQuestions[]
-): Promise<ClinicalQuestions[]> => {
-  try {
-    const response = await fetch(
-      `${process.env.API_BASE_URL}/reg/${registrationId}/clinicalAnswers`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(clinicalQuestionsData), // Sending the data as JSON array
-      }
-    );
-
-    if (!response.ok) {
-      console.log(response);
-      throw new Error('Failed to update clinical questions data');
-    }
-
-    const updatedData = await response.json();
-    return updatedData as ClinicalQuestions[];
-  } catch (error) {
-    console.error('Error updating clinical questions:', error);
-    throw error;
-  }
-};
-
-export const fetchClinicalQuestions = async (  region: number,
-) => {
-  try {
-    // const response = await fetch(`${process.env.API_BASE_URL}/locations/regions/${region}/clinicalQuestions` ); // Replace with your API endpoint
-    // const jsonData: any = await response.json();
-    return clinicalQuestions;
-
-    // return jsonData.data;
-  } catch (error) {
-    console.error('Error fetching questions:', error);
   }
 };
