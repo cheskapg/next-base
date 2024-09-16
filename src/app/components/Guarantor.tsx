@@ -89,7 +89,7 @@ export default function Guarantor({
   });
   const [sameAsPatient, setSameAsPatient] = useState(false);
   //has insurance check
-  const hasInsurance = insuranceData[1]?.hasInsurancel;
+  const hasInsurance = insuranceData[1]?.hasInsurance1;
   console.log(hasInsurance, "has insurance guarantor")
   const handleSameAsPatientChange = (e: any) => {
     setSameAsPatient(e.target.checked);
@@ -140,10 +140,10 @@ export default function Guarantor({
     if (sameAsSubscriber) {
       // Populate the fields when the checkbox is checked
       setFieldValue(`sameAsSubscriberDetails`, "on");
-      setFieldValue(`firstName`, insuranceData.insuranceFirstName);
-      setFieldValue(`lastName`, insuranceData.insuranceLastName);
-      setFieldValue(`dateOfBirth`, insuranceData.insuranceDob);
-      setFieldValue(`phoneNumber`, insuranceData.insurancePhone);
+      setFieldValue(`firstName`, insuranceData[1].insuranceFirstName);
+      setFieldValue(`lastName`, insuranceData[1].insuranceLastName);
+      setFieldValue(`dateOfBirth`, insuranceData[1].insuranceDob);
+      setFieldValue(`phoneNumber`, insuranceData[1].insurancePhone);
     } else {
       // Clear the fields when the checkbox is unchecked
       setFieldValue(`firstName`, "");

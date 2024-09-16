@@ -436,86 +436,95 @@ export default function Insurance() {
                 <span className="flex items-center justify-center">Back</span>
               </button>
             </div>
-            {(values[`hasInsurance1`] === "0" ||
-              values[`hasInsurance1`] === "1") || (
-              values[`hasInsurance2`] === "0" ||
-              values[`hasInsurance2`] === "1") ? (
-              <div className="w-4/6">
-                <button
-                  disabled={isNextDisabled()}
-                  id="Next"
-                  type="submit"
-                  onClick={(e) => {
-                    console.log(insuranceStep);
-                    e.preventDefault();
-                    onHandleFormSubmit(values);
-                  }}
-                  className={`${(insuranceStep === 1 &&
-                      values.hasInsurance1 === "1" &&
-                      hasErrors) ||
-                      (insuranceStep === 3 &&
-                        values.hasInsurance2 === "1" &&
-                        hasErrors) ||
-                      (insuranceStep === 2 && hasErrors) ||
-                      (insuranceStep === 4 && hasErrors)
-                      ? "pointer-events-none opacity-50"
-                      : ""
-                    } bg-spruce-4 w-full rounded-3xl py-2 text-center font-semibold text-white`}
-                >
-                  {isValidating ? (
-                    <span className="flex items-center justify-center">
-                      <svg
-                        className="mr-3 h-5 w-5 animate-spin"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Validating...
-                    </span>
-                  ) : (
-                    <>
-                      {insuranceStep === 1 && values.hasInsurance1 === "1" ? (
-                        <span>Validate Insurance</span>
-                      ) : insuranceStep === 1 ? (
-                        <span>Next</span>
-                      ) : null}
+            {values[`hasInsurance1`] !== undefined ? (
+  values[`hasInsurance1`] === "1" && !values[`hasInsurance2`] ? (
+    <div className="w-4/6">
+    <div className=" flex h-10 items-center justify-center gap-2.5 rounded-[100px] pl-4 ">
+      <div className=" text-sm font-normal text-[#5e6366]">
+        Select an option to proceed insurance 2
+      </div>
+    </div>
+  </div>
 
-                      {insuranceStep === 2 && <span>Next</span>}
+  ) : (
+    <div className="w-4/6">
+      <button
+        disabled={isNextDisabled()}
+        id="Next"
+        type="submit"
+        onClick={(e) => {
+          console.log(insuranceStep);
+          e.preventDefault();
+          onHandleFormSubmit(values);
+        }}
+        className={`${(insuranceStep === 1 &&
+            values.hasInsurance1 === "1" &&
+            hasErrors) ||
+            (insuranceStep === 3 &&
+              values.hasInsurance2 === "1" &&
+              hasErrors) ||
+            (insuranceStep === 2 && hasErrors) ||
+            (insuranceStep === 4 && hasErrors)
+            ? "pointer-events-none opacity-50"
+            : ""
+          } bg-spruce-4 w-full rounded-3xl py-2 text-center font-semibold text-white`}
+      >
+        {isValidating ? (
+          <span className="flex items-center justify-center">
+            {/* Loader */}
+            <svg
+              className="mr-3 h-5 w-5 animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            Validating...
+          </span>
+        ) : (
+          <>
+            {insuranceStep === 1 && values.hasInsurance1 === "1" ? (
+              <span>Validate Insurance</span>
+            ) : insuranceStep === 1 ? (
+              <span>Next</span>
+            ) : null}
 
-                      {insuranceStep === 3 && values.hasInsurance2 === "1" ? (
-                        <span>Validate Insurance</span>
-                      ) : insuranceStep === 3 ? (
-                        <span>Next</span>
-                      ) : null}
+            {insuranceStep === 2 && <span>Next</span>}
 
-                      {insuranceStep === 4 && <span>Submit</span>}
-                    </>
-                  )}
-                </button>
-              </div>
-            ) : (
-              <div className="w-4/6">
-                <div className=" flex h-10 items-center justify-center gap-2.5 rounded-[100px] pl-4 ">
-                  <div className=" text-sm font-normal text-[#5e6366]">
-                    Select an option to proceed
-                  </div>
-                </div>
-              </div>
-            )}
+            {insuranceStep === 3 && values.hasInsurance2 === "1" ? (
+              <span>Validate Insurance</span>
+            ) : insuranceStep === 3 ? (
+              <span>Next</span>
+            ) : null}
+
+            {insuranceStep === 4 && <span>Submit</span>}
+          </>
+        )}
+      </button>
+    </div>
+  )
+) : (
+  <div className="w-4/6">
+    <div className=" flex h-10 items-center justify-center gap-2.5 rounded-[100px] pl-4 ">
+      <div className=" text-sm font-normal text-[#5e6366]">
+        Select an option to proceed
+      </div>
+    </div>
+  </div>
+)}
           </div>
         </div>
         {/* </form> */}
