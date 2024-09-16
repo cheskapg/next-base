@@ -7,11 +7,16 @@ import { suffixes, states } from "../constants/constants";
 import { useFormik } from "formik";
 import { formatPhoneNumber } from "../utils/helper";
 import {
+  fetchClinicalAnswers,
+  fetchClinicalQuestions,
   fetchPatientRegistrationById,
+  fetchServiceIntakeQuestions,
+  fetchServiceIntakeAnswers,
   updatePatientDetails,
 } from "../actions/api";
 import { mapFromPatient } from "../utils/mapper";
 import { useEffect, useState } from "react";
+import { useEnvVariables } from "../actions/useVariables";
 
 export default function PatientDetail({
   patient,
@@ -20,10 +25,21 @@ export default function PatientDetail({
   patient: any;
   patientId: number;
 }) {
-  const { onHandleNext, patientData, setPatientData, step } = useFormState();
+  const {
+    onHandleNext,
+    patientData,
+    setClinicalAnswersData,
+    setServiceAnswersData,
+    setServiceQuestionsData,
+    setClinicalQuestionsData,
+    setPatientData,
+    step,
+    setEnvVariables
+  } = useFormState();
 
   const suffixList = suffixes;
   const stateList = states;
+  const { behavioralKey, therapistKey, mercyApplicableRegions,workersCompKey} = useEnvVariables();
 
   const { values, errors, handleSubmit, handleChange, isValid, setSubmitting } =
     useFormik({
@@ -40,9 +56,9 @@ export default function PatientDetail({
         city: patientData ? patientData.city : "",
         state: patientData ? patientData.state : "",
         zipCode: patientData ? patientData.zipCode : "",
-        patientGender: patientData.sex,
-        patientId: patientData.patientId,
-        registrationId: patientData.registrationId,
+        patientGender: patientData ? patientData.sex : "",
+        patientId: patientData ? patientData.patientId : 0,
+        registrationId: patientData ? patientData.registrationId : 0,
       },
 
       enableReinitialize: true,
@@ -56,18 +72,19 @@ export default function PatientDetail({
 
   const onHandleFormSubmit = async (data: any) => {
     try {
-      data.patientId = patientId;
+      data.personId = data.patientId;
+      data.patientId = patientId; // moved the patientId 690-- value to personid
       const response = await updatePatientDetails(data, step);
-      // const patient = await fetchPatientRegistrationById(patientId);
+      const patient = await fetchPatientRegistrationById(patientId);
       setPatientData((prev: any) => ({
         ...prev,
         ...data,
       }));
-      // console.log(patientData, "patientdetails");
-
+      console.log(response, "patientdetails next")
       onHandleNext();
     } catch (error) {
       console.log(error);
+
       alert("Oops! Something went wrong. Please try again");
     }
   };
@@ -93,6 +110,7 @@ export default function PatientDetail({
 
   useEffect(() => {
     const callFetch = async () => {
+      console.log(patientId, "patientdetail fetch id");
       const patient = await fetchPatientRegistrationById(patientId);
       setPatientData((prev: any) => ({
         ...prev,
@@ -100,7 +118,65 @@ export default function PatientDetail({
       }));
     };
     callFetch();
+    
   }, []);
+  useEffect(() => {
+    const callFetch = async () => {
+      try {
+        const { regionId, registrationId } = patientData;
+        console.log(patientData, "patientdata");
+        console.log(behavioralKey, "eyz")
+        setEnvVariables({
+          behavioralKey: behavioralKey,
+          therapistKey: therapistKey,
+          workersCompKey: workersCompKey,
+          mercyApplicableRegions: mercyApplicableRegions,
+        });
+        // Use Promise.all to fetch data in parallel
+        const [
+          getServiceQuestions,
+          getServiceAnswers,
+          getClinicalQuestions,
+          getClinicalAnswers,
+        ] = await Promise.all([
+          fetchServiceIntakeQuestions(regionId),
+          fetchServiceIntakeAnswers(registrationId),
+          fetchClinicalQuestions(regionId),
+          fetchClinicalAnswers(registrationId),
+        ]);
+        setServiceAnswersData((prev: any) => ({
+          ...prev,
+          ...getServiceQuestions,
+        }));
+        console.log(getServiceAnswers, "getServiceAnswers");
+        // Update state for service questions
+        setServiceQuestionsData((prev: any) => ({
+          ...prev,
+          ...getServiceQuestions,
+        }));
+        console.log(getServiceQuestions, "getServiceQuestions");
+
+        // Update state for clinical questions and answers
+        setClinicalQuestionsData((prev: any) => ({
+          ...prev,
+          ...getClinicalQuestions,
+        }));
+        setClinicalAnswersData((prev: any) => ({
+          ...prev,
+          ...getClinicalAnswers,
+        }));
+        console.log(getClinicalAnswers, "getClinicalAnswers");
+
+        console.log(getClinicalQuestions, "getClinicalQuestions");
+        // console.log(getClinicalAnswers, "getClinicalAnswers");
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        alert("Oops! Something went wrong. Please try again.");
+      }
+    };
+
+    callFetch();
+  }, [patientData]);
 
   return (
     <form
@@ -203,7 +279,7 @@ export default function PatientDetail({
                 placeholder="mm/dd/yyyy"
               ></input>
               <label
-                htmlFor="dateOfBirthLbl"
+                htmlFor="dateOfBirth"
                 className={`absolute top-0 left-0 text-black-4 text-xs mt-2 ml-7 ${errors.dateOfBirth ? "text-zest-6" : ""}`}
               >
                 Patient&apos;s Date of Birth{" "}
@@ -235,6 +311,7 @@ export default function PatientDetail({
                 className={`${errors.phoneNumber ? "border-zest-6" : "border-poise-2"} w-full px-4 pt-6 py-2 rounded-lg`}
               ></input>
               <label
+                htmlFor="phoneNumber"
                 className={`absolute top-0 left-0 text-black-4 text-xs mt-2 ml-4 ${errors.phoneNumber ? "text-zest-6" : ""}`}
               >
                 Phone Number{" "}
@@ -277,7 +354,7 @@ export default function PatientDetail({
           <select
             id="country"
             name="country"
-            defaultValue={values.country}
+            value={values.country}
             onChange={(e) => {
               handleChange(e);
               handleNonUSPatient(e);
@@ -306,7 +383,7 @@ export default function PatientDetail({
               name="addressLine1"
               value={values.addressLine1}
               onChange={handleChange}
-              placeholder="999 High Garden"
+              placeholder="Address"
               className={`border ${errors.addressLine1 ? "border-zest-6" : "border-poise-2"} w-full px-4 py-2 pt-6 rounded-lg`}
             />
             <label
@@ -340,7 +417,7 @@ export default function PatientDetail({
               className="border border-poise-2 w-full px-4 py-2 pt-6 rounded-lg"
             />
             <label
-              htmlFor="address2"
+              htmlFor="addressLine2"
               className="absolute top-0 left-0 text-black-4 text-xs mt-2 ml-4"
             >
               Apt, Suite, Unit (Optional)

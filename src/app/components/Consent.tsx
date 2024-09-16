@@ -86,8 +86,6 @@ export default function Consent({
       if (response.ok) {
         const data = await response.json();
         console.log('Upload successful:', data);
-        setUploadedImageUrl(data.url); // Assuming the response contains the URL
-
 
       } else {
         console.log('Upload failed:', response);

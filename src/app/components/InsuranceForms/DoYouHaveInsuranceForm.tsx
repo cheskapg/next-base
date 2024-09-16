@@ -31,7 +31,7 @@ interface DoYouHaveInsuranceProps {
 const DoYouHaveInsuranceForm = ({
   section,
   isValidInsurance,
-  setIsValidInsurance: setIsValidInsurance1,
+  setIsValidInsurance,
   setValidateResult,
   onInsuranceDataChange,
   setRteData,
@@ -89,6 +89,21 @@ const DoYouHaveInsuranceForm = ({
       onHandleFormSubmit(values);
     },
   });
+
+  useEffect(() => {
+    if (insuranceData && insuranceData.length > 0 && isValidInsurance) {
+      // Preload data into form fields from insuranceData
+      const preloadValues = {
+        [`insuranceCarrier${section}`]: insuranceData[section]?.[`insuranceCarrier${section}`] || "",
+        [`subscriberId${section}`]: insuranceData[section]?.[`subscriberId${section}`] || "",
+        [`hasInsurance${section}`]: insuranceData[section]?.[`hasInsurance${section}`] || "",
+      };
+      setFieldValue(`insuranceCarrier${section}`, insuranceData[section]?.[`insuranceCarrier${section}`] || "",);
+      setFieldValue(`subscriberId${section}`, insuranceData[section]?.[`subscriberId${section}`] || "",);
+      setFieldValue(`hasInsurance${section}`, insuranceData[section]?.[`hasInsurance${section}`] || "",);
+      // setFieldValue((prevValues:any) => ({ ...prevValues, ...preloadValues }));
+    }
+  }, [section]);
   useEffect(() => {
     if (section) {
       resetValidationState1();
@@ -129,7 +144,7 @@ const DoYouHaveInsuranceForm = ({
     setIsValidating(false);
     setTriggerValidation1(false);
     // setValidateResult(false);
-    setIsValidInsurance1(false);
+    setIsValidInsurance(false);
 
   };
   const validate = async () => {
@@ -157,7 +172,7 @@ const DoYouHaveInsuranceForm = ({
         setTimeout(() => {
           // setValidateResult(false); // reset disabled
 
-          setIsValidInsurance1(true); // Set isValidInsurance to true after 3 seconds
+          setIsValidInsurance(true); // Set isValidInsurance to true after 3 seconds
           // setRteData1(data);
 
           setInsuranceData((prev: any) => ({ ...prev, ...values })); // pass data to insurance

@@ -3,7 +3,6 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import {
   fetchGuarantorRegistrationById,
-  fetchPatientRegistrationById,
   updateGuarantor,
 } from "../actions/api";
 import GlobalDropdowns from "../interface/GlobalDropdowns";
@@ -83,10 +82,15 @@ export default function Guarantor({
     onSubmit: async (values: any) => {
       setSubmitting(false);
       onHandleFormSubmit(values);
+      onHandleNext();
+
+      console.log(values, "values guarantor")
     },
   });
   const [sameAsPatient, setSameAsPatient] = useState(false);
-
+  //has insurance check
+  const hasInsurance = insuranceData[1]?.hasInsurancel;
+  console.log(hasInsurance, "has insurance guarantor")
   const handleSameAsPatientChange = (e: any) => {
     setSameAsPatient(e.target.checked);
     fetchGuarantor();
@@ -223,6 +227,8 @@ export default function Guarantor({
         </div>
 
         {/* Same as Insurance Detail  */}
+
+        {hasInsurance === "1" && (
         <div className=" mt-4 relative items-center">
           <div className="flex gap-4">
             <div className="p-0.5 rounded-lg border border-poise-2 justify-center items-center inline-flex">
@@ -239,6 +245,7 @@ export default function Guarantor({
             </label>
           </div>
         </div>
+        )}
 
         {/* First Name */}
         <div className="mt-4 relative items-center">

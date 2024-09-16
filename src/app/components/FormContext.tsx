@@ -79,6 +79,14 @@ interface IFormContext {
   setClinicalQuestionsData: Dispatch<SetStateAction<any>>;
   setGuarantorData: Dispatch<SetStateAction<any>>;
   setSteppedBack: Dispatch<SetStateAction<any>>;
+  envVariables: {
+    behavioralKey: string;
+    therapistKey: string;
+    workersCompKey: string;
+    mercyApplicableRegions: string;
+  };
+  setEnvVariables: Dispatch<SetStateAction<any>>;
+
 }
 
 const FormContext = createContext<IFormContext>({
@@ -121,6 +129,13 @@ const FormContext = createContext<IFormContext>({
   guarantorData: new Guarantor(),
   setGuarantorData: () => {},
   setSteppedBack: () => {},
+  setEnvVariables: () => {},
+  envVariables: {
+    behavioralKey: '',
+    therapistKey: '',
+    workersCompKey: '',
+    mercyApplicableRegions: '',
+  },
 });
 
 interface IProps {
@@ -152,7 +167,12 @@ export function FormProvider({ children }: IProps) {
   const [steppedBack, setSteppedBack] = useState(false);
   const [guarantorData, setGuarantorData] = useState(new Guarantor());
   const regionId = patientData.regionId;
-
+  const [envVariables, setEnvVariables] = useState({
+    behavioralKey: '',
+    therapistKey: '',
+    workersCompKey: '',
+    mercyApplicableRegions: '',
+  });
   const [clinicalAnswersData, setClinicalAnswersData] = useState<
     ClinicalAnswers[]
   >([]);
@@ -389,6 +409,8 @@ export function FormProvider({ children }: IProps) {
         guarantorData,
         setGuarantorData,
         setSteppedBack,
+        envVariables,
+        setEnvVariables
         // serviceLineId,
         // setServiceLineId,
       }}

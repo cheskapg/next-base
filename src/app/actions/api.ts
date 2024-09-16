@@ -13,6 +13,7 @@ import Carrier from "../models/Carrier";
 import Photo from "../models/Photo";
 import { json } from "stream/consumers";
 import { UpdateSubcriberDto } from "../dto/UpdateSubcriberDto";
+import { NextApiRequest, NextApiResponse } from "next/types";
 
 
 export const updatePatientDetails = async (patient: any, step: number): Promise<any> => {
@@ -539,6 +540,7 @@ const mockResponse = {
     marital_status: null
   }
 };
+
 export const validateSubscriberId = async (regId: number, 
   subscriberId: string, carrier: string, section: string) => {
 
@@ -559,19 +561,19 @@ export const validateSubscriberId = async (regId: number,
     });
 
 
-    // if (!response.ok) {
-    //   const error = await response.json();
-    //   console.error("Error Response:", error);
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("Error Response:", error);
 
-    //   return { success: false, data: null };  // Return false with no data if the response is not OK
-    // }
+      return { success: false, data: null };  // Return false with no data if the response is not OK
+    }
 
     const jsonData = await response.json();
-    // // Check if the `valid` property is false
-    // if (!jsonData.data.valid) {
-    //   console.log(jsonData.data, "Invalid data received, returning false.");
-    //   return { success: false, data: null };  // Return false with no data if `valid` is false
-    // }
+    // Check if the `valid` property is false
+    if (!jsonData.data.valid) {
+      console.log(jsonData.data, "Invalid data received, returning false.");
+      return { success: false, data: null };  // Return false with no data if `valid` is false
+    }
 
     // Map to insurance data only if `valid` is true
     const insuredPerson = mapToInsurance(jsonData.data);
@@ -654,3 +656,18 @@ export const updateInsuranceDetails = async (regId:number,insuranceId:number,ins
     throw error;
   }
 };
+
+// env 
+// pages/api/getVariables.ts
+
+export async function getVariables(req: NextApiRequest, res: NextApiResponse) {
+  res.status(200).json({
+    behavioralKey: process.env.BEHAVIORAL_KEY || '',
+    therapistKey: process.env.THERAPIST_KEY || '',
+    workersCompKey: process.env.WORKERSCOMP_KEY || '',
+    mercyApplicableRegions: process.env.MERCY_APPLICABLE_REGIONS || '',
+  });
+}
+
+// Default export for API route handling
+export default getVariables;

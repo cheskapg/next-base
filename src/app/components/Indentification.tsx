@@ -100,14 +100,15 @@ export default function Identification() {
           {/* Insurance Front Card */}
 
           <div className="mt-4 relative">
-            <ImageUpload
+          <ImageUpload
               id="frontInsuranceCard"
               name="frontInsuranceCard"
               label="Upload Front of Identification Card"
               error={errorUpload}
               setError={(hasError) =>
-                setErrorUpload((prev: any) => ({ ...prev,  hasError }))
-              }              value={frontInsuranceCard}
+                setErrorUpload}
+
+              value={frontInsuranceCard}
               setValue={(val) => {
                 console.log(val);
                 setFieldValue(`frontInsuranceCard`, val);
@@ -117,14 +118,13 @@ export default function Identification() {
           </div>
           {/* Insurance Back Card */}
           <div className="mt-4 relative">
-            <ImageUpload
+          <ImageUpload
               id="backInsuranceCard"
               name="backInsuranceCard"
               label="Upload Back of Identification Card"
               error={errorUpload}
               setError={(hasError) =>
-                setErrorUpload((prev: any) => ({ ...prev, hasError }))
-              }              
+                setErrorUpload}            
               value={backInsuranceCard}
               setValue={(val) => {
                 console.log(val);

@@ -9,6 +9,7 @@ import {
 import test from "node:test";
 import { createValidationSchema } from "@/app/schemas/questions/questionsValidator";
 import { formatPhoneNumber } from "@/app/utils/helper";
+import { useEnvVariables } from "@/app/actions/useVariables";
 const BehavioralQuestions = () => {
   const {
     serviceQuestionsData,
@@ -18,10 +19,12 @@ const BehavioralQuestions = () => {
     serviceAnswersData,
     patientData,
     onHandleBack,
+    envVariables,
     onHandleNext,
   } = useFormState();
-  const behavioralKey =Number(process.env.NEXT_PUBLIC_BEHAVIORAL_KEY);
-  const therapistKey = Number(process.env.NEXT_PUBLIC_THERAPIST_KEY); // ADD CONDITIONS HERE IN FILTERING THE QUESTIONS
+  const behavioralKey = Number(envVariables.behavioralKey);
+  const therapistKey = Number(envVariables.therapistKey);
+  console.log(behavioralKey, "eyz")
   const serviceQuestionsArray = Array.isArray(serviceQuestionsData)
     ? serviceQuestionsData.filter(
       (question) =>
@@ -50,7 +53,7 @@ const BehavioralQuestions = () => {
     // Update form state
     setFieldValue(`${questionId}`, {
       question_id: questionId,
-      type: "checkbox",
+      type: "dropdown",
       person_id: patientData.personId,
       serviceLineId: question.service_line_id,
       answer: newValue,
@@ -61,7 +64,7 @@ const BehavioralQuestions = () => {
       ...prevServiceAnswers,
       [questionId]: {
         questionId: questionId,
-        type: "checkbox",
+        type: "dropdown",
         personId: patientData.personId,
         serviceLineId: question.service_line_id,
         answer: newValue,
@@ -205,7 +208,7 @@ const BehavioralQuestions = () => {
 
   //TURN OBJECTS / answers TO ARRAY
   const formattedData = Object.values(serviceAnswersData)
-  .filter((item: any) => item.service_line_id === behavioralKey || item.service_line_id === therapistKey) // Only include behavioralHealth questions
+    .filter((item: any) => item.service_line_id === behavioralKey || item.service_line_id === therapistKey ) // Only include behavioral questions
     .map((item: any) => ({
       questionId: item.question_id,
       answer: item.answer,
@@ -267,15 +270,16 @@ const BehavioralQuestions = () => {
     const response = await fetchServiceIntakeAnswers(
       patientData.registrationId
     );
+
     const formattedData = Object.values(response)
-    .filter((item: any) => item.service_line_id === behavioralKey || item.service_line_id === therapistKey) // Only include behavioralHealth questions
-    .map((item: any) => ({
-      questionId: item.question_id,
-      answer: item.answer,
-      personId: item.person_id,
-      type: item.type,
-      serviceLineId: item.service_line_id,
-    }));
+      .filter((item: any) => item.service_line_id === behavioralKey || item.service_line_id === therapistKey) // Only include behavioralHealth questions
+      .map((item: any) => ({
+        questionId: item.question_id,
+        answer: item.answer,
+        personId: item.person_id,
+        type: item.type,
+        serviceLineId: item.service_line_id,
+      }));
     const formattedInitialValues = formattedData.reduce((acc: any, item: any) => {
       acc[item.questionId] = {
         answer: item.answer || "",  // default to an empty string if undefined
@@ -331,7 +335,7 @@ const BehavioralQuestions = () => {
               <div key={question.id} className="mb-2 question ">
                 <h2 className="text-base font-medium  mb-4">
                   {question.question}
-                  {question.is_required && (
+                  {question.is_required && question.input_type !== "label" &&(
                     <span className={`text-xs font-normal text-zest-6 `}>*</span>
                   )}
                 </h2>

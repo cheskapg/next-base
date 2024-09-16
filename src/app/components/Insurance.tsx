@@ -151,7 +151,7 @@ export default function Insurance() {
           if (isValidInsurance) {
             // setInsuranceData((prev: any) => ({ ...prev, ...data }));
 
-
+            
             setInsuranceStep(insuranceStep + 1);
             // setSubscriberData([]);// clear subscriber data for new info on the next one
 
@@ -175,7 +175,7 @@ export default function Insurance() {
         //call api to store  subscriber data to db
         console.log(insuranceData, " insuranceddata all");
         // console.log(additionalSubscriberData, " additionalSubscriberData all");
-        // onHandleNext();
+        onHandleNext();
         break;
 
       default:
@@ -191,7 +191,7 @@ export default function Insurance() {
       const updatedData = [...prevData];
 
       // Ensure the section index is valid
-      const section = index - 1; // Adjusting for zero-based indexing
+      const section = index  // Adjusting for 1 AND 2
 
       // Update the specific section with the new data
       updatedData[section] = {

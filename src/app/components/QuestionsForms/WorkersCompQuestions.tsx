@@ -7,8 +7,10 @@ import {
   updateServiceAnswers,
 } from "../../actions/api";
 import test from "node:test";
+
 import { createValidationSchema, generateQuestionsValidationSchema } from "@/app/schemas/questions/questionsValidator";
 import { formatPhoneNumber } from "@/app/utils/helper";
+import { useEnvVariables } from "@/app/actions/useVariables";
 const WorkersCompQuestions = () => {
   const {
     serviceQuestionsData,
@@ -18,9 +20,10 @@ const WorkersCompQuestions = () => {
     serviceAnswersData,
     patientData,
     onHandleBack,
+    envVariables,
     onHandleNext,
   } = useFormState();
-  const workersCompKey = Number(process.env.NEXT_PUBLIC_WORKERSCOMP_KEY);
+  const workersCompKey = Number(envVariables.workersCompKey);
   console.log(workersCompKey,"workerrs")
   // ADD CONDITIONS HERE IN FILTERING THE QUESTIONS
   const serviceQuestionsArray = Array.isArray(serviceQuestionsData)
@@ -333,7 +336,7 @@ const WorkersCompQuestions = () => {
               <div key={question.id} className="mb-2 question ">
                 <h2 className="text-base font-medium  mb-4">
                   {question.question}
-                  {question.is_required && (
+                  {question.is_required && question.input_type !== "label" &&(
                     <span className={`text-xs font-normal text-zest-6 `}>*</span>
                   )}
                 </h2>
