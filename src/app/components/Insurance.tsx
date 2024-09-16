@@ -436,10 +436,10 @@ export default function Insurance() {
                 <span className="flex items-center justify-center">Back</span>
               </button>
             </div>
-            {values[`hasInsurance1`] === "0" ||
-              values[`hasInsurance1`] === "1" ||
+            {(values[`hasInsurance1`] === "0" ||
+              values[`hasInsurance1`] === "1") || (
               values[`hasInsurance2`] === "0" ||
-              values[`hasInsurance2`] === "1" ? (
+              values[`hasInsurance2`] === "1") ? (
               <div className="w-4/6">
                 <button
                   disabled={isNextDisabled()}

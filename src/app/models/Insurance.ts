@@ -17,7 +17,7 @@ export default class Insurance implements IInsurance {
   insuranceCity1= '';
   insuranceState1 = '';
   insuranceZip1 = '';
-  isValidInsurance1 = '';
+  isValidInsurance = '';
   insuranceSubscriber1 = '';
   //insurance card
 
